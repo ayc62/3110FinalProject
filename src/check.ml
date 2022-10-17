@@ -3,6 +3,11 @@ open Board
 exception OccupiedSquare of string
 exception InvalidMove of string
 
+(** [is_horizontal orig_pos new_pos] checks if two pieces are in the same row.
+    Requires: [orig_pos] and [new_pos] are valid squares on the board*)
+let is_horizontal orig_pos new_pos =
+  String.get new_pos 1 = String.get orig_pos 1
+
 (** [check_horizontal orig_pos new_pos state] checks if there are any pieces
     between [orig_pos] and [new_pos] in the board [state], returning true if no
     pieces are in the way. Requires: [orig_pos] and [new_pos] are horizontal
@@ -25,6 +30,10 @@ let rec check_horizontal orig_pos new_pos state =
       check_horizontal next_pos new_pos state
     else false
 
+(** [is_vertical orig_pos new_pos] checks if two pieces are in the same column.
+    Requires: [orig_pos] and [new_pos] are valid squares on the board*)
+let is_vertical orig_pos new_pos = String.get new_pos 0 = String.get orig_pos 0
+
 (** [check_vertical orig_pos new_pos state] checks if there are any pieces
     between [orig_pos] and [new_pos] in the board [state], returning true if no
     pieces are in the way. Requires: [orig_pos] and [new_pos] are vertical from
@@ -45,6 +54,12 @@ let rec check_vertical orig_pos new_pos state =
     if List.assoc_opt next_pos state = None then
       check_vertical next_pos new_pos state
     else false
+
+(** [is_diagonal orig_pos new_pos] checks if two pieces are in the same
+    diagonal. Requires: [orig_pos] and [new_pos] are valid squares on the board*)
+let is_diagonal orig_pos new_pos =
+  abs (Char.code (String.get new_pos 0) - Char.code (String.get orig_pos 0))
+  = abs (Char.code (String.get new_pos 1) - Char.code (String.get orig_pos 1))
 
 (** [check_diagonal orig_pos new_pos state] checks if there are any pieces
     between [orig_pos] and [new_pos] in the board [state], returning true if no
