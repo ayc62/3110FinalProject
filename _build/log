@@ -1,9 +1,9 @@
-# dune exec bin/main.exe
+# dune build
 # OCAMLPARAM: unset
 # Shared cache: disabled
-# Workspace root: /Users/richardniu/3110/3110FinalProject
+# Workspace root: /Users/acui21/Documents/CS3110/3110FinalProject
 # Auto-detected concurrency: 8
-$ /Users/richardniu/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/kg/3lprj0yx5nz_cz8c6fmg5s2r0000gn/T/dune_984008_output
+$ /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/6v/gkh1f1z90y32mj0z_qhk5y040000gq/T/dune_5cba7c_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -13,42 +13,42 @@ $ /Users/richardniu/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/kg
 #  ; fdo_target_exe = None
 #  ; build_dir = "default"
 #  ; toplevel_path =
-#      Some External "/Users/richardniu/.opam/cs3110-2022fa/lib/toplevel"
-#  ; ocaml_bin = External "/Users/richardniu/.opam/cs3110-2022fa/bin"
-#  ; ocaml = Ok External "/Users/richardniu/.opam/cs3110-2022fa/bin/ocaml"
-#  ; ocamlc = External "/Users/richardniu/.opam/cs3110-2022fa/bin/ocamlc.opt"
+#      Some External "/Users/acui21/.opam/cs3110-2022fa/lib/toplevel"
+#  ; ocaml_bin = External "/Users/acui21/.opam/cs3110-2022fa/bin"
+#  ; ocaml = Ok External "/Users/acui21/.opam/cs3110-2022fa/bin/ocaml"
+#  ; ocamlc = External "/Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt"
 #  ; ocamlopt =
-#      Ok External "/Users/richardniu/.opam/cs3110-2022fa/bin/ocamlopt.opt"
+#      Ok External "/Users/acui21/.opam/cs3110-2022fa/bin/ocamlopt.opt"
 #  ; ocamldep =
-#      Ok External "/Users/richardniu/.opam/cs3110-2022fa/bin/ocamldep.opt"
+#      Ok External "/Users/acui21/.opam/cs3110-2022fa/bin/ocamldep.opt"
 #  ; ocamlmklib =
-#      Ok External "/Users/richardniu/.opam/cs3110-2022fa/bin/ocamlmklib.opt"
+#      Ok External "/Users/acui21/.opam/cs3110-2022fa/bin/ocamlmklib.opt"
 #  ; env =
 #      map
-#        { "DUNE_OCAML_HARDCODED" : "/Users/richardniu/.opam/cs3110-2022fa/lib"
-#        ; "DUNE_OCAML_STDLIB" :
-#            "/Users/richardniu/.opam/cs3110-2022fa/lib/ocaml"
-#        ; "DUNE_SOURCEROOT" : "/Users/richardniu/3110/3110FinalProject"
+#        { "DUNE_OCAML_HARDCODED" : "/Users/acui21/.opam/cs3110-2022fa/lib"
+#        ; "DUNE_OCAML_STDLIB" : "/Users/acui21/.opam/cs3110-2022fa/lib/ocaml"
+#        ; "DUNE_SOURCEROOT" :
+#            "/Users/acui21/Documents/CS3110/3110FinalProject"
 #        ; "INSIDE_DUNE" :
-#            "/Users/richardniu/3110/3110FinalProject/_build/default"
+#            "/Users/acui21/Documents/CS3110/3110FinalProject/_build/default"
 #        ; "OCAMLFIND_IGNORE_DUPS_IN" :
-#            "/Users/richardniu/3110/3110FinalProject/_build/install/default/lib"
+#            "/Users/acui21/Documents/CS3110/3110FinalProject/_build/install/default/lib"
 #        ; "OCAMLPATH" :
-#            "/Users/richardniu/3110/3110FinalProject/_build/install/default/lib"
+#            "/Users/acui21/Documents/CS3110/3110FinalProject/_build/install/default/lib"
 #        ; "OCAMLTOP_INCLUDE_PATH" :
-#            "/Users/richardniu/3110/3110FinalProject/_build/install/default/lib/toplevel"
+#            "/Users/acui21/Documents/CS3110/3110FinalProject/_build/install/default/lib/toplevel"
 #        ; "OCAML_COLOR" : "always"
 #        ; "OPAMCOLOR" : "always"
 #        }
-#  ; findlib_paths = [ External "/Users/richardniu/.opam/cs3110-2022fa/lib" ]
+#  ; findlib_paths = [ External "/Users/acui21/.opam/cs3110-2022fa/lib" ]
 #  ; arch_sixtyfour = true
 #  ; natdynlink_supported = true
 #  ; supports_shared_libraries = true
 #  ; ocaml_config =
 #      { version = "4.14.0"
 #      ; standard_library_default =
-#          "/Users/richardniu/.opam/cs3110-2022fa/lib/ocaml"
-#      ; standard_library = "/Users/richardniu/.opam/cs3110-2022fa/lib/ocaml"
+#          "/Users/acui21/.opam/cs3110-2022fa/lib/ocaml"
+#      ; standard_library = "/Users/acui21/.opam/cs3110-2022fa/lib/ocaml"
 #      ; standard_runtime = "the_standard_runtime_variable_was_deleted"
 #      ; ccomp_type = "cc"
 #      ; c_compiler = "cc"
@@ -94,8 +94,8 @@ $ /Users/richardniu/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/kg
 #      ; os_type = "Unix"
 #      ; default_executable_name = "a.out"
 #      ; systhread_supported = true
-#      ; host = "aarch64-apple-darwin21.1.0"
-#      ; target = "aarch64-apple-darwin21.1.0"
+#      ; host = "aarch64-apple-darwin21.6.0"
+#      ; target = "aarch64-apple-darwin21.6.0"
 #      ; profiling = false
 #      ; flambda = false
 #      ; spacetime = false
@@ -115,3 +115,7 @@ $ /Users/richardniu/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/kg
 #      ; windows_unicode = false
 #      }
 #  }
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamldep.opt -modules -impl src/printboard.ml) > _build/default/src/.game.objs/printboard.ml.d
+> File "src/printboard.ml", line 20, characters 0-0:
+> Error: Syntax error
+[2]

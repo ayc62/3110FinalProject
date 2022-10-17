@@ -20,7 +20,11 @@
    game__Controller.cmi
    game__Controller.cmt
    game__Controller.cmx
-   opam))
+   game__Printboard.cmi
+   game__Printboard.cmt
+   game__Printboard.cmx
+   opam
+   printboard.ml))
  (libexec (game.cmxs))
  (doc (README.txt)))
 (library
@@ -36,7 +40,8 @@
    (main_module_name Game)
    (modules
     ((name Board) (obj_name game__Board) (visibility public) (impl))
-    ((name Controller) (obj_name game__Controller) (visibility public) (impl)))
+    ((name Controller) (obj_name game__Controller) (visibility public) (impl))
+    ((name Printboard) (obj_name game__Printboard) (visibility public) (impl)))
    (alias_module
     (name Game)
     (obj_name game)

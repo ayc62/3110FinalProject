@@ -4,3 +4,7 @@ module Board = Game__Board
 
 (** @canonical Game.Controller *)
 module Controller = Game__Controller
+
+
+(** @canonical Game.Printboard *)
+module Printboard = Game__Printboard
