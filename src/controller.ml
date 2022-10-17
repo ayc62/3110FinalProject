@@ -1,6 +1,6 @@
 let init_state =
   [
-    { pos = "a1"; piece = Rook; color = White };
+    { Board.Board.pos = "a1"; piece = Rook; color = White };
     { pos = "b1"; piece = Knight; color = White };
     { pos = "c1"; piece = Bishop; color = White };
     { pos = "d1"; piece = Queen; color = White };

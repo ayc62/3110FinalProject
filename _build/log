@@ -1,9 +1,9 @@
-# dune build
+# dune exec bin/main.exe
 # OCAMLPARAM: unset
 # Shared cache: disabled
 # Workspace root: /Users/brianla/Documents/GitHub/3110FinalProject
 # Auto-detected concurrency: 8
-$ /Users/brianla/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/9x/vhx46df906xfrph8_2zc4kc00000gn/T/dune_af65cd_output
+$ /Users/brianla/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/9x/vhx46df906xfrph8_2zc4kc00000gn/T/dune_6d90bf_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
