@@ -20,8 +20,8 @@ type piece = {
    and color [p_color] of the piece, and returns it in an association list entry
    format. [pos] is the key, and the value is a record with [p_type] and
    [p_color].*)
-let piece_helper (pos : string) p_type p_color =
-  (pos, { piece_type = p_type; piece_color = p_color; moved = false })
+let piece_helper ?(moved = false) (pos : string) piece_type piece_color =
+  (pos, { piece_type; piece_color; moved })
 
 type state = (string * piece) list
 
