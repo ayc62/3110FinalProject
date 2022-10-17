@@ -3,7 +3,7 @@
 # Shared cache: disabled
 # Workspace root: /Users/acui21/Documents/CS3110/3110FinalProject
 # Auto-detected concurrency: 8
-$ /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/6v/gkh1f1z90y32mj0z_qhk5y040000gq/T/dune_5cba7c_output
+$ /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/6v/gkh1f1z90y32mj0z_qhk5y040000gq/T/dune_aaf007_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -115,7 +115,26 @@ $ /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/6v/gkh
 #      ; windows_unicode = false
 #      }
 #  }
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -o src/.game.objs/byte/game.cmo -c -impl src/game.ml-gen)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamldep.opt -modules -impl src/controller.ml) > _build/default/src/.game.objs/controller.ml.d
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamldep.opt -modules -impl src/command.ml) > _build/default/src/.game.objs/command.ml.d
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamldep.opt -modules -impl src/check.ml) > _build/default/src/.game.objs/check.ml.d
 $ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamldep.opt -modules -impl src/printboard.ml) > _build/default/src/.game.objs/printboard.ml.d
-> File "src/printboard.ml", line 20, characters 0-0:
-> Error: Syntax error
-[2]
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamldep.opt -modules -impl src/board.ml) > _build/default/src/.game.objs/board.ml.d
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -open Game -o src/.game.objs/byte/game__Command.cmo -c -impl src/command.ml)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -open Game -o src/.game.objs/byte/game__Check.cmo -c -impl src/check.ml)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -open Game -o src/.game.objs/byte/game__Board.cmo -c -impl src/board.ml)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -open Game -o src/.game.objs/byte/game__Controller.cmo -c -impl src/controller.ml)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -open Game -o src/.game.objs/byte/game__Printboard.cmo -c -impl src/printboard.ml)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -a -o src/game.cma src/.game.objs/byte/game.cmo src/.game.objs/byte/game__Board.cmo src/.game.objs/byte/game__Printboard.cmo src/.game.objs/byte/game__Controller.cmo src/.game.objs/byte/game__Command.cmo src/.game.objs/byte/game__Check.cmo)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I bin/.main.eobjs/byte -I /Users/acui21/.opam/cs3110-2022fa/lib/ANSITerminal -I src/.game.objs/byte -no-alias-deps -opaque -o bin/.main.eobjs/byte/dune__exe__Main.cmi -c -intf bin/main.mli)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml-gen -no-alias-deps -opaque -o src/.game.objs/native/game.cmx -c -impl src/game.ml-gen)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Game -o src/.game.objs/native/game__Printboard.cmx -c -impl src/printboard.ml)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Game -o src/.game.objs/native/game__Check.cmx -c -impl src/check.ml)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I bin/.main.eobjs/byte -I bin/.main.eobjs/native -I /Users/acui21/.opam/cs3110-2022fa/lib/ANSITerminal -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml -no-alias-deps -opaque -o bin/.main.eobjs/native/dune__exe__Main.cmx -c -impl bin/main.ml)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Game -o src/.game.objs/native/game__Command.cmx -c -impl src/command.ml)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Game -o src/.game.objs/native/game__Controller.cmx -c -impl src/controller.ml)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Game -o src/.game.objs/native/game__Board.cmx -c -impl src/board.ml)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -a -o src/game.cmxa src/.game.objs/native/game.cmx src/.game.objs/native/game__Board.cmx src/.game.objs/native/game__Printboard.cmx src/.game.objs/native/game__Controller.cmx src/.game.objs/native/game__Command.cmx src/.game.objs/native/game__Check.cmx)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -shared -linkall -I src -o src/game.cmxs src/game.cmxa)
+$ (cd _build/default && /Users/acui21/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -o bin/main.exe src/game.cmxa /Users/acui21/.opam/cs3110-2022fa/lib/ocaml/unix.cmxa -I /Users/acui21/.opam/cs3110-2022fa/lib/ocaml -I /Users/acui21/.opam/cs3110-2022fa/lib/ocaml /Users/acui21/.opam/cs3110-2022fa/lib/ANSITerminal/ANSITerminal.cmxa -I /Users/acui21/.opam/cs3110-2022fa/lib/ANSITerminal bin/.main.eobjs/native/dune__exe__Main.cmx)

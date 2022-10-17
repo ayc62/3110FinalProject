@@ -1,6 +1,7 @@
 lib: [
   "_build/install/default/lib/Game/META"
   "_build/install/default/lib/Game/board.ml"
+  "_build/install/default/lib/Game/check.ml"
   "_build/install/default/lib/Game/command.ml"
   "_build/install/default/lib/Game/controller.ml"
   "_build/install/default/lib/Game/dune-package"
@@ -14,13 +15,20 @@ lib: [
   "_build/install/default/lib/Game/game__Board.cmi"
   "_build/install/default/lib/Game/game__Board.cmt"
   "_build/install/default/lib/Game/game__Board.cmx"
+  "_build/install/default/lib/Game/game__Check.cmi"
+  "_build/install/default/lib/Game/game__Check.cmt"
+  "_build/install/default/lib/Game/game__Check.cmx"
   "_build/install/default/lib/Game/game__Command.cmi"
   "_build/install/default/lib/Game/game__Command.cmt"
   "_build/install/default/lib/Game/game__Command.cmx"
   "_build/install/default/lib/Game/game__Controller.cmi"
   "_build/install/default/lib/Game/game__Controller.cmt"
   "_build/install/default/lib/Game/game__Controller.cmx"
+  "_build/install/default/lib/Game/game__Printboard.cmi"
+  "_build/install/default/lib/Game/game__Printboard.cmt"
+  "_build/install/default/lib/Game/game__Printboard.cmx"
   "_build/install/default/lib/Game/opam"
+  "_build/install/default/lib/Game/printboard.ml"
 ]
 libexec: [
   "_build/install/default/lib/Game/game.cmxs"

@@ -2,6 +2,14 @@
 module Board = Game__Board
 
 
+(** @canonical Game.Check *)
+module Check = Game__Check
+
+
+(** @canonical Game.Command *)
+module Command = Game__Command
+
+
 (** @canonical Game.Controller *)
 module Controller = Game__Controller
 
