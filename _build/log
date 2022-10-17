@@ -3,7 +3,7 @@
 # Shared cache: disabled
 # Workspace root: /Users/brianla/Documents/GitHub/3110FinalProject
 # Auto-detected concurrency: 8
-$ /Users/brianla/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/9x/vhx46df906xfrph8_2zc4kc00000gn/T/dune_1705a1_output
+$ /Users/brianla/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/9x/vhx46df906xfrph8_2zc4kc00000gn/T/dune_af65cd_output
 # Dune context:
 #  { name = "default"
 #  ; kind = "default"
@@ -115,22 +115,3 @@ $ /Users/brianla/.opam/cs3110-2022fa/bin/ocamlc.opt -config > /var/folders/9x/vh
 #      ; windows_unicode = false
 #      }
 #  }
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlc.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -o src/.game.objs/byte/game.cmo -c -impl src/game.ml-gen)
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamldep.opt -modules -impl src/controller.ml) > _build/default/src/.game.objs/controller.ml.d
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamldep.opt -modules -impl src/main.ml) > _build/default/src/.game.objs/main.ml.d
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamldep.opt -modules -impl src/board.ml) > _build/default/src/.game.objs/board.ml.d
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -open Game -o src/.game.objs/byte/game__Controller.cmo -c -impl src/controller.ml)
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -open Game -o src/.game.objs/byte/game__Main.cmo -c -impl src/main.ml)
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I src/.game.objs/byte -no-alias-deps -opaque -open Game -o src/.game.objs/byte/game__Board.cmo -c -impl src/board.ml)
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -a -o src/game.cma src/.game.objs/byte/game.cmo src/.game.objs/byte/game__Main.cmo src/.game.objs/byte/game__Controller.cmo src/.game.objs/byte/game__Board.cmo)
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlc.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -bin-annot -I bin/.main.eobjs/byte -I /Users/brianla/.opam/cs3110-2022fa/lib/ANSITerminal -I src/.game.objs/byte -no-alias-deps -opaque -o bin/.main.eobjs/byte/dune__exe__Main.cmi -c -intf bin/main.mli)
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I bin/.main.eobjs/byte -I bin/.main.eobjs/native -I /Users/brianla/.opam/cs3110-2022fa/lib/ANSITerminal -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml -no-alias-deps -opaque -o bin/.main.eobjs/native/dune__exe__Main.cmx -c -impl bin/main.ml)
-> File "bin/main.ml", line 12, characters 16-16:
-> Error: Syntax error
-[2]
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlopt.opt -w @1..3@5..28@30..39@43@46..47@49..57@61..62@67@69-40 -strict-sequence -strict-formats -short-paths -keep-locs -w -49 -nopervasives -nostdlib -g -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml-gen -no-alias-deps -opaque -o src/.game.objs/native/game.cmx -c -impl src/game.ml-gen)
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Game -o src/.game.objs/native/game__Main.cmx -c -impl src/main.ml)
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Game -o src/.game.objs/native/game__Board.cmx -c -impl src/board.ml)
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -I src/.game.objs/byte -I src/.game.objs/native -intf-suffix .ml -no-alias-deps -opaque -open Game -o src/.game.objs/native/game__Controller.cmx -c -impl src/controller.ml)
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -a -o src/game.cmxa src/.game.objs/native/game.cmx src/.game.objs/native/game__Main.cmx src/.game.objs/native/game__Controller.cmx src/.game.objs/native/game__Board.cmx)
-$ (cd _build/default && /Users/brianla/.opam/cs3110-2022fa/bin/ocamlopt.opt -w +a-4-6-7-9-27-29-30-32..42-44-45-48-50-60-66..70 -warn-error -a+31 -g -shared -linkall -I src -o src/game.cmxs src/game.cmxa)
