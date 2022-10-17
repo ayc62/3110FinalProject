@@ -18,7 +18,7 @@ let piece state square =
   try
     let piece = List.assoc square state in
     piece_color_string piece ^ piece_type_string piece
-  with e -> "   "
+  with e -> "  "
 
 let square_pos (row : int) (col : char) = Char.escaped col ^ string_of_int row
 
@@ -30,9 +30,12 @@ let rec print_row state row col =
   if col = 'h' then "|"
   else print_row state row (col |> Char.code |> ( + ) 1 |> Int.abs |> Char.chr)
 
-let rec print state row = 
+let rec print state row =
   print_endline "-----------------------------------------";
   print_endline (print_row state row 'a');
-  if (row = 1) then print_endline "-----------------------------------------" else (print state (row-1))
+  if row = 1 then print_endline "-----------------------------------------"
+  else print state (row - 1)
 
-  let print_board state = print_endline ""; print state 8
+let print_board state =
+  print_endline "";
+  print state 8
