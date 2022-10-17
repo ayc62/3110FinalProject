@@ -53,7 +53,7 @@ let rec check_diagonal orig_pos new_pos state = true
 (** [check_pawn color orig_pos new_pos state] checks if moving a pawn from
     [orig_pos] to [new_pos] is a valid move. Requires: [orig_pos] and [new_pos]
     are valid squares and [state] is a valid state of the board *)
-let check_pawn color orig_pos new_pos state =
+let check_pawn color orig_pos new_pos state prev_state =
   let piece_state : piece = List.assoc orig_pos state in
   if String.get orig_pos 0 = String.get new_pos 0 then
     let dir = if color = White then 1 else -1 in
