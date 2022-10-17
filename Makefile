@@ -1,6 +1,6 @@
 .PHONY: test check
 
-build:
+mommy:
 	dune build
 
 code:
