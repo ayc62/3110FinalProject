@@ -13,6 +13,7 @@ type piece_color =
 type piece = {
   piece_type : piece_type;
   piece_color : piece_color;
+  moved : bool;
 }
 
 (**[piece_helper] takes in the position [pos] of a piece, and the type [p_type]
@@ -20,7 +21,7 @@ type piece = {
    format. [pos] is the key, and the value is a record with [p_type] and
    [p_color].*)
 let piece_helper (pos : string) p_type p_color =
-  (pos, { piece_type = p_type; piece_color = p_color })
+  (pos, { piece_type = p_type; piece_color = p_color; moved = false })
 
 type state = (string * piece) list
 
@@ -62,3 +63,5 @@ let init_state : state =
     piece_helper "g8" Knight Black;
     piece_helper "h8" Rook Black;
   ]
+
+let moved piece = piece.moved
