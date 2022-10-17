@@ -1,6 +1,9 @@
+(* Note: You may introduce new code anywhere in this file. *)
+open Board
+
 let init_state =
   [
-    { Board.Board.pos = "a1"; piece = Rook; color = White };
+    { pos = "a1"; piece = Rook; color = White };
     { pos = "b1"; piece = Knight; color = White };
     { pos = "c1"; piece = Bishop; color = White };
     { pos = "d1"; piece = Queen; color = White };
