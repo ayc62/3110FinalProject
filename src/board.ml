@@ -15,11 +15,18 @@ type piece = {
   piece_color : piece_color;
 }
 
+(**[piece_helper] takes in the position [pos] of a piece, and the type [p_type]
+   and color [p_color] of the piece, and returns it in an association list entry
+   format. [pos] is the key, and the value is a record with [p_type] and
+   [p_color].*)
 let piece_helper (pos : string) p_type p_color =
   (pos, { piece_type = p_type; piece_color = p_color })
 
 type state = (string * piece) list
 
+(**[init_state] returns the initial state of the chessboard before any moves
+   have been made. The initial state of the chessboard is the standard setup for
+   a chessboard.*)
 let init_state : state =
   [
     piece_helper "a1" Rook White;
