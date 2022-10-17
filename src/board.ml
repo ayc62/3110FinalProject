@@ -63,5 +63,3 @@ let init_state : state =
     piece_helper "g8" Knight Black;
     piece_helper "h8" Rook Black;
   ]
-
-let moved piece = piece.moved
