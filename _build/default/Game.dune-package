@@ -20,10 +20,6 @@
    game__Controller.cmi
    game__Controller.cmt
    game__Controller.cmx
-   game__Main.cmi
-   game__Main.cmt
-   game__Main.cmx
-   main.ml
    opam))
  (libexec (game.cmxs))
  (doc (README.txt)))
@@ -40,8 +36,7 @@
    (main_module_name Game)
    (modules
     ((name Board) (obj_name game__Board) (visibility public) (impl))
-    ((name Controller) (obj_name game__Controller) (visibility public) (impl))
-    ((name Main) (obj_name game__Main) (visibility public) (impl)))
+    ((name Controller) (obj_name game__Controller) (visibility public) (impl)))
    (alias_module
     (name Game)
     (obj_name game)

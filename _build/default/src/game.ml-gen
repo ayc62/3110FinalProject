@@ -4,7 +4,3 @@ module Board = Game__Board
 
 (** @canonical Game.Controller *)
 module Controller = Game__Controller
-
-
-(** @canonical Game.Main *)
-module Main = Game__Main

@@ -1,19 +1,16 @@
-module Board = struct
-  type piece =
-    | Rook
-    | Knight
-    | Bishop
-    | Queen
-    | King
-    | Pawn
+type piece_type =
+  | Rook
+  | Knight
+  | Bishop
+  | Queen
+  | King
+  | Pawn
 
-  type color =
-    | White
-    | Black
+type piece_color =
+  | White
+  | Black
 
-  type piece_state = {
-    pos : string;
-    piece : piece;
-    color : color;
-  }
-end
+type piece = {
+  piece_type : piece_type;
+  piece_color : piece_color;
+}
