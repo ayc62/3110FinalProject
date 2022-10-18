@@ -7,7 +7,7 @@ open Controller
 
 let board_setup = Board.init_state
 let board_tests = []
-let kings_pawn = board_setup |> move_piece Pawn White "e2" "e4"
+let kings_pawn = move_piece Pawn White "e2" "e4" board_setup []
 
 let is_horizontal_test (name : string) (orig_pos : string) (new_pos : string)
     (expected_output : bool) =
