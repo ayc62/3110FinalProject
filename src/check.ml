@@ -9,10 +9,10 @@ let is_horizontal orig_pos new_pos =
   String.get new_pos 1 = String.get orig_pos 1
 
 (** [check_horizontal orig_pos new_pos state] checks if there are any pieces
-    between [orig_pos] and [new_pos] in the board [state], returning true if no
-    pieces are in the way. Requires: [orig_pos] and [new_pos] are horizontal
-    from each other and [state] is a valid state of the board *)
-let rec check_horizontal orig_pos new_pos state =
+    between [orig_pos] and [new_pos] exclusive in the board [state], returning
+    true if no pieces are in the way. Requires: [orig_pos] and [new_pos] are
+    horizontal from each other and [state] is a valid state of the board *)
+let rec check_horizontal orig_pos new_pos (state : state) =
   let diff =
     Char.code (String.get new_pos 0) - Char.code (String.get orig_pos 0)
   in
@@ -25,7 +25,7 @@ let rec check_horizontal orig_pos new_pos state =
            |> ( + ) (diff / abs diff)
            |> Char.chr |> String.make 1)
     in
-    if List.assoc_opt next_pos state = None then
+    if List.assoc_opt next_pos state.board = None then
       check_horizontal next_pos new_pos state
     else false
 
@@ -34,10 +34,10 @@ let rec check_horizontal orig_pos new_pos state =
 let is_vertical orig_pos new_pos = String.get new_pos 0 = String.get orig_pos 0
 
 (** [check_vertical orig_pos new_pos state] checks if there are any pieces
-    between [orig_pos] and [new_pos] in the board [state], returning true if no
-    pieces are in the way. Requires: [orig_pos] and [new_pos] are vertical from
-    each other and [state] is a valid state of the board *)
-let rec check_vertical orig_pos new_pos state =
+    between [orig_pos] and [new_pos] exclusive in the board [state], returning
+    true if no pieces are in the way. Requires: [orig_pos] and [new_pos] are
+    vertical from each other and [state] is a valid state of the board *)
+let rec check_vertical orig_pos new_pos (state : state) =
   let diff =
     Char.code (String.get new_pos 1) - Char.code (String.get orig_pos 1)
   in
@@ -49,7 +49,7 @@ let rec check_vertical orig_pos new_pos state =
       |> Char.chr |> String.make 1
       |> ( ^ ) (String.get orig_pos 0 |> Char.escaped)
     in
-    if List.assoc_opt next_pos state = None then
+    if List.assoc_opt next_pos state.board = None then
       check_vertical next_pos new_pos state
     else false
 
@@ -60,9 +60,9 @@ let is_diagonal orig_pos new_pos =
   = abs (Char.code (String.get new_pos 1) - Char.code (String.get orig_pos 1))
 
 (** [check_diagonal orig_pos new_pos state] checks if there are any pieces
-    between [orig_pos] and [new_pos] in the board [state], returning true if no
-    pieces are in the way. Requires: [orig_pos] and [new_pos] are diagonal from
-    each other and [state] is a valid state of the board *)
+    between [orig_pos] and [new_pos] exclusive in the board [state], returning
+    true if no pieces are in the way. Requires: [orig_pos] and [new_pos] are
+    diagonal from each other and [state] is a valid state of the board *)
 let rec check_diagonal orig_pos new_pos state =
   let column_diff =
     Char.code (String.get new_pos 0) - Char.code (String.get orig_pos 0)
@@ -80,7 +80,7 @@ let rec check_diagonal orig_pos new_pos state =
         |> ( + ) (row_diff / abs row_diff)
         |> Char.chr |> String.make 1)
     in
-    if List.assoc_opt next_pos state = None then
+    if List.assoc_opt next_pos state.board = None then
       check_diagonal next_pos new_pos state
     else false
 
@@ -102,8 +102,8 @@ let rec check_attacked color pos state =
 (** [check_pawn color orig_pos new_pos state] checks if moving a pawn from
     [orig_pos] to [new_pos] is a valid move. Requires: [orig_pos] and [new_pos]
     are valid squares and [state] is a valid state of the board *)
-let check_pawn color orig_pos new_pos state old_states =
-  match List.assoc_opt orig_pos state with
+let check_pawn color orig_pos new_pos (state : state) =
+  match List.assoc_opt orig_pos state.board with
   | None -> false
   | Some piece_state ->
       let dir = if color = White then 1 else -1 in
@@ -114,16 +114,16 @@ let check_pawn color orig_pos new_pos state old_states =
         Char.code (String.get new_pos 1) - Char.code (String.get orig_pos 1)
       in
       if x_dif = 0 then
-        if y_dif = dir && List.assoc_opt new_pos state = None then true
+        if y_dif = dir && List.assoc_opt new_pos state.board = None then true
         else
           (not piece_state.moved)
           && check_vertical orig_pos new_pos state
-          && List.assoc_opt new_pos state = None
+          && List.assoc_opt new_pos state.board = None
       else
         abs x_dif = 1
         && y_dif = dir
         && (begin
-              match List.assoc_opt new_pos state with
+              match List.assoc_opt new_pos state.board with
               | None -> false
               | Some piece -> piece.piece_color <> color
             end
@@ -138,11 +138,11 @@ let check_pawn color orig_pos new_pos state old_states =
              |> string_of_int
              |> ( ^ ) (0 |> String.get new_pos |> Char.escaped)
            in
-           let piece = List.assoc en_passant_pos state in
+           let piece = List.assoc en_passant_pos state.board in
            piece.piece_color <> color
-           && List.assoc_opt start_pawn_pos state = None
+           && List.assoc_opt start_pawn_pos state.board = None
            &&
-           match List.assoc_opt start_pawn_pos (List.hd old_states) with
+           match List.assoc_opt start_pawn_pos (List.hd state.old_boards) with
            | None -> false
            | Some { piece_color; piece_type; moved } ->
                piece_color <> color && piece_type = Pawn)

@@ -23,43 +23,54 @@ type piece = {
 let piece_helper ?(moved = false) (pos : string) piece_type piece_color =
   (pos, { piece_type; piece_color; moved })
 
-type state = (string * piece) list
+type board = (string * piece) list
+
+type state = {
+  board : (string * piece) list;
+  old_boards : board list;
+  rule50 : int;
+}
 
 (**[init_state] returns the initial state of the chessboard before any moves
    have been made. The initial state of the chessboard is the standard setup for
    a chessboard.*)
 let init_state : state =
-  [
-    piece_helper "a1" Rook White;
-    piece_helper "b1" Knight White;
-    piece_helper "c1" Bishop White;
-    piece_helper "d1" Queen White;
-    piece_helper "e1" King White;
-    piece_helper "f1" Bishop White;
-    piece_helper "g1" Knight White;
-    piece_helper "h1" Rook White;
-    piece_helper "a2" Pawn White;
-    piece_helper "b2" Pawn White;
-    piece_helper "c2" Pawn White;
-    piece_helper "d2" Pawn White;
-    piece_helper "e2" Pawn White;
-    piece_helper "f2" Pawn White;
-    piece_helper "g2" Pawn White;
-    piece_helper "h2" Pawn White;
-    piece_helper "a7" Pawn Black;
-    piece_helper "b7" Pawn Black;
-    piece_helper "c7" Pawn Black;
-    piece_helper "d7" Pawn Black;
-    piece_helper "e7" Pawn Black;
-    piece_helper "f7" Pawn Black;
-    piece_helper "g7" Pawn Black;
-    piece_helper "h7" Pawn Black;
-    piece_helper "a8" Rook Black;
-    piece_helper "b8" Knight Black;
-    piece_helper "c8" Bishop Black;
-    piece_helper "d8" Queen Black;
-    piece_helper "e8" King Black;
-    piece_helper "f8" Bishop Black;
-    piece_helper "g8" Knight Black;
-    piece_helper "h8" Rook Black;
-  ]
+  {
+    board =
+      [
+        piece_helper "a1" Rook White;
+        piece_helper "b1" Knight White;
+        piece_helper "c1" Bishop White;
+        piece_helper "d1" Queen White;
+        piece_helper "e1" King White;
+        piece_helper "f1" Bishop White;
+        piece_helper "g1" Knight White;
+        piece_helper "h1" Rook White;
+        piece_helper "a2" Pawn White;
+        piece_helper "b2" Pawn White;
+        piece_helper "c2" Pawn White;
+        piece_helper "d2" Pawn White;
+        piece_helper "e2" Pawn White;
+        piece_helper "f2" Pawn White;
+        piece_helper "g2" Pawn White;
+        piece_helper "h2" Pawn White;
+        piece_helper "a7" Pawn Black;
+        piece_helper "b7" Pawn Black;
+        piece_helper "c7" Pawn Black;
+        piece_helper "d7" Pawn Black;
+        piece_helper "e7" Pawn Black;
+        piece_helper "f7" Pawn Black;
+        piece_helper "g7" Pawn Black;
+        piece_helper "h7" Pawn Black;
+        piece_helper "a8" Rook Black;
+        piece_helper "b8" Knight Black;
+        piece_helper "c8" Bishop Black;
+        piece_helper "d8" Queen Black;
+        piece_helper "e8" King Black;
+        piece_helper "f8" Bishop Black;
+        piece_helper "g8" Knight Black;
+        piece_helper "h8" Rook Black;
+      ];
+    old_boards = [];
+    rule50 = 0;
+  }

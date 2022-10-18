@@ -15,6 +15,11 @@ type result =
    NOTE: So far, we have not implemented if checking functions to check if a
    move is valid or not. So right now, any move to any square is valid.*)
 let move_piece (piece : piece_type) (color : piece_color) (orig_pos : string)
-    (new_pos : string) (old_state : state) (old_states : state list) : state =
-  piece_helper ~moved:true new_pos piece color
-  :: List.remove_assoc orig_pos old_state
+    (new_pos : string) (old_state : state) : state =
+  {
+    old_state with
+    board =
+      piece_helper ~moved:true new_pos piece color
+      :: List.remove_assoc orig_pos old_state.board;
+    old_boards = old_state.board :: old_state.old_boards;
+  }
