@@ -11,32 +11,30 @@ let kings_pawn = move_piece Pawn White "e2" "e4" board_setup
 
 let is_horizontal_test (name : string) (orig_pos : string) (new_pos : string)
     (expected_output : bool) =
-  "name" >:: fun _ ->
+  name >:: fun _ ->
   assert_equal expected_output (is_horizontal orig_pos new_pos)
 
 let check_horizontal_test (name : string) (orig_pos : string) (new_pos : string)
     (state : state) (expected_output : bool) =
-  "name" >:: fun _ ->
+  name >:: fun _ ->
   assert_equal expected_output (check_horizontal orig_pos new_pos state)
 
 let is_vertical_test (name : string) (orig_pos : string) (new_pos : string)
     (expected_output : bool) =
-  "name" >:: fun _ ->
-  assert_equal expected_output (is_vertical orig_pos new_pos)
+  name >:: fun _ -> assert_equal expected_output (is_vertical orig_pos new_pos)
 
 let check_vertical_test (name : string) (orig_pos : string) (new_pos : string)
     (state : state) (expected_output : bool) =
-  "name" >:: fun _ ->
+  name >:: fun _ ->
   assert_equal expected_output (check_vertical orig_pos new_pos state)
 
 let is_diagonal_test (name : string) (orig_pos : string) (new_pos : string)
     (expected_output : bool) =
-  "name" >:: fun _ ->
-  assert_equal expected_output (is_diagonal orig_pos new_pos)
+  name >:: fun _ -> assert_equal expected_output (is_diagonal orig_pos new_pos)
 
 let check_diagonal_test (name : string) (orig_pos : string) (new_pos : string)
     (state : state) (expected_output : bool) =
-  "name" >:: fun _ ->
+  name >:: fun _ ->
   assert_equal expected_output (check_diagonal orig_pos new_pos state)
 
 let check_tests =
@@ -45,7 +43,7 @@ let check_tests =
     is_horizontal_test "a3 and c5 are not in the same row" "a3" "c5" false;
     check_horizontal_test "board setup has no pieces b/t a3 and c3" "a3" "b3"
       board_setup true;
-    check_horizontal_test "board setup has pieces b/t a2 and c2" "a2" "b2"
+    check_horizontal_test "board setup has pieces b/t a2 and c2" "a2" "c2"
       board_setup false;
     check_horizontal_test "board setup has no pieces b/t d5 and h5" "d5" "h5"
       board_setup true;
@@ -55,8 +53,8 @@ let check_tests =
     is_vertical_test "b4 and g7 are not in the same column" "b4" "g7" false;
     check_vertical_test "board setup has no pieces b/t a6 and a3" "a6" "a3"
       board_setup true;
-    check_vertical_test "board setup has pieces b/t g8 and g7" "g8" "g7"
-      board_setup false;
+    check_vertical_test "board setup has no pieces b/t g8 and g7" "g8" "g7"
+      board_setup true;
     check_vertical_test "board setup has pieces b/t a8 and a5" "a8" "a5"
       board_setup false;
     check_vertical_test "board setup has pieces between e5 and e3" "e5" "e3"
