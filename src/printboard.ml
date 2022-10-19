@@ -36,6 +36,8 @@ let rec print state row =
   if row = 1 then print_endline "-----------------------------------------"
   else print state (row - 1)
 
-let print_board state =
+let print_board_helper state =
   print_endline "";
   print state 8
+
+let print_board state = state |> get_board |> print_board_helper

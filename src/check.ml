@@ -3,18 +3,13 @@ open Board
 exception OccupiedSquare of string
 exception InvalidMove of string
 
-(** [move_horizontal dir pos] is the position 1 horizontal square away from
-    square [pos] in the direction [dir]*)
-let move_horizontal dir pos =
-  String.get pos 1 |> Char.escaped
-  |> ( ^ )
-       (String.get pos 0 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1)
-
-(** [move_vertical dir pos] is the position 1 vertical square away from square
-    [pos] in the direction [dir]*)
-let move_vertical dir pos =
-  String.get pos 1 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1
-  |> ( ^ ) (String.get pos 0 |> Char.escaped)
+let check_square (square : string) : bool =
+  if not (String.length square = 2) then false
+  else if not ('a' <= String.get square 0 && String.get square 0 <= 'h') then
+    false
+  else if not ('1' <= String.get square 1 && String.get square 1 <= '8') then
+    false
+  else true
 
 (** [diff orig_pos new_pos index] is the difference in position between
     [orig_pos] and [new_pos] in index [index]. [index] is 0 for horizontal
@@ -39,6 +34,19 @@ let get_squares = get_columns "h" []
 
 let diff orig_pos new_pos index =
   Char.code (String.get new_pos index) - Char.code (String.get orig_pos index)
+
+(** [move_horizontal dir pos] is the position 1 horizontal square away from
+    square [pos] in the direction [dir]*)
+let move_horizontal dir pos =
+  String.get pos 1 |> Char.escaped
+  |> ( ^ )
+       (String.get pos 0 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1)
+
+(** [move_vertical dir pos] is the position 1 vertical square away from square
+    [pos] in the direction [dir]*)
+let move_vertical dir pos =
+  String.get pos 1 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1
+  |> ( ^ ) (String.get pos 0 |> Char.escaped)
 
 (** [is_horizontal orig_pos new_pos] checks if two pieces are in the same row.
     Requires: [orig_pos] and [new_pos] are valid squares on the board*)
