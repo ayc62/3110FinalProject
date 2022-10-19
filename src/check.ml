@@ -3,6 +3,38 @@ open Board
 exception OccupiedSquare of string
 exception InvalidMove of string
 
+let check_square (square : string) : bool =
+  if not (String.length square = 2) then false
+  else if not ('a' <= String.get square 0 && String.get square 0 <= 'h') then
+    false
+  else if not ('1' <= String.get square 1 && String.get square 1 <= '8') then
+    false
+  else true
+
+(** [diff orig_pos new_pos index] is the difference in position between
+    [orig_pos] and [new_pos] in index [index]. [index] is 0 for horizontal
+    distance and 1 for vertical distance*)
+let rec get_column c r acc =
+  if r = "0" then acc
+  else
+    get_column c (r |> int_of_string |> ( + ) (-1) |> string_of_int) []
+    @ ((c ^ r) :: acc)
+
+(** [get_columns] is all the squares on the chess board*)
+let rec get_columns c acc =
+  if c = "`" then acc
+  else
+    get_columns
+      (String.get c 0 |> Char.code |> ( + ) (-1) |> Char.chr |> String.make 1)
+      []
+    @ get_column c "8" [] @ acc
+
+(** [get_squares] is all the squares on the chess board*)
+let get_squares = get_columns "h" []
+
+let diff orig_pos new_pos index =
+  Char.code (String.get new_pos index) - Char.code (String.get orig_pos index)
+
 (** [move_horizontal dir pos] is the position 1 horizontal square away from
     square [pos] in the direction [dir]*)
 let move_horizontal dir pos =
@@ -15,12 +47,6 @@ let move_horizontal dir pos =
 let move_vertical dir pos =
   String.get pos 1 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1
   |> ( ^ ) (String.get pos 0 |> Char.escaped)
-
-(** [diff orig_pos new_pos index] is the difference in position between
-    [orig_pos] and [new_pos] in index [index]. [index] is 0 for horizontal
-    distance and 1 for vertical distance*)
-let diff orig_pos new_pos index =
-  Char.code (String.get new_pos index) - Char.code (String.get orig_pos index)
 
 (** [is_horizontal orig_pos new_pos] checks if two pieces are in the same row.
     Requires: [orig_pos] and [new_pos] are valid squares on the board*)
@@ -116,93 +142,72 @@ let check_pawn_attack color orig_pos new_pos state =
    [orig_pos] to [new_pos] is a valid move. Requires: [orig_pos] and [new_pos]
    are valid squares and [state] is a valid state of the board *)
 let check_pawn color orig_pos new_pos state =
-  match state |> get_board |> List.assoc_opt orig_pos with
-  | None -> false
-  | Some piece_state ->
-      let dir = if color = White then 1 else -1 in
-      let x_dif = diff orig_pos new_pos 0 in
-      let y_dif = diff orig_pos new_pos 1 in
-      if x_dif = 0 then
-        if y_dif = dir && state |> get_board |> List.assoc_opt new_pos = None
-        then true
-        else
-          (not (get_moved piece_state))
-          && check_vertical orig_pos new_pos state
-          && state |> get_board |> List.assoc_opt new_pos = None
-      else
-        abs x_dif = 1
-        && y_dif = dir
-        && check_pawn_attack color orig_pos new_pos state
+  let piece_state = state |> get_board |> List.assoc orig_pos in
+  let dir = if color = White then 1 else -1 in
+  let x_dif = diff orig_pos new_pos 0 in
+  let y_dif = diff orig_pos new_pos 1 in
+  if x_dif = 0 then
+    if y_dif = dir && state |> get_board |> List.assoc_opt new_pos = None then
+      true
+    else
+      (not (get_moved piece_state))
+      && check_vertical orig_pos new_pos state
+      && state |> get_board |> List.assoc_opt new_pos = None
+  else
+    abs x_dif = 1
+    && y_dif = dir
+    && check_pawn_attack color orig_pos new_pos state
 
 (**[check_knight color orig_pos new_pos state] checks if moving a knight from
    [orig_pos] to [new_pos] is a valid move. Requires: [orig_pos] and [new_pos]
    are valid squares and [state] is a valid state of the board *)
 let check_knight color orig_pos new_pos state =
-  match state |> get_board |> List.assoc_opt orig_pos with
-  | None -> false
-  | Some _ -> begin
-      let x_dif = diff orig_pos new_pos 0 in
-      let y_dif = diff orig_pos new_pos 1 in
-      match (abs x_dif, abs y_dif) with
-      | 1, 2 | 2, 1 -> begin
-          match state |> get_board |> List.assoc_opt new_pos with
-          | None -> true
-          | Some piece_state -> get_piece_color piece_state <> color
-        end
-      | _ -> false
+  let x_dif = diff orig_pos new_pos 0 in
+  let y_dif = diff orig_pos new_pos 1 in
+  match (abs x_dif, abs y_dif) with
+  | 1, 2 | 2, 1 -> begin
+      match state |> get_board |> List.assoc_opt new_pos with
+      | None -> true
+      | Some piece_state -> get_piece_color piece_state <> color
     end
+  | _ -> false
 
 (**[check_bishop color orig_pos new_pos state] checks if moving a bishop from
    [orig_pos] to [new_pos] is a valid move. Requires: [orig_pos] and [new_pos]
    are valid squares and [state] is a valid state of the board *)
 let check_bishop color orig_pos new_pos state =
-  match state |> get_board |> List.assoc_opt orig_pos with
-  | None -> false
-  | Some _ ->
-      if is_diagonal orig_pos new_pos && check_diagonal orig_pos new_pos state
-      then
-        match state |> get_board |> List.assoc_opt new_pos with
-        | None -> true
-        | Some piece_state -> get_piece_color piece_state <> color
-      else false
+  if is_diagonal orig_pos new_pos && check_diagonal orig_pos new_pos state then
+    match state |> get_board |> List.assoc_opt new_pos with
+    | None -> true
+    | Some piece_state -> get_piece_color piece_state <> color
+  else false
 
 (**[check_rook color orig_pos new_pos state] checks if moving a rook from
    [orig_pos] to [new_pos] is a valid move. Requires: [orig_pos] and [new_pos]
    are valid squares and [state] is a valid state of the board *)
 let check_rook color orig_pos new_pos state =
-  match state |> get_board |> List.assoc_opt orig_pos with
-  | None -> false
-  | Some _ ->
-      if
-        is_horizontal orig_pos new_pos
-        && check_horizontal orig_pos new_pos state
-        || is_vertical orig_pos new_pos
-           && check_vertical orig_pos new_pos state
-      then
-        match state |> get_board |> List.assoc_opt new_pos with
-        | None -> true
-        | Some piece_state -> get_piece_color piece_state <> color
-      else false
+  if
+    (is_horizontal orig_pos new_pos && check_horizontal orig_pos new_pos state)
+    || (is_vertical orig_pos new_pos && check_vertical orig_pos new_pos state)
+  then
+    match state |> get_board |> List.assoc_opt new_pos with
+    | None -> true
+    | Some piece_state -> get_piece_color piece_state <> color
+  else false
 
 (**[check_queen color orig_pos new_pos state] checks if moving a queen from
    [orig_pos] to [new_pos] is a valid move. Requires: [orig_pos] and [new_pos]
    are valid squares and [state] is a valid state of the board *)
 let check_queen color orig_pos new_pos state =
-  match state |> get_board |> List.assoc_opt orig_pos with
-  | None -> false
-  | Some _ ->
-      if
-        is_horizontal orig_pos new_pos
-        && check_horizontal orig_pos new_pos state
-        || is_vertical orig_pos new_pos
-           && check_vertical orig_pos new_pos state
-        || is_diagonal orig_pos new_pos
-           && check_diagonal orig_pos new_pos state
-      then
-        match state |> get_board |> List.assoc_opt new_pos with
-        | None -> true
-        | Some piece_state -> get_piece_color piece_state <> color
-      else false
+  if
+    (is_horizontal orig_pos new_pos && check_horizontal orig_pos new_pos state)
+    || (is_vertical orig_pos new_pos && check_vertical orig_pos new_pos state)
+    || (is_diagonal orig_pos new_pos && check_diagonal orig_pos new_pos state)
+  then
+    match state |> get_board |> List.assoc_opt new_pos with
+    | None -> true
+    | Some piece_state -> get_piece_color piece_state <> color
+  else false
 
 (** [check_king_attack color orig_pos new_pos state] checks if a king with color
     [color] at squrae [orig_pos] attacks the square [new_pos] in the current
@@ -234,19 +239,25 @@ let rec check_attacked color pos state board =
    are valid squares and [state] is a valid state of the board *)
 let check_king color orig_pos new_pos state = true
 
-let check_valid piece color orig_pos new_pos state =
-  match piece with
-  | Pawn -> check_pawn color orig_pos new_pos state
-  | Knight -> check_knight color orig_pos new_pos state
-  | Bishop -> check_bishop color orig_pos new_pos state
-  | Rook -> check_rook color orig_pos new_pos state
-  | Queen -> check_queen color orig_pos new_pos state
-  | King -> check_king color orig_pos new_pos state
+let check_move piece color orig_pos new_pos state =
+  match state |> get_board |> List.assoc_opt orig_pos with
+  | None -> false
+  | Some piece_state -> begin
+      begin
+        piece = get_piece_type piece_state
+        &&
+        match piece with
+        | Pawn -> check_pawn color orig_pos new_pos state
+        | Knight -> check_knight color orig_pos new_pos state
+        | Bishop -> check_bishop color orig_pos new_pos state
+        | Rook -> check_rook color orig_pos new_pos state
+        | Queen -> check_queen color orig_pos new_pos state
+        | King -> check_king color orig_pos new_pos state
+      end
+    end
 
-let check_square (square : string) : bool =
-  if not (String.length square = 2) then false
-  else if not ('a' <= String.get square 0 && String.get square 0 <= 'h') then
-    false
-  else if not ('1' <= String.get square 1 && String.get square 1 <= '8') then
-    false
-  else true
+let check_checkmate = true
+let check_check = true
+
+let check_valid_move piece color orig_pos new_pos state =
+  check_move piece color orig_pos new_pos state
