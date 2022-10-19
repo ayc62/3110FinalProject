@@ -8,7 +8,6 @@ open Check
 type command =
   | Move of piece_type * string list
   | Resign
-  | Print
 
 let parse_move (move_cmd : string list) =
   match move_cmd with
@@ -37,5 +36,4 @@ let parse str =
   | h :: t ->
       if h = "move" then parse_move t
       else if h = "resign" then Resign
-      else if h = "print" then Print
       else raise InvalidCommand
