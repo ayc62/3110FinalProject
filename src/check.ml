@@ -242,3 +242,11 @@ let check_valid piece color orig_pos new_pos state =
   | Rook -> check_rook color orig_pos new_pos state
   | Queen -> check_queen color orig_pos new_pos state
   | King -> check_king color orig_pos new_pos state
+
+let check_square (square : string) : bool =
+  if not (String.length square = 2) then false
+  else if not ('a' <= String.get square 0 && String.get square 0 <= 'h') then
+    false
+  else if not ('1' <= String.get square 1 && String.get square 1 <= '8') then
+    false
+  else true
