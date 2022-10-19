@@ -258,4 +258,6 @@ let check_move piece color orig_pos new_pos state =
 
 let check_checkmate = true
 let check_check = true
-let check_valid_move piece color orig_pos new_pos state = check_move
+
+let check_valid_move piece color orig_pos new_pos state =
+  check_move piece color orig_pos new_pos state

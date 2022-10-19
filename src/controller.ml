@@ -17,7 +17,7 @@ type result =
    move is valid or not. So right now, any move to any square is valid.*)
 let move_piece (piece : piece_type) (color : piece_color) (orig_pos : string)
     (new_pos : string) (cur_state : state) =
-  if not (check_valid piece color orig_pos new_pos cur_state) then Illegal
+  if not (check_valid_move piece color orig_pos new_pos cur_state) then Illegal
   else
     Legal
       {
