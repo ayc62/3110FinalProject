@@ -22,22 +22,36 @@ let piece state square =
 
 let square_pos (row : int) (col : char) = Char.escaped col ^ string_of_int row
 
-let rec print_row state row col =
+let rec print_row_helper state row col last_col next =
   "| "
   ^ piece state (square_pos row col)
   ^ " "
   ^
-  if col = 'h' then "|"
-  else print_row state row (col |> Char.code |> ( + ) 1 |> Int.abs |> Char.chr)
+  if col = last_col then "|"
+  else print_row_helper state row (col |> Char.code |> next 1 |> Int.abs |> Char.chr) last_col next
 
-let rec print state row =
-  print_endline "-----------------------------------------";
-  print_endline (print_row state row 'a');
-  if row = 1 then print_endline "-----------------------------------------"
-  else print state (row - 1)
+let print_row state row col last_col next= "| " ^ string_of_int row ^ " " ^ (print_row_helper state row col last_col next)
 
-let print_board_helper state =
+let rec print_boarder_helper left_char right_char next = " |  " ^ (String.make 1 left_char) ^ 
+  (if left_char = right_char then " |" else print_boarder_helper  
+  (left_char |> Char.code |> next 1 |> Int.abs |> Char.chr) right_char next)
+let print_bottom_border left_char right_char next = "   " ^ 
+  (print_boarder_helper left_char right_char next)
+  
+let rec print_white state row bottom_row next_row col last_col next_col =
+  print_endline "     ---------------------------------------";
+  print_endline (print_row state row col last_col next_col);
+  if row = bottom_row then 
+    (print_endline "     ---------------------------------------";
+    print_endline (print_bottom_border col last_col next_col))
+  else print_white state (next_row row 1) bottom_row next_row col last_col next_col
+
+let print_board_helper row bottom_row next_row col last_col next_col state =
   print_endline "";
-  print state 8
+  print_white state row bottom_row next_row col last_col next_col
 
-let print_board state = state |> get_board |> print_board_helper
+
+
+let print_board_white state = state |> get_board |> print_board_helper 8 1 (-) 'a' 'h' (+)
+
+let print_board_black state = state |> get_board |> print_board_helper 1 8 (+) 'h' 'a' (-)
