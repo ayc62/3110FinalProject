@@ -45,9 +45,8 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
       get_new_player_move color state
 
 and get_new_player_move color (state : state) =
-  Printboard.print_board state;
-  print_endline ("To move: " ^ color_string color);
-
+  if color = White then Printboard.print_board_white state
+  else Printboard.print_board_black state;
   print_string "> ";
   match read_line () with
   | exception End_of_file -> ()
@@ -60,7 +59,7 @@ let main () =
      square] [ending square]', such as 'move Pawn e2 e4'. You may also \
      visualize the board by typing 'print', or surrender the game by typing \
      'resign'.";
-  Printboard.print_board init_state;
+  Printboard.print_board_white init_state;
   print_endline "To move: White";
   print_string "> ";
   match read_line () with

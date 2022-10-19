@@ -37,7 +37,7 @@ type state = {
 
 let get_board state = state.board
 let get_old_boards state = state.old_boards
-let get_rule50 state = state.fifty_move_rule
+let get_fifty_move_rule state = state.fifty_move_rule
 
 (**[init_state] returns the initial state of the chessboard before any moves
    have been made. The initial state of the chessboard is the standard setup for
