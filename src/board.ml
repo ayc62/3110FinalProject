@@ -10,7 +10,7 @@ type piece_color =
   | White
   | Black
 
-type piece = {
+type piece_state = {
   piece_type : piece_type;
   piece_color : piece_color;
   moved : bool;
@@ -23,13 +23,21 @@ type piece = {
 let piece_helper ?(moved = false) (pos : string) piece_type piece_color =
   (pos, { piece_type; piece_color; moved })
 
-type board = (string * piece) list
+let get_piece_type piece = piece.piece_type
+let get_piece_color piece = piece.piece_color
+let get_moved piece = piece.moved
+
+type board = (string * piece_state) list
 
 type state = {
-  board : (string * piece) list;
+  board : (string * piece_state) list;
   old_boards : board list;
-  rule50 : int;
+  fifty_move_rule : int;
 }
+
+let get_board state = state.board
+let get_old_boards state = state.old_boards
+let get_rule50 state = state.fifty_move_rule
 
 (**[init_state] returns the initial state of the chessboard before any moves
    have been made. The initial state of the chessboard is the standard setup for
@@ -72,5 +80,5 @@ let init_state : state =
         piece_helper "h8" Rook Black;
       ];
     old_boards = [];
-    rule50 = 0;
+    fifty_move_rule = 0;
   }
