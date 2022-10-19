@@ -23,9 +23,9 @@ type piece_state = {
 let piece_helper ?(moved = false) (pos : string) piece_type piece_color =
   (pos, { piece_type; piece_color; moved })
 
-let get_piece_type piece = piece.piece_type
-let get_piece_color piece = piece.piece_color
-let get_moved piece = piece.moved
+let get_piece_type piece_state = piece_state.piece_type
+let get_piece_color piece_state = piece_state.piece_color
+let get_moved piece_state = piece_state.moved
 
 type board = (string * piece_state) list
 

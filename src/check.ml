@@ -93,8 +93,8 @@ let check_en_passant color orig_pos new_pos state =
   &&
   match List.assoc_opt start_pawn_pos (state |> get_old_boards |> List.hd) with
   | None -> false
-  | Some { piece_color; piece_type; moved } ->
-      piece_color <> color && piece_type = Pawn
+  | Some piece_state ->
+      get_piece_color piece_state <> color && get_piece_type piece_state = Pawn
 
 (** [check_pawn_attack color orig_pos new_pos state] checks if a pawn can
     capture a piece from [orig_pos] to [new_pos] for a pawn with color [color]
@@ -140,14 +140,14 @@ let check_pawn color orig_pos new_pos state =
 let check_knight color orig_pos new_pos state =
   match state |> get_board |> List.assoc_opt orig_pos with
   | None -> false
-  | Some piece_state -> begin
+  | Some _ -> begin
       let x_dif = diff orig_pos new_pos 0 in
       let y_dif = diff orig_pos new_pos 1 in
       match (abs x_dif, abs y_dif) with
       | 1, 2 | 2, 1 -> begin
           match state |> get_board |> List.assoc_opt new_pos with
           | None -> true
-          | piece -> get_piece_color piece_state <> color
+          | Some piece_state -> get_piece_color piece_state <> color
         end
       | _ -> false
     end
@@ -158,18 +158,51 @@ let check_knight color orig_pos new_pos state =
 let check_bishop color orig_pos new_pos state =
   match state |> get_board |> List.assoc_opt orig_pos with
   | None -> false
-  | Some piece_state ->
-      if check_diagonal orig_pos new_pos state then true else false
+  | Some _ ->
+      if is_diagonal orig_pos new_pos && check_diagonal orig_pos new_pos state
+      then
+        match state |> get_board |> List.assoc_opt new_pos with
+        | None -> true
+        | Some piece_state -> get_piece_color piece_state <> color
+      else false
 
 (**[check_rook color orig_pos new_pos state] checks if moving a rook from
    [orig_pos] to [new_pos] is a valid move. Requires: [orig_pos] and [new_pos]
    are valid squares and [state] is a valid state of the board *)
-let check_rook color orig_pos new_pos state = true
+let check_rook color orig_pos new_pos state =
+  match state |> get_board |> List.assoc_opt orig_pos with
+  | None -> false
+  | Some _ ->
+      if
+        is_horizontal orig_pos new_pos
+        && check_horizontal orig_pos new_pos state
+        || is_vertical orig_pos new_pos
+           && check_vertical orig_pos new_pos state
+      then
+        match state |> get_board |> List.assoc_opt new_pos with
+        | None -> true
+        | Some piece_state -> get_piece_color piece_state <> color
+      else false
 
 (**[check_queen color orig_pos new_pos state] checks if moving a queen from
    [orig_pos] to [new_pos] is a valid move. Requires: [orig_pos] and [new_pos]
    are valid squares and [state] is a valid state of the board *)
-let check_queen color orig_pos new_pos state = true
+let check_queen color orig_pos new_pos state =
+  match state |> get_board |> List.assoc_opt orig_pos with
+  | None -> false
+  | Some _ ->
+      if
+        is_horizontal orig_pos new_pos
+        && check_horizontal orig_pos new_pos state
+        || is_vertical orig_pos new_pos
+           && check_vertical orig_pos new_pos state
+        || is_diagonal orig_pos new_pos
+           && check_diagonal orig_pos new_pos state
+      then
+        match state |> get_board |> List.assoc_opt new_pos with
+        | None -> true
+        | Some piece_state -> get_piece_color piece_state <> color
+      else false
 
 (** [check_king_attack color orig_pos new_pos state] checks if a king with color
     [color] at squrae [orig_pos] attacks the square [new_pos] in the current
