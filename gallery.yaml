@@ -1,0 +1,33 @@
+---
+# Members of your group.
+group:
+  - name: Angela Cui
+    netid: ayc62
+  - name: Brian La
+    netid: byl8
+  - name: Richard Niu
+    netid: rhn26
+  - name: Samuel Wong
+    netid: slw259
+  
+# Your PM.
+pm:
+  name: Ariel Gettig
+  netid: aqg3
+# Set to false if you don't want your gallery entry to be public.
+publish: true
+# Pithy title
+title: "The Best Version of Chess 100% Not Clickbait"
+# OK if this is a Cornell Github link, but public gallery viewers won't be able to see it.
+git-repo: "https://github.com/ayc62/3110FinalProject"
+# If you have no demo screencast, replace the url string with an empty string ""
+demo-video-url: ""
+# Write a short, attention-grabbing description of your project.
+desc: >
+  Our project is a multiplayer chess interface. Currently, we have implemented 
+  a functional program for a simple game of chess. Two players are able to play
+  a game using the same computer. Moves will be inputted via text, and the 
+  output of the chessboard will be updated after each move. In the future, we 
+  have plans to implement various other variants of chess, including 3-Check
+  Chess, King of the Hill, Fischer Random, Horde, or other variants which you 
+  can select from in a main menu.
