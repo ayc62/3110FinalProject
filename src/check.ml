@@ -110,17 +110,22 @@ let rec check_diagonal orig_pos new_pos state =
     possible from [orig_pos] to [new_pos] for a pawn with color [color] in the
     current state [state]. *)
 let check_en_passant color orig_pos new_pos state =
-  let dir = if color = White then 1 else -1 in
-  let en_passant_pos = move_vertical (-1 * dir) new_pos in
-  let start_pawn_pos = move_vertical dir new_pos in
-  let piece = state |> get_board |> List.assoc en_passant_pos in
-  get_piece_color piece <> color
-  && state |> get_board |> List.assoc_opt start_pawn_pos = None
-  &&
-  match List.assoc_opt start_pawn_pos (state |> get_old_boards |> List.hd) with
-  | None -> false
-  | Some piece_state ->
-      get_piece_color piece_state <> color && get_piece_type piece_state = Pawn
+  try
+    let dir = if color = White then 1 else -1 in
+    let en_passant_pos = move_vertical (-1 * dir) new_pos in
+    let start_pawn_pos = move_vertical dir new_pos in
+    let piece = state |> get_board |> List.assoc en_passant_pos in
+    get_piece_color piece <> color
+    && state |> get_board |> List.assoc_opt start_pawn_pos = None
+    &&
+    match
+      List.assoc_opt start_pawn_pos (state |> get_old_boards |> List.hd)
+    with
+    | None -> false
+    | Some piece_state ->
+        get_piece_color piece_state <> color
+        && get_piece_type piece_state = Pawn
+  with Not_found -> false
 
 (** [check_pawn_attack color orig_pos new_pos state] checks if a pawn can
     capture a piece from [orig_pos] to [new_pos] for a pawn with color [color]
