@@ -15,9 +15,12 @@ Wait for it to prompt for you to input something else. You can then upgrade all 
 <br>
 `unzip chess.zip`<br>
 <br>
-There will now be a folder named `chess` that will appear in your directory. Navigate into that `chess` file by running `cd chess`
+There will now be a folder named `chess` that will appear in your directory. Navigate into that `chess` folder by running `cd chess`. From there, we need to build all pertinent modules for running successfully by running<br>
+<br>`make build`<br>
+<br>
+Make sure you are inside the `chess` folder!
 
- 2. We now need to install ANSITerminal. When you are currently in the `chess` file, run<br>
+ 2. We now need to install ANSITerminal. When you are currently in the `chess` folder, run<br>
 <br>
 `opam install ANSITerminal`<br>
 <br>
