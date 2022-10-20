@@ -31,7 +31,7 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
         | Legal st -> get_new_player_move (opposite_color color) st
         | Illegal ->
             print_endline "The specified move is illegal. Please try again.";
-            get_new_player_move color state)
+            get_new_player_move ~print:false color state)
     | Resign -> print_endline "u resigned L"
   with
   | Command.InvalidCommand ->
@@ -48,7 +48,8 @@ and get_new_player_move ?(print = true) color (state : state) =
   if print then
     if color = White then Printboard.print_board_white state
     else Printboard.print_board_black state
-  else print_string "> ";
+  else ();
+  print_string "> ";
   match read_line () with
   | exception End_of_file -> ()
   | command -> execute_player_move color state command
