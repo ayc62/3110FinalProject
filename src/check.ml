@@ -212,7 +212,10 @@ let check_queen color orig_pos new_pos state =
 (** [check_king_attack color orig_pos new_pos state] checks if a king with color
     [color] at squrae [orig_pos] attacks the square [new_pos] in the current
     state [state]. *)
-let check_king_attack color orig_pos new_pos state = true
+let check_king_attack color orig_pos new_pos state =
+  let x_dif = diff orig_pos new_pos 0 in
+  let y_dif = diff orig_pos new_pos 1 in
+  abs x_dif <= 1 && y_dif <= 2
 
 (** [can_see piece color pos] checks if a piece with piece_type [piece] and
     color [color] can see the square [pos]*)
@@ -234,12 +237,18 @@ let rec check_attacked color pos state board =
       if can_see h color pos state then false
       else check_attacked color pos state t
 
+let check_castle color orig_pos new_pos state = true
+
 (**[check_king color orig_pos new_pos state] checks if moving a queen from
    [orig_pos] to [new_pos] is a valid move. Requires: [orig_pos] and [new_pos]
    are valid squares and [state] is a valid state of the board *)
-let check_king color orig_pos new_pos state = true
+let check_king color orig_pos new_pos state =
+  let opp_color = if color = White then Black else White in
+  check_attacked opp_color new_pos state (get_board state)
+  && (check_king_attack color orig_pos new_pos state
+     || check_castle color orig_pos new_pos state)
 
-let check_move piece color orig_pos new_pos state =
+let check_piece_move piece color orig_pos new_pos state =
   match state |> get_board |> List.assoc_opt orig_pos with
   | None -> false
   | Some piece_state -> begin
@@ -256,8 +265,9 @@ let check_move piece color orig_pos new_pos state =
       end
     end
 
-let check_checkmate = true
-let check_check = true
+let check_check = false
+let check_checkmate = false
 
 let check_valid_move piece color orig_pos new_pos state =
-  check_move piece color orig_pos new_pos state
+  if not check_check then check_piece_move piece color orig_pos new_pos state
+  else true

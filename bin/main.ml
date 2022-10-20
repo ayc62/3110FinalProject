@@ -36,18 +36,19 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
   with
   | Command.InvalidCommand ->
       print_endline "This is not a valid command as entered. Please try again.";
-      get_new_player_move color state
+      get_new_player_move ~print:false color state
   | Command.InvalidSquare ->
       print_endline "One of the squares specified is invalid. Please try again.";
-      get_new_player_move color state
+      get_new_player_move ~print:false color state
   | Command.InvalidPiece ->
       print_endline "The piece specified is invalid. Please try again.";
-      get_new_player_move color state
+      get_new_player_move ~print:false color state
 
-and get_new_player_move color (state : state) =
-  if color = White then Printboard.print_board_white state
-  else Printboard.print_board_black state;
-  print_string "> ";
+and get_new_player_move ?(print = true) color (state : state) =
+  if print then
+    if color = White then Printboard.print_board_white state
+    else Printboard.print_board_black state
+  else print_string "> ";
   match read_line () with
   | exception End_of_file -> ()
   | command -> execute_player_move color state command

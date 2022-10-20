@@ -6,6 +6,15 @@ type result =
   | Legal of state
   | Illegal
 
+let remove_piece piece color orig_pos new_pos board =
+  let dir = if color = White then 1 else -1 in
+  match board |> List.assoc_opt new_pos with
+  | None ->
+      if piece = Pawn then
+        board |> List.remove_assoc (new_pos |> move_vertical (-1 * dir))
+      else board
+  | Some piece -> board |> List.remove_assoc new_pos
+
 (**[move_piece] moves a piece [piece] of color [color] from an old position
    [orig_pos] to a new position [new_pos]. It also takes in the old state of the
    chessboard [old_state] and returns the new state of the chessboard with the
@@ -24,6 +33,7 @@ let move_piece (piece : piece_type) (color : piece_color) (orig_pos : string)
         cur_state with
         board =
           piece_helper ~moved:true new_pos piece color
-          :: List.remove_assoc orig_pos (get_board cur_state);
+          :: (cur_state |> get_board |> List.remove_assoc orig_pos
+             |> remove_piece piece color orig_pos new_pos);
         old_boards = get_board cur_state :: get_old_boards cur_state;
       }
