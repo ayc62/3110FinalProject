@@ -4,10 +4,10 @@ Follow the instructions below to install Chess. Make sure that you installed OCa
 
 0. Make sure your OCaml and OPAM are up to date; your OCaml version should be version 4.14.0 or later. If not, please update OCaml. Then, make sure your OPAM is up to date as well. To do this, open your command line and run <br/> <br/> `opam update` <br/><br/> After you are prompted for another input, you can then upgrade all your packages by running <br/><br/>`opam upgrade`<br/><br/>
 1. Download `chess.zip`, then place it into a directory of your choice. Navigate into that directory. Now, unzip the folder by running
-<br/><br/> `unzip chess.zip`<br/> <br/> There will now be a folder named `chess` that will appear in your directory. Navigate into that `chess` folder by running `cd chess`. From there, we need to build all pertinent modules for running the game successfully by running 
+<br/><br/> `unzip chess.zip`<br/> <br/> Now, we need to build all pertinent modules for running the game successfully by running 
 <br/><br/>
 `make build`<br/>
-<br/> Make sure you are inside the `chess` folder when running this! <br/> <br/>
+<br/> 
 2. We now need to install ANSITerminal in order for the colors on the chessboard to work. When you are currently in the `chess` folder, run <br/> <br/> `opam install ANSITerminal`<br/> <br/>
 
 Now you're all done with the installation process! You can proceed to play our Chess game by simply typing in `make play`. If you're unfamiliar with chess, [here](https://www.chess.com/learn-how-to-play-chess) are the rules on how to play. Good luck, and most importantly have fun!
