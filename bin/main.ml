@@ -32,7 +32,10 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
         | Illegal ->
             print_endline "The specified move is illegal. Please try again.";
             get_new_player_move ~print:false color state)
-    | Resign -> print_endline "u resigned L"
+    | Resign ->
+        print_endline
+          ((color |> opposite_color |> color_string)
+          ^ " wins! Thank you for playing.")
   with
   | Command.InvalidCommand ->
       print_endline "This is not a valid command as entered. Please try again.";
@@ -49,6 +52,7 @@ and get_new_player_move ?(print = true) color (state : state) =
     if color = White then Printboard.print_board_white state
     else Printboard.print_board_black state
   else ();
+  print_endline ("To move: " ^ (color |> color_string));
   print_string "> ";
   match read_line () with
   | exception End_of_file -> ()
@@ -57,10 +61,14 @@ and get_new_player_move ?(print = true) color (state : state) =
 let main () =
   print_endline "Welcome to a very unfinished implementation of Chess.";
   print_endline
-    "Rules: You may make a move by entering 'move [piece name] [starting \
-     square] [ending square]', such as 'move Pawn e2 e4'. You may also \
-     visualize the board by typing 'print', or surrender the game by typing \
-     'resign'.";
+    "So far, we only have the standard version working, with the caveat that \
+     castling and checkmate have not been implemented.";
+  print_endline
+    "A player may make a move by entering 'move [piece name] [starting square] \
+     [ending square]', such as 'move Pawn e2 e4'. Note that the piece names \
+     and squares are case-sensitive: the piece name should be capitalized, and \
+     the squares should not be capitalized. You can also resign the game by \
+     typing 'resign'.";
   Printboard.print_board_white init_state;
   print_endline "To move: White";
   print_string "> ";
