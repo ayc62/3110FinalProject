@@ -6,12 +6,25 @@ type result =
   | Legal of state
   | Illegal
 
-let remove_piece piece color orig_pos new_pos board =
+let remove_piece piece color orig_pos new_pos (state : state) board =
   let dir = if color = White then 1 else -1 in
   match board |> List.assoc_opt new_pos with
   | None ->
       if piece = Pawn then
         board |> List.remove_assoc (new_pos |> move_vertical (-1 * dir))
+      else if piece = King then
+        let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
+        let col =
+          String.get orig_pos 0 |> Char.code |> ( + ) dir |> Char.chr
+          |> String.make 1
+        in
+        let row = String.get orig_pos 1 |> String.make 1 in
+        let rook_pos = get_castle_rook col row dir state in
+        match rook_pos with
+        | None -> board
+        | Some pos ->
+            piece_helper ~moved:true (col ^ row) Rook color
+            :: (board |> List.remove_assoc pos)
       else board
   | Some piece -> board |> List.remove_assoc new_pos
 
@@ -34,6 +47,6 @@ let move_piece (piece : piece_type) (color : piece_color) (orig_pos : string)
         board =
           piece_helper ~moved:true new_pos piece color
           :: (cur_state |> get_board |> List.remove_assoc orig_pos
-             |> remove_piece piece color orig_pos new_pos);
+             |> remove_piece piece color orig_pos new_pos cur_state);
         old_boards = get_board cur_state :: get_old_boards cur_state;
       }
