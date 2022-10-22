@@ -288,6 +288,7 @@ let check_king color orig_pos new_pos state =
   state |> get_board |> check_attacked (color |> opp_color) new_pos state |> not
   && check_king_attack color orig_pos new_pos state
   || abs (diff new_pos orig_pos 0) = 2
+     && state |> get_board |> List.assoc_opt new_pos = None
      && check_castle color orig_pos new_pos state
 
 let check_piece_move piece color orig_pos new_pos state =
