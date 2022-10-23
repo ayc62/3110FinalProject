@@ -160,6 +160,7 @@ let check_pawn color orig_pos new_pos state =
       true
     else
       (not (get_moved piece_state))
+      && diff new_pos orig_pos 1 = 2 * dir
       && check_vertical orig_pos new_pos state
       && state |> get_board |> List.assoc_opt new_pos = None
   else
@@ -297,6 +298,7 @@ let check_piece_move piece color orig_pos new_pos state =
   | Some piece_state -> begin
       begin
         piece = get_piece_type piece_state
+        && color = get_piece_color piece_state
         &&
         match piece with
         | Pawn -> check_pawn color orig_pos new_pos state
