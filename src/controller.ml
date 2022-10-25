@@ -4,27 +4,32 @@ open Check
 
 type result =
   | Legal of state
+  | Check of state
+  | Draw of state
+  | CheckMate of state
   | Illegal
 
+let castle color orig_pos new_pos state board =
+  let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
+  let col =
+    String.get orig_pos 0 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1
+  in
+  let row = String.get orig_pos 1 |> String.make 1 in
+  let rook_pos = get_castle_rook col row dir state in
+  match rook_pos with
+  | None -> board
+  | Some pos ->
+      piece_helper ~moved:true (col ^ row) Rook color
+      :: (board |> List.remove_assoc pos)
+
 let remove_piece piece color orig_pos new_pos (state : state) board =
-  let dir = if color = White then 1 else -1 in
   match board |> List.assoc_opt new_pos with
   | None ->
       if piece = Pawn then
+        let dir = if color = White then 1 else -1 in
+
         board |> List.remove_assoc (new_pos |> move_vertical (-1 * dir))
-      else if piece = King then
-        let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
-        let col =
-          String.get orig_pos 0 |> Char.code |> ( + ) dir |> Char.chr
-          |> String.make 1
-        in
-        let row = String.get orig_pos 1 |> String.make 1 in
-        let rook_pos = get_castle_rook col row dir state in
-        match rook_pos with
-        | None -> board
-        | Some pos ->
-            piece_helper ~moved:true (col ^ row) Rook color
-            :: (board |> List.remove_assoc pos)
+      else if piece = King then castle color orig_pos new_pos state board
       else board
   | Some piece -> board |> List.remove_assoc new_pos
 
@@ -33,13 +38,10 @@ let remove_piece piece color orig_pos new_pos (state : state) board =
    chessboard [old_state] and returns the new state of the chessboard with the
    move applied. The state of the chessboard is represented as an associated
    list of positions as keys and a record with the piece type and piece color as
-   the entry.
-
-   NOTE: So far, we have not implemented if checking functions to check if a
-   move is valid or not. So right now, any move to any square is valid.*)
+   the entry.*)
 let move_piece (piece : piece_type) (color : piece_color) (orig_pos : string)
     (new_pos : string) (cur_state : state) =
-  if not (check_valid_move piece color orig_pos new_pos cur_state) then Illegal
+  if not (check_piece_move piece color orig_pos new_pos cur_state) then Illegal
   else
     Legal
       {
