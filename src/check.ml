@@ -32,8 +32,8 @@ let rec get_columns c acc =
       []
     @ get_column c "8" [] @ acc
 
-(** [get_squares] is all the squares on the chess board*)
-let get_squares = get_columns "h" []
+(** [all_squares] is all the squares on the chess board*)
+let all_squares = get_columns "h" []
 
 (** [diff new_pos orig_pos index] is the difference in position between
     [orig_pos] and [new_pos] in index [index]. [index] is 0 for horizontal
@@ -255,14 +255,14 @@ let rec check_attack color pos state board =
   | h :: t ->
       if can_see h color pos state then true else check_attack color pos state t
 
-(**[get_castle_rook col row dir state] gets the rook that the king is castling
-   with in the current state [state]*)
-let rec get_castle_rook col row dir state =
+(**[castle_rook col row dir state] is the rook that the king is castling with in
+   the current state [state]*)
+let rec castle_rook col row dir state =
   if col = "`" || col = "i" then None
   else
     match state |> get_board |> List.assoc_opt (col ^ row) with
     | None ->
-        get_castle_rook
+        castle_rook
           (String.get col 0 |> Char.code |> ( + ) dir |> Char.chr
          |> String.make 1)
           row dir state
@@ -276,24 +276,31 @@ let rec get_castle_rook col row dir state =
     current state [state]*)
 let check_castle color orig_pos new_pos state =
   let piece_state = state |> get_board |> List.assoc orig_pos in
-  let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
-  let col =
-    String.get orig_pos 0 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1
-  in
-  let row = String.get orig_pos 1 |> String.make 1 in
-  get_moved piece_state = false
-  &&
-  match get_castle_rook col row dir state with
-  | None -> false
-  | Some _ ->
-      (not
-         (check_attack (color |> opp_color)
-            (orig_pos |> move_horizontal dir)
-            state (state |> get_board)))
-      && not
-           (check_attack (color |> opp_color)
-              (orig_pos |> move_horizontal dir |> move_horizontal dir)
-              state (state |> get_board))
+  if
+    abs (diff new_pos orig_pos 0) = 2
+    && state |> get_board |> List.assoc_opt new_pos = None
+    && get_moved piece_state = false
+  then
+    let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
+    let col =
+      String.get orig_pos 0 |> Char.code |> ( + ) dir |> Char.chr
+      |> String.make 1
+    in
+    let row = String.get orig_pos 1 |> String.make 1 in
+    match castle_rook col row dir state with
+    | None -> false
+    | Some _ ->
+        (not
+           (check_attack (color |> opp_color) orig_pos state (state |> get_board)))
+        && (not
+              (check_attack (color |> opp_color)
+                 (orig_pos |> move_horizontal dir)
+                 state (state |> get_board)))
+        && not
+             (check_attack (color |> opp_color)
+                (orig_pos |> move_horizontal dir |> move_horizontal dir)
+                state (state |> get_board))
+  else false
 
 (**[check_king color orig_pos new_pos state] checks if moving a king from
    [orig_pos] to [new_pos] is a valid move. Requires: [orig_pos] and [new_pos]
@@ -303,9 +310,7 @@ let check_king color orig_pos new_pos state =
   && state |> get_board
      |> check_attack (color |> opp_color) new_pos state
      |> not
-  || abs (diff new_pos orig_pos 0) = 2
-     && state |> get_board |> List.assoc_opt new_pos = None
-     && check_castle color orig_pos new_pos state
+  || check_castle color orig_pos new_pos state
 
 (** [check_piece_move piece color orig_pos new_pos state] checks if the piece
     [piece] of color [color] can move (based solely on piece restriction, and
@@ -326,26 +331,64 @@ let check_piece_move piece color orig_pos new_pos state =
       | Queen -> check_queen color orig_pos new_pos state
       | King -> check_king color orig_pos new_pos state)
 
-(** [get_king color state] gets the current position of the king with color
+(** [king_square color state] gets the current position of the king with color
     [color] in the current state. Raises: Not_found if there is no king*)
-let rec get_king color state = function
+let rec king_square color state = function
   | [] -> raise Not_found
   | h :: t -> (
       match List.assoc_opt h (get_board state) with
-      | None -> get_king color state t
+      | None -> king_square color state t
       | Some piece_state ->
           if
             get_piece_color piece_state = color
             && get_piece_type piece_state = King
           then h
-          else get_king color state t)
+          else king_square color state t)
 
 (** [check_check color state] checks if color [color] is checking the opposing
     kick in the current state [state]*)
 let check_check color state =
-  let king_square = get_king (color |> opp_color) state get_squares in
+  let king_square = king_square (color |> opp_color) state all_squares in
   check_attack color king_square state (get_board state)
 
-(**[check_checkmate color state] checks if color [color] managed to checkmate
-   the opponent*)
-let check_checkmate color state = false
+(** [all_pawn_moves_helper color orig_pos state] is all the squares a pawn on
+    square [orig_pos] can move to. Does not need to be a valid move*)
+let all_pawn_moves color orig_pos state = raise (Failure "Unimplemented")
+
+(** [all_pawn_moves color orig_pos state] is all the moves a pawn on square
+    [orig_pos] can make in the current state [state]*)
+let rec filter_moves color orig_pos state moves acc =
+  match moves with
+  | [] -> acc
+  | h :: t -> begin
+      match h with
+      | piece_type, orig_pos, new_pos ->
+          let filter =
+            match piece_type with
+            | Pawn -> check_pawn
+            | Knight -> check_knight
+            | Bishop -> check_bishop
+            | Rook -> check_rook
+            | Queen -> check_queen
+            | King -> check_king
+          in
+          if filter color orig_pos new_pos state then
+            h :: filter_moves color orig_pos state t acc
+          else filter_moves color orig_pos state t acc
+    end
+
+(** [all_possible_moves color state board acc] is all the possible moves color
+    [color] could make in the current state*)
+let rec all_possible_moves color state board acc =
+  match board with
+  | [] -> acc
+  | h :: t -> (
+      match h |> snd |> get_piece_type with
+      | Pawn -> raise (Failure "Unimplemented")
+      | Knight -> raise (Failure "Unimplemented")
+      | Bishop -> raise (Failure "Unimplemented")
+      | Rook -> raise (Failure "Unimplemented")
+      | Queen -> raise (Failure "Unimplemented")
+      | King -> raise (Failure "Unimplemented"))
+
+let check_stalemate color state = raise (Failure "Unimplemented")
