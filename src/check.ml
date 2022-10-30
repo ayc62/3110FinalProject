@@ -358,8 +358,10 @@ let rec moves_list_helper piece orig_pos possible_new_pos acc =
   match possible_new_pos with
   | [] -> acc
   | h :: t ->
-      (if check_square h then [ (piece, orig_pos, h) ] else [])
-      @ moves_list_helper piece orig_pos t acc
+      let acc =
+        (if check_square h then [ (piece, orig_pos, h) ] else []) @ acc
+      in
+      moves_list_helper piece orig_pos t acc
 
 (** [all_pawn_moves color orig_pos state] is all the squares a pawn on square
     [orig_pos] can move to. Does not need to be a valid move*)
@@ -446,7 +448,7 @@ let rec filter_moves color state moves acc =
   | h :: t -> begin
       match h with
       | piece_type, orig_pos, new_pos ->
-          let filter =
+          let check =
             match piece_type with
             | Pawn -> check_pawn
             | Knight -> check_knight
@@ -455,8 +457,8 @@ let rec filter_moves color state moves acc =
             | Queen -> check_queen
             | King -> check_king
           in
-          if filter color orig_pos new_pos state then
-            h :: filter_moves color state t acc
+          if check color orig_pos new_pos state then
+            filter_moves color state t (h :: acc)
           else filter_moves color state t acc
     end
 
@@ -467,14 +469,16 @@ let rec all_possible_moves color state board acc =
   | [] -> filter_moves color state acc []
   | h :: t ->
       if h |> snd |> get_piece_color = color then
-        (match h |> snd |> get_piece_type with
-        | Pawn -> all_pawn_moves color (fst h) state
-        | Knight -> all_knight_moves color (fst h) state
-        | Bishop -> all_bishop_moves color (fst h) state
-        | Rook -> all_rook_moves color (fst h) state
-        | Queen -> all_queen_moves color (fst h) state
-        | King -> all_king_moves color (fst h) state)
-        @ all_possible_moves color state t acc
+        let piece_moves =
+          match h |> snd |> get_piece_type with
+          | Pawn -> all_pawn_moves color (fst h) state
+          | Knight -> all_knight_moves color (fst h) state
+          | Bishop -> all_bishop_moves color (fst h) state
+          | Rook -> all_rook_moves color (fst h) state
+          | Queen -> all_queen_moves color (fst h) state
+          | King -> all_king_moves color (fst h) state
+        in
+        all_possible_moves color state t (piece_moves @ acc)
       else all_possible_moves color state t acc
 
 let check_stalemate color state =

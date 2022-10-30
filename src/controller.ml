@@ -51,9 +51,9 @@ let rec check_checkmate_helper color moves state =
       match h with
       | piece, orig_pos, new_pos ->
           let new_state =
-            move_piece_helper piece color orig_pos new_pos state
+            move_piece_helper piece (opp_color color) orig_pos new_pos state
           in
-          if check_check (opp_color color) new_state then
+          if check_check color new_state then
             check_checkmate_helper color t state
           else false
     end
@@ -62,7 +62,8 @@ let rec check_checkmate_helper color moves state =
    the opponent*)
 let check_checkmate color state =
   check_checkmate_helper color
-    (all_possible_moves color state (state |> get_board) [])
+    (all_possible_moves (opp_color color) state (state |> get_board) [])
+    state
 
 (**[move_piece] moves a piece [piece] of color [color] from an old position
    [orig_pos] to a new position [new_pos]. It also takes in the old state of the
@@ -77,8 +78,14 @@ let move_piece (piece : piece_type) (color : piece_color) (orig_pos : string)
     let new_state = move_piece_helper piece color orig_pos new_pos cur_state in
     if check_check (opp_color color) new_state then Illegal
     else
-      Legal
+      let new_state =
         {
-          (move_piece_helper piece color orig_pos new_pos cur_state) with
+          new_state with
           old_boards = get_board cur_state :: get_old_boards cur_state;
         }
+      in
+      if check_check color new_state && check_checkmate color new_state then
+        CheckMate new_state
+      else if check_check color new_state then Check new_state
+      else if check_stalemate (opp_color color) new_state then Draw new_state
+      else Legal new_state

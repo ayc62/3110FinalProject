@@ -29,6 +29,13 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
         in
         match attempted_state with
         | Legal st -> get_new_player_move (opposite_color color) st
+        | Check st ->
+            print_endline "You are under check";
+            get_new_player_move (opposite_color color) st
+        | Draw st -> print_endline "It is a draw! Thank you for playing."
+        | CheckMate st ->
+            print_endline
+              ((color |> color_string) ^ " wins! Thank you for playing.")
         | Illegal ->
             print_endline "The specified move is illegal. Please try again.";
             get_new_player_move ~print:false color state)
