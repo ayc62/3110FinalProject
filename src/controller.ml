@@ -9,6 +9,7 @@ type result =
   | Draw of state
   | CheckMate of state
 
+(** [castle color orig_pos new_pos state board] castles [color] in the current*)
 let castle color orig_pos new_pos state board =
   let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
   let col =
@@ -22,6 +23,10 @@ let castle color orig_pos new_pos state board =
       piece_helper ~moved:true (col ^ row) Rook color
       :: (board |> List.remove_assoc pos)
 
+(** [remove_piece piece color orig_pos new_pos state board] removes piece
+    [piece] with color [color] that moves from position [orig_pos] to position
+    [new_pos] in the state [state]. [board] is the board that will be changed
+    and returned*)
 let remove_piece piece color orig_pos new_pos (state : state) board =
   match board |> List.assoc_opt new_pos with
   | None ->
@@ -44,26 +49,40 @@ let move_piece_helper piece color orig_pos new_pos cur_state =
          |> remove_piece piece color orig_pos new_pos cur_state);
   }
 
-let rec check_checkmate_helper color moves state =
+(** [all_valid_moves_helper color moves state acc] is all the valid moves
+    [color] can actually make from the given move list [moves] in the state
+    [state]. [acc] is the accumulated return value*)
+let rec all_valid_moves_helper color moves state acc =
   match moves with
-  | [] -> true
+  | [] -> acc
   | h :: t -> begin
       match h with
       | piece, orig_pos, new_pos ->
           let new_state =
-            move_piece_helper piece (opp_color color) orig_pos new_pos state
+            move_piece_helper piece color orig_pos new_pos state
           in
-          if check_check color new_state then
-            check_checkmate_helper color t state
-          else false
+          if check_check (color |> opp_color) new_state then
+            all_valid_moves_helper color t state acc
+          else all_valid_moves_helper color t state (h :: acc)
     end
 
-(**[check_checkmate color state] checks if color [color] managed to checkmate
-   the opponent*)
+(**[all_valid_moves color state] is all the valid moves player with color
+   [color] can make in board state [state]*)
+let all_valid_moves color state =
+  all_valid_moves_helper color
+    (possible_moves color state (state |> get_board) [])
+    state []
+
+(**[check_checkmate color state] checks if color [color] has checkmated the
+   other*)
 let check_checkmate color state =
-  check_checkmate_helper color
-    (all_possible_moves (opp_color color) state (state |> get_board) [])
-    state
+  check_check color state && all_valid_moves (color |> opp_color) state = []
+
+(**[check_stalemate color state] checks if color is at a stalemate and can not
+   make any moves*)
+let check_stalemate color state =
+  (not (check_check (color |> opp_color) state))
+  && all_valid_moves color state = []
 
 (**[move_piece] moves a piece [piece] of color [color] from an old position
    [orig_pos] to a new position [new_pos]. It also takes in the old state of the

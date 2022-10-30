@@ -393,6 +393,9 @@ let all_knight_moves color orig_pos state =
     ]
     []
 
+(** [continuous_moves pos hor_dir vert_dir board acc] is a list of continuous
+    moves from position [pos] going in direction [hor_dir], [vert_dir] in the
+    board [board]. [acc] is the accumulated list of positions*)
 let rec continuous_moves pos hor_dir vert_dir board acc =
   let new_pos = pos |> move_horizontal hor_dir |> move_vertical vert_dir in
   if board |> List.assoc_opt pos = None && check_square new_pos then
@@ -462,9 +465,9 @@ let rec filter_moves color state moves acc =
           else filter_moves color state t acc
     end
 
-(** [all_possible_moves color state board acc] is all the possible moves color
+(** [possible_moves color state board acc] is all the possible moves color
     [color] could make in the current state*)
-let rec all_possible_moves color state board acc =
+let rec possible_moves color state board acc =
   match board with
   | [] -> filter_moves color state acc []
   | h :: t ->
@@ -478,8 +481,5 @@ let rec all_possible_moves color state board acc =
           | Queen -> all_queen_moves color (fst h) state
           | King -> all_king_moves color (fst h) state
         in
-        all_possible_moves color state t (piece_moves @ acc)
-      else all_possible_moves color state t acc
-
-let check_stalemate color state =
-  all_possible_moves color state (state |> get_board) [] = []
+        possible_moves color state t (piece_moves @ acc)
+      else possible_moves color state t acc
