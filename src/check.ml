@@ -41,15 +41,15 @@ let all_squares = get_columns "h" []
 let diff new_pos orig_pos index =
   Char.code (String.get new_pos index) - Char.code (String.get orig_pos index)
 
-(** [move_horizontal dir pos] is the position 1 horizontal square away from
+(** [move_horizontal dir pos] is the position [dir] horizontal squares away from
     square [pos] in the direction [dir]*)
 let move_horizontal dir pos =
   String.get pos 1 |> Char.escaped
   |> ( ^ )
        (String.get pos 0 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1)
 
-(** [move_vertical dir pos] is the position 1 vertical square away from square
-    [pos] in the direction [dir]*)
+(** [move_vertical dir pos] is the position [dir] vertical squares away from
+    square [pos] in the direction [dir]*)
 let move_vertical dir pos =
   String.get pos 1 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1
   |> ( ^ ) (String.get pos 0 |> Char.escaped)
@@ -351,13 +351,96 @@ let check_check color state =
   let king_square = king_square (color |> opp_color) state all_squares in
   check_attack color king_square state (get_board state)
 
-(** [all_pawn_moves_helper color orig_pos state] is all the squares a pawn on
-    square [orig_pos] can move to. Does not need to be a valid move*)
-let all_pawn_moves color orig_pos state = raise (Failure "Unimplemented")
+(** [move_list_helper piece orig_pos possible_new_pos acc] is a helper that
+    generates a list of moves. The return format is
+    [...; (piece, orig_pos, new_pos); ...;]*)
+let rec moves_list_helper piece orig_pos possible_new_pos acc =
+  match possible_new_pos with
+  | [] -> acc
+  | h :: t ->
+      (if check_square h then [ (piece, orig_pos, h) ] else [])
+      @ moves_list_helper piece orig_pos t acc
 
-(** [all_pawn_moves color orig_pos state] is all the moves a pawn on square
+(** [all_pawn_moves color orig_pos state] is all the squares a pawn on square
+    [orig_pos] can move to. Does not need to be a valid move*)
+let all_pawn_moves color orig_pos state =
+  let dir = if color = White then 1 else -1 in
+  let for_pos = orig_pos |> move_vertical dir in
+  moves_list_helper Pawn orig_pos
+    [
+      for_pos;
+      for_pos |> move_vertical dir;
+      for_pos |> move_horizontal (-1);
+      for_pos |> move_horizontal 1;
+    ]
+    []
+
+(** [all_knight_moves color orig_pos state] is all the squares a pawn on square
+    [orig_pos] can move to. Does not need to be a valid move*)
+let all_knight_moves color orig_pos state =
+  moves_list_helper Knight orig_pos
+    [
+      orig_pos |> move_horizontal 1 |> move_vertical 2;
+      orig_pos |> move_horizontal 1 |> move_vertical (-2);
+      orig_pos |> move_horizontal (-1) |> move_vertical 2;
+      orig_pos |> move_horizontal (-1) |> move_vertical (-2);
+      orig_pos |> move_horizontal 2 |> move_vertical 1;
+      orig_pos |> move_horizontal 2 |> move_vertical (-1);
+      orig_pos |> move_horizontal (-2) |> move_vertical 1;
+      orig_pos |> move_horizontal (-2) |> move_vertical (-1);
+    ]
+    []
+
+let rec continuous_moves pos hor_dir vert_dir board acc =
+  let new_pos = pos |> move_horizontal hor_dir |> move_vertical vert_dir in
+  if board |> List.assoc_opt pos = None && check_square new_pos then
+    new_pos :: continuous_moves new_pos hor_dir vert_dir board acc
+  else acc
+
+(** [all_bishop_moves color orig_pos state] is all the squares a pawn on square
+    [orig_pos] can move to. Does not need to be a valid move*)
+let all_bishop_moves color orig_pos state =
+  moves_list_helper Bishop orig_pos
+    (continuous_moves orig_pos 1 1 (get_board state) []
+    @ continuous_moves orig_pos 1 (-1) (get_board state) []
+    @ continuous_moves orig_pos (-1) 1 (get_board state) []
+    @ continuous_moves orig_pos (-1) (-1) (get_board state) [])
+    []
+
+(** [all_rook_moves color orig_pos state] is all the squares a pawn on square
+    [orig_pos] can move to. Does not need to be a valid move*)
+let all_rook_moves color orig_pos state =
+  moves_list_helper Bishop orig_pos
+    (continuous_moves orig_pos 1 0 (get_board state) []
+    @ continuous_moves orig_pos (-1) 0 (get_board state) []
+    @ continuous_moves orig_pos 0 1 (get_board state) []
+    @ continuous_moves orig_pos 0 (-1) (get_board state) [])
+    []
+
+(** [all_queen_moves color orig_pos state] is all the squares a pawn on square
+    [orig_pos] can move to. Does not need to be a valid move*)
+let all_queen_moves color orig_pos state =
+  all_bishop_moves color orig_pos state @ all_rook_moves color orig_pos state
+
+(** [all_king_moves color orig_pos state] is all the squares a pawn on square
+    [orig_pos] can move to. Does not need to be a valid move*)
+let all_king_moves color orig_pos state =
+  moves_list_helper King orig_pos
+    [
+      orig_pos |> move_horizontal 1 |> move_vertical 1;
+      orig_pos |> move_horizontal 1 |> move_vertical (-1);
+      orig_pos |> move_horizontal (-1) |> move_vertical 2;
+      orig_pos |> move_horizontal (-1) |> move_vertical (-2);
+      orig_pos |> move_horizontal 2 |> move_vertical 1;
+      orig_pos |> move_horizontal 2 |> move_vertical (-1);
+      orig_pos |> move_horizontal (-2) |> move_vertical 1;
+      orig_pos |> move_horizontal (-2) |> move_vertical (-1);
+    ]
+    []
+
+(** [filter_moves color orig_pos state] is all the moves a pawn on square
     [orig_pos] can make in the current state [state]*)
-let rec filter_moves color orig_pos state moves acc =
+let rec filter_moves color state moves acc =
   match moves with
   | [] -> acc
   | h :: t -> begin
@@ -373,22 +456,26 @@ let rec filter_moves color orig_pos state moves acc =
             | King -> check_king
           in
           if filter color orig_pos new_pos state then
-            h :: filter_moves color orig_pos state t acc
-          else filter_moves color orig_pos state t acc
+            h :: filter_moves color state t acc
+          else filter_moves color state t acc
     end
 
 (** [all_possible_moves color state board acc] is all the possible moves color
     [color] could make in the current state*)
 let rec all_possible_moves color state board acc =
   match board with
-  | [] -> acc
-  | h :: t -> (
-      match h |> snd |> get_piece_type with
-      | Pawn -> raise (Failure "Unimplemented")
-      | Knight -> raise (Failure "Unimplemented")
-      | Bishop -> raise (Failure "Unimplemented")
-      | Rook -> raise (Failure "Unimplemented")
-      | Queen -> raise (Failure "Unimplemented")
-      | King -> raise (Failure "Unimplemented"))
+  | [] -> filter_moves color state acc []
+  | h :: t ->
+      if h |> snd |> get_piece_color = color then
+        (match h |> snd |> get_piece_type with
+        | Pawn -> all_pawn_moves color (fst h) state
+        | Knight -> all_knight_moves color (fst h) state
+        | Bishop -> all_bishop_moves color (fst h) state
+        | Rook -> all_rook_moves color (fst h) state
+        | Queen -> all_queen_moves color (fst h) state
+        | King -> all_king_moves color (fst h) state)
+        @ all_possible_moves color state t acc
+      else all_possible_moves color state t acc
 
-let check_stalemate color state = raise (Failure "Unimplemented")
+let check_stalemate color state =
+  all_possible_moves color state (state |> get_board) [] = []

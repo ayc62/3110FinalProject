@@ -44,9 +44,25 @@ let move_piece_helper piece color orig_pos new_pos cur_state =
          |> remove_piece piece color orig_pos new_pos cur_state);
   }
 
+let rec check_checkmate_helper color moves state =
+  match moves with
+  | [] -> true
+  | h :: t -> begin
+      match h with
+      | piece, orig_pos, new_pos ->
+          let new_state =
+            move_piece_helper piece color orig_pos new_pos state
+          in
+          if check_check (opp_color color) new_state then
+            check_checkmate_helper color t state
+          else false
+    end
+
 (**[check_checkmate color state] checks if color [color] managed to checkmate
    the opponent*)
-let check_checkmate color state = false
+let check_checkmate color state =
+  check_checkmate_helper color
+    (all_possible_moves color state (state |> get_board) [])
 
 (**[move_piece] moves a piece [piece] of color [color] from an old position
    [orig_pos] to a new position [new_pos]. It also takes in the old state of the
