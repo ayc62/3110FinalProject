@@ -13,10 +13,12 @@ type result =
 let castle color orig_pos new_pos state board =
   let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
   let col =
-    String.get orig_pos 0 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1
+    String.get new_pos 0 |> Char.code
+    |> ( + ) (-1 * dir)
+    |> Char.chr |> String.make 1
   in
   let row = String.get orig_pos 1 |> String.make 1 in
-  let rook_pos = castle_rook col row dir state in
+  let rook_pos = castle_rook (col ^ row) dir state in
   match rook_pos with
   | None -> board
   | Some pos ->
@@ -27,26 +29,47 @@ let castle color orig_pos new_pos state board =
     [piece] with color [color] that moves from position [orig_pos] to position
     [new_pos] in the state [state]. [board] is the board that will be changed
     and returned*)
-let remove_piece piece color orig_pos new_pos (state : state) board =
+let update_state piece color orig_pos new_pos (state : state) board =
   match board |> List.assoc_opt new_pos with
   | None ->
-      if piece = Pawn && check_en_passant color orig_pos new_pos state then
-        let dir = if color = White then 1 else -1 in
-        board |> List.remove_assoc (new_pos |> move_vertical (-1 * dir))
+      if piece = Pawn then
+        if check_en_passant color orig_pos new_pos state then
+          let dir = if color = White then 1 else -1 in
+          {
+            state with
+            board =
+              board |> List.remove_assoc (new_pos |> move_vertical (-1 * dir));
+            fifty_move_rule = 0;
+            captured_pieces =
+              (board |> List.assoc (new_pos |> move_vertical (-1 * dir)))
+              :: state.captured_pieces;
+          }
+        else { state with fifty_move_rule = 0 }
       else if piece = King && check_castle color orig_pos new_pos state then
-        castle color orig_pos new_pos state board
-      else board
-  | Some piece -> board |> List.remove_assoc new_pos
+        {
+          state with
+          board = castle color orig_pos new_pos state board;
+          fifty_move_rule = state.fifty_move_rule + 1;
+        }
+      else { state with fifty_move_rule = state.fifty_move_rule + 1 }
+  | Some piece ->
+      {
+        state with
+        board = board |> List.remove_assoc new_pos;
+        captured_pieces = (board |> List.assoc new_pos) :: state.captured_pieces;
+        fifty_move_rule = state.fifty_move_rule + 1;
+      }
 
 (** [move_piece_helper piece color orig_pos new_pos cur_state] is the state
     where the piece has moved from position [old_pos] to position [new_pos]*)
 let move_piece_helper piece color orig_pos new_pos cur_state =
+  let updated_state =
+    cur_state |> get_board |> List.remove_assoc orig_pos
+    |> update_state piece color orig_pos new_pos cur_state
+  in
   {
-    cur_state with
-    board =
-      piece_helper ~moved:true new_pos piece color
-      :: (cur_state |> get_board |> List.remove_assoc orig_pos
-         |> remove_piece piece color orig_pos new_pos cur_state);
+    updated_state with
+    board = piece_helper ~moved:true new_pos piece color :: updated_state.board;
   }
 
 (** [all_valid_moves_helper color moves state acc] is all the valid moves
@@ -106,5 +129,8 @@ let move_piece (piece : piece_type) (color : piece_color) (orig_pos : string)
       if check_check color new_state && check_checkmate color new_state then
         CheckMate new_state
       else if check_check color new_state then Check new_state
-      else if check_stalemate (opp_color color) new_state then Draw new_state
+      else if
+        check_stalemate (opp_color color) new_state
+        || new_state.fifty_move_rule = 50
+      then Draw new_state
       else Legal new_state

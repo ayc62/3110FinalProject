@@ -24,16 +24,15 @@ let rec get_column c r acc =
 
 (** [get_columns c acc] gets all the columns and adds to [acc]. Return [acc] at
     the end *)
-let rec get_columns c acc =
-  if c = "`" then acc
+let rec get_columns c =
+  if c = "`" then []
   else
     get_columns
       (String.get c 0 |> Char.code |> ( + ) (-1) |> Char.chr |> String.make 1)
-      []
-    @ get_column c "8" [] @ acc
+    @ get_column c "8" []
 
 (** [all_squares] is all the squares on the chess board*)
-let all_squares = get_columns "h" []
+let all_squares = get_columns "h"
 
 (** [diff new_pos orig_pos index] is the difference in position between
     [orig_pos] and [new_pos] in index [index]. [index] is 0 for horizontal
@@ -257,18 +256,15 @@ let rec check_attack color pos state board =
 
 (**[castle_rook col row dir state] is the rook that the king is castling with in
    the current state [state]*)
-let rec castle_rook col row dir state =
-  if col = "`" || col = "i" then None
+let rec castle_rook pos dir state =
+  let col = String.get pos 0 in
+  if col = '`' || col = 'i' then None
   else
-    match state |> get_board |> List.assoc_opt (col ^ row) with
-    | None ->
-        castle_rook
-          (String.get col 0 |> Char.code |> ( + ) dir |> Char.chr
-         |> String.make 1)
-          row dir state
+    match state |> get_board |> List.assoc_opt pos with
+    | None -> castle_rook (move_horizontal dir pos) dir state
     | Some piece_state ->
         if get_piece_type piece_state = Rook && get_moved piece_state = false
-        then Some (col ^ row)
+        then Some pos
         else None
 
 (** [check_castle color orig_pos new_pos state] checks if castling is possible
@@ -282,12 +278,7 @@ let check_castle color orig_pos new_pos state =
     && get_moved piece_state = false
   then
     let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
-    let col =
-      String.get orig_pos 0 |> Char.code |> ( + ) dir |> Char.chr
-      |> String.make 1
-    in
-    let row = String.get orig_pos 1 |> String.make 1 in
-    match castle_rook col row dir state with
+    match castle_rook (move_horizontal dir orig_pos) dir state with
     | None -> false
     | Some _ ->
         (not
@@ -399,8 +390,8 @@ let all_knight_moves color orig_pos state =
 let rec continuous_moves pos hor_dir vert_dir board acc =
   let new_pos = pos |> move_horizontal hor_dir |> move_vertical vert_dir in
   if board |> List.assoc_opt pos = None && check_square new_pos then
-    new_pos :: continuous_moves new_pos hor_dir vert_dir board acc
-  else acc
+    continuous_moves new_pos hor_dir vert_dir board (new_pos :: acc)
+  else List.rev acc
 
 (** [all_bishop_moves color orig_pos state] is all the squares a pawn on square
     [orig_pos] can move to. Does not need to be a valid move*)

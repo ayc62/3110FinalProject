@@ -40,6 +40,7 @@ type state = {
   board : (string * piece_state) list;
   old_boards : board list;
   fifty_move_rule : int;
+  captured_pieces : piece_state list;
 }
 (**The abstract type representing the current and past states of the chessboard*)
 

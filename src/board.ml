@@ -33,6 +33,7 @@ type state = {
   board : (string * piece_state) list;
   old_boards : board list;
   fifty_move_rule : int;
+  captured_pieces : piece_state list;
 }
 
 let get_board state = state.board
@@ -80,5 +81,6 @@ let init_state : state =
         piece_helper "h8" Rook Black;
       ];
     old_boards = [];
+    captured_pieces = [];
     fifty_move_rule = 0;
   }
