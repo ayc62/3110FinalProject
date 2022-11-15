@@ -34,11 +34,14 @@ type state = {
   old_boards : board list;
   fifty_move_rule : int;
   captured_pieces : piece_state list;
+  num_repetition : int;
 }
 
 let get_board state = state.board
 let get_old_boards state = state.old_boards
 let get_fifty_move_rule state = state.fifty_move_rule
+let get_captured_pieces state = state.captured_pieces
+let get_num_repetitions state = state.num_repetition
 
 (**[init_state] returns the initial state of the chessboard before any moves
    have been made. The initial state of the chessboard is the standard setup for
@@ -83,4 +86,5 @@ let init_state : state =
     old_boards = [];
     captured_pieces = [];
     fifty_move_rule = 0;
+    num_repetition = 1;
   }

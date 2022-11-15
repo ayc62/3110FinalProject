@@ -41,6 +41,7 @@ type state = {
   old_boards : board list;
   fifty_move_rule : int;
   captured_pieces : piece_state list;
+  num_repetition : int;
 }
 (**The abstract type representing the current and past states of the chessboard*)
 
@@ -51,6 +52,12 @@ val get_old_boards : state -> board list
 (**[get_old_boards] returns the chessboards in previous moves*)
 
 val get_fifty_move_rule : state -> int
+(**[get_fifty_move_rule] returns the number of moves since last capture*)
+
+val get_captured_pieces : state -> piece_state list
+(**[get_fifty_move_rule] returns the number of moves since last capture*)
+
+val get_num_repetitions : state -> int
 (**[get_fifty_move_rule] returns the number of moves since last capture*)
 
 val init_state : state
