@@ -76,9 +76,16 @@ let update_board_state piece color orig_pos new_pos (state : state) board =
       updated_state with
       board =
         piece_helper ~moved:true new_pos Queen color
-        :: (updated_state |> get_board |> List.remove_assoc new_pos);
+        :: (updated_state |> get_board |> List.remove_assoc new_pos
+          |> List.remove_assoc orig_pos);
     }
-  else updated_state
+  else
+    {
+      updated_state with
+      board =
+        piece_helper ~moved:true new_pos piece color
+        :: (updated_state |> get_board |> List.remove_assoc orig_pos);
+    }
 
 (*[equal_board_state board1 board2] checks to see if board1 is equal to board2*)
 let rec equal_board_state board1 board2 =
@@ -109,16 +116,8 @@ let rec update_num_repetitions acc old_boards state =
 (** [move_piece_helper piece color orig_pos new_pos cur_state] is the state
     where the piece has moved from position [old_pos] to position [new_pos]*)
 let move_piece_helper piece color orig_pos new_pos cur_state =
-  let updated_state =
-    cur_state |> get_board |> List.remove_assoc orig_pos
-    |> update_board_state piece color orig_pos new_pos cur_state
-  in
-  {
-    updated_state with
-    board =
-      piece_helper ~moved:true new_pos piece color
-      :: (updated_state |> get_board);
-  }
+  cur_state |> get_board
+  |> update_board_state piece color orig_pos new_pos cur_state
 
 (** [all_valid_moves_helper color moves state acc] is all the valid moves
     [color] can actually make from the given move list [moves] in the state

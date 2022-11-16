@@ -5,7 +5,6 @@ open Check
 open Command
 open Controller
 open Printboard
-
 (** [main ()] prompts for the game to play, then starts it. *)
 let opposite_color (color : piece_color) =
   match color with
