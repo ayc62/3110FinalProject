@@ -65,7 +65,7 @@ let init_state : state =
         piece_helper "e2" Pawn White;
         piece_helper "f2" Pawn White;
         piece_helper "g2" Pawn White;
-        piece_helper "h2" Pawn White;
+        piece_helper "h6" Pawn White;
         piece_helper "a7" Pawn Black;
         piece_helper "b7" Pawn Black;
         piece_helper "c7" Pawn Black;

@@ -5,6 +5,7 @@ open Check
 open Command
 open Controller
 open Printboard
+
 (** [main ()] prompts for the game to play, then starts it. *)
 let opposite_color (color : piece_color) =
   match color with
@@ -31,10 +32,14 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
         | Check st ->
             print_endline "You are under check";
             get_new_player_move (opposite_color color) st
-        | Draw st -> print_endline "It is a draw! Thank you for playing."
-        | CheckMate st ->
+        | Draw st | Stalemate st ->
+            print_endline "It is a draw! Thank you for playing."
+        | Checkmate st ->
             print_endline
               ((color |> color_string) ^ " wins! Thank you for playing.")
+        | PawnPromotion st ->
+            let st = promote_pawn color "h8" Queen st in
+            get_new_player_move (opposite_color color) st
         | Illegal ->
             print_endline "The specified move is illegal. Please try again.";
             get_new_player_move ~print:false color state)

@@ -7,7 +7,9 @@ type result =
   | Illegal
   | Check of state
   | Draw of state
-  | CheckMate of state
+  | Checkmate of state
+  | Stalemate of state
+  | PawnPromotion of state
 
 (** [castle color orig_pos new_pos state board] castles [color] in the current*)
 let castle color orig_pos new_pos state board =
@@ -67,25 +69,12 @@ let update_board_state piece color orig_pos new_pos (state : state) board =
           fifty_move_rule = 0;
         }
   in
-  if
-    piece = Pawn
-    && ((color = White && String.get new_pos 1 = '8')
-       || (color = Black && String.get new_pos 1 = '1'))
-  then
-    {
-      updated_state with
-      board =
-        piece_helper ~moved:true new_pos Queen color
-        :: (updated_state |> get_board |> List.remove_assoc new_pos
-          |> List.remove_assoc orig_pos);
-    }
-  else
-    {
-      updated_state with
-      board =
-        piece_helper ~moved:true new_pos piece color
-        :: (updated_state |> get_board |> List.remove_assoc orig_pos);
-    }
+  {
+    updated_state with
+    board =
+      piece_helper ~moved:true new_pos piece color
+      :: (updated_state |> get_board |> List.remove_assoc orig_pos);
+  }
 
 (*[equal_board_state board1 board2] checks to see if board1 is equal to board2*)
 let rec equal_board_state board1 board2 =
@@ -154,6 +143,14 @@ let check_stalemate color state =
   (not (check_check (color |> opp_color) state))
   && all_valid_moves color state = []
 
+let promote_pawn color pos to_piece state =
+  {
+    state with
+    board =
+      piece_helper ~moved:true pos to_piece color
+      :: (state |> get_board |> List.remove_assoc pos);
+  }
+
 (**[move_piece] moves a piece [piece] of color [color] from an old position
    [orig_pos] to a new position [new_pos]. It also takes in the old state of the
    chessboard [old_state] and returns the new state of the chessboard with the
@@ -177,11 +174,17 @@ let move_piece (piece : piece_type) (color : piece_color) (orig_pos : string)
         }
       in
       if check_check color new_state && check_checkmate color new_state then
-        CheckMate new_state
+        Checkmate new_state
+      else if check_stalemate (opp_color color) new_state then
+        Stalemate new_state
       else if check_check color new_state then Check new_state
       else if
-        check_stalemate (opp_color color) new_state
-        || new_state |> get_fifty_move_rule = 50
+        new_state |> get_fifty_move_rule = 50
         || new_state |> get_num_repetitions = 3
       then Draw new_state
+      else if
+        piece = Pawn
+        && ((color = White && String.get new_pos 1 = '8')
+           || (color = Black && String.get new_pos 1 = '1'))
+      then PawnPromotion new_state
       else Legal new_state
