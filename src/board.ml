@@ -88,3 +88,11 @@ let init_state : state =
     fifty_move_rule = 0;
     num_repetition = 1;
   }
+
+let square_has_pt (state : state) (square : string) (piece_type : piece_type)
+    (piece_color : piece_color) =
+  try
+    let square_piece = List.assoc square state.board in
+    square_piece.piece_type = piece_type
+    && square_piece.piece_color = piece_color
+  with Not_found -> false

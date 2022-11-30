@@ -62,3 +62,8 @@ val get_num_repetitions : state -> int
 
 val init_state : state
 (**[init_state] is the initial state of the chessboard*)
+
+val square_has_pt : state -> string -> piece_type -> piece_color -> bool
+(** [square_has_pt state square piece_type piece_color] returns whether a piece
+    of type piece_type and color piece_color is found in the square sq of the
+    board of state. If no piece corresponds to that square, this returns false.*)

@@ -13,6 +13,7 @@ type command =
 type variant =
   | Standard
   | ThreeCheck
+  | KingOfTheHill
 
 let piece_match x =
   if x = "Pawn" then Pawn
@@ -26,6 +27,7 @@ let piece_match x =
 let variant_match x =
   if x = "Standard" then Standard
   else if x = "3-check" then ThreeCheck
+  else if x = "KOTH" then KingOfTheHill
   else raise InvalidVariant
 
 let parse_move (move_cmd : string list) =

@@ -17,14 +17,15 @@ let color_string (color : piece_color) =
   | White -> "White"
   | Black -> "Black"
 
-let variant_string x =
-  match x with
-  | Standard -> "standard"
-  | ThreeCheck -> "3check"
-
 let variant_selected = ref Standard
 let check_counter_white = ref 0
 let check_counter_black = ref 0
+
+let is_koth_won color state =
+  square_has_pt state "d4" King color
+  || square_has_pt state "d5" King color
+  || square_has_pt state "e4" King color
+  || square_has_pt state "e5" King color
 
 let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
     =
@@ -37,7 +38,13 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
             state
         in
         match attempted_state with
-        | Legal st -> get_new_player_move (opposite_color color) st
+        | Legal st ->
+            if !variant_selected = KingOfTheHill then
+              if is_koth_won color st then (
+                print_endline
+                  ((color |> color_string) ^ " wins! Thank you for playing.");
+                exit 0);
+            get_new_player_move (opposite_color color) st
         | Check st ->
             if !variant_selected = ThreeCheck then
               if color = White then begin
@@ -52,10 +59,20 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
                   print_endline "Black wins! Thank you for playing.";
                   exit 0)
               end;
+            if !variant_selected = KingOfTheHill then
+              if is_koth_won color st then (
+                print_endline
+                  ((color |> color_string) ^ " wins! Thank you for playing.");
+                exit 0);
             print_endline
               ((color |> opposite_color |> color_string) ^ " is under check!");
             get_new_player_move (opposite_color color) st
         | Draw st | Stalemate st ->
+            if !variant_selected = KingOfTheHill then
+              if is_koth_won color st then (
+                print_endline
+                  ((color |> color_string) ^ " wins! Thank you for playing.");
+                exit 0);
             print_endline "It is a draw! Thank you for playing."
         | Checkmate st ->
             print_endline
@@ -105,7 +122,8 @@ and get_promoted_piece color pos (state : state) : state =
 
 let rec get_variant () =
   print_endline
-    "Select an option: Standard or 3-check. Both options are case-sensitive.";
+    "Select an option by typing 'Standard', '3-check', or 'KOTH'. All options \
+     are case-sensitive.";
   print_string "> ";
   match read_line () with
   | exception End_of_file -> ()
@@ -115,6 +133,7 @@ let rec get_variant () =
         match var with
         | Standard -> ()
         | ThreeCheck -> variant_selected := ThreeCheck
+        | KingOfTheHill -> variant_selected := KingOfTheHill
       with InvalidVariant ->
         print_endline "Invalid variant selected. Please try again";
         get_variant ())
@@ -122,9 +141,11 @@ let rec get_variant () =
 let main () =
   print_endline "Welcome to a very unfinished implementation of Chess.";
   print_endline
-    "We currently support standard chess and 3-check; the latter operates on \
-     the same rules as standard chess but the game ends immediately after one \
-     player checks the opponent 3 times.";
+    "We currently support standard chess, 3-check, and king of the hill; \
+     3-check operates on the same rules as standard chess but the game ends \
+     immediately after one player checks the opponent 3 times, and king of the \
+     hill ends immediately after one of the kings reaches the center four \
+     squares: d4, e4, d5, or e5.";
   get_variant ();
   print_endline
     "A player may make a move by entering 'move [piece name] [starting square] \
