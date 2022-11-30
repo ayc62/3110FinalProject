@@ -1,13 +1,24 @@
 open Board
 
-let piece_type_string piece =
-  match piece.piece_type with
-  | Rook -> "R"
-  | Knight -> "N"
-  | Bishop -> "B"
-  | Queen -> "Q"
-  | King -> "K"
-  | Pawn -> "P"
+let piece_type_string piece = 
+  match piece.piece_color with
+  | White -> begin match piece.piece_type with
+    | Rook -> "♖"
+    | Knight -> "♘"
+    | Bishop -> "♗"
+    | Queen -> "♕"
+    | King -> "♔"
+    | Pawn -> "♙"
+  end
+  | Black -> begin match piece.piece_type with
+  | Rook -> "♜"
+  | Knight -> "♞"
+  | Bishop -> "♝"
+  | Queen -> "♛"
+  | King -> "♚"
+  | Pawn -> "♟︎"
+  end
+  
 
 let piece_color_string piece =
   match piece.piece_color with
@@ -17,8 +28,8 @@ let piece_color_string piece =
 let piece state square =
   try
     let piece = List.assoc square state in
-    piece_color_string piece ^ piece_type_string piece
-  with e -> "  "
+    piece_type_string piece
+  with e -> " "
 
 let square_pos (row : int) (col : char) = Char.escaped col ^ string_of_int row
 
@@ -37,7 +48,7 @@ let print_row state row col last_col next =
   "| " ^ string_of_int row ^ " " ^ print_row_helper state row col last_col next
 
 let rec print_boarder_helper left_char right_char next =
-  " |  " ^ String.make 1 left_char
+  " | " ^ String.make 1 left_char
   ^
   if left_char = right_char then " |"
   else
@@ -49,10 +60,10 @@ let print_bottom_border left_char right_char next =
   "   " ^ print_boarder_helper left_char right_char next
 
 let rec print_white state row bottom_row next_row col last_col next_col =
-  print_endline "     ---------------------------------------";
+  print_endline "     --------------------------------";
   print_endline (print_row state row col last_col next_col);
   if row = bottom_row then (
-    print_endline "     ---------------------------------------";
+    print_endline "     --------------------------------";
     print_endline (print_bottom_border col last_col next_col))
   else
     print_white state (next_row row 1) bottom_row next_row col last_col next_col
