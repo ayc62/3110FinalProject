@@ -30,7 +30,7 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
         match attempted_state with
         | Legal st -> get_new_player_move (opposite_color color) st
         | Check st ->
-            print_endline "You are under check";
+            print_endline "You are under check!";
             get_new_player_move (opposite_color color) st
         | Draw st | Stalemate st ->
             print_endline "It is a draw! Thank you for playing."
@@ -38,8 +38,8 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
             print_endline
               ((color |> color_string) ^ " wins! Thank you for playing.")
         | PawnPromotion st ->
-            let st = promote_pawn color "h8" Queen st in
-            get_new_player_move (opposite_color color) st
+            get_new_player_move (opposite_color color)
+              (get_promoted_piece color (moves |> List.rev |> List.hd) st)
         | Illegal ->
             print_endline "The specified move is illegal. Please try again.";
             get_new_player_move ~print:false color state)
@@ -68,6 +68,17 @@ and get_new_player_move ?(print = true) color (state : state) =
   match read_line () with
   | exception End_of_file -> ()
   | command -> execute_player_move color state command
+
+and get_promoted_piece color pos (state : state) : state =
+  print_endline "What piece would you like to promote to?";
+  print_string "> ";
+  match read_line () with
+  | piece -> begin
+      try promote_pawn color pos (parse_promotion piece) state
+      with InvalidPiece ->
+        print_endline "Invalid piece, please try again.";
+        get_promoted_piece color pos state
+    end
 
 let main () =
   print_endline "Welcome to a very unfinished implementation of Chess.";
