@@ -17,6 +17,15 @@ let color_string (color : piece_color) =
   | White -> "White"
   | Black -> "Black"
 
+let variant_string x =
+  match x with
+  | Standard -> "standard"
+  | ThreeCheck -> "3check"
+
+let variant_selected = ref Standard
+let check_counter_white = ref 0
+let check_counter_black = ref 0
+
 let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
     =
   try
@@ -30,7 +39,21 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
         match attempted_state with
         | Legal st -> get_new_player_move (opposite_color color) st
         | Check st ->
-            print_endline "You are under check!";
+            if !variant_selected = ThreeCheck then
+              if color = White then begin
+                check_counter_white := !check_counter_white + 1;
+                if !check_counter_white = 3 then (
+                  print_endline "White wins! Thank you for playing.";
+                  exit 0)
+              end
+              else begin
+                check_counter_black := !check_counter_black + 1;
+                if !check_counter_black = 3 then (
+                  print_endline "Black wins! Thank you for playing.";
+                  exit 0)
+              end;
+            print_endline
+              ((color |> opposite_color |> color_string) ^ " is under check!");
             get_new_player_move (opposite_color color) st
         | Draw st | Stalemate st ->
             print_endline "It is a draw! Thank you for playing."
@@ -80,11 +103,29 @@ and get_promoted_piece color pos (state : state) : state =
         get_promoted_piece color pos state
     end
 
+let rec get_variant () =
+  print_endline
+    "Select an option: Standard or 3-check. Both options are case-sensitive.";
+  print_string "> ";
+  match read_line () with
+  | exception End_of_file -> ()
+  | str -> (
+      try
+        let var = parse_variant str in
+        match var with
+        | Standard -> ()
+        | ThreeCheck -> variant_selected := ThreeCheck
+      with InvalidVariant ->
+        print_endline "Invalid variant selected. Please try again";
+        get_variant ())
+
 let main () =
   print_endline "Welcome to a very unfinished implementation of Chess.";
   print_endline
-    "So far, we only have the standard version working, with the caveat that \
-     castling and checkmate have not been implemented.";
+    "We currently support standard chess and 3-check; the latter operates on \
+     the same rules as standard chess but the game ends immediately after one \
+     player checks the opponent 3 times.";
+  get_variant ();
   print_endline
     "A player may make a move by entering 'move [piece name] [starting square] \
      [ending square]', such as 'move Pawn e2 e4'. Note that the piece names \

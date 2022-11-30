@@ -1,6 +1,7 @@
 exception InvalidPiece
 exception InvalidSquare
 exception InvalidCommand
+exception InvalidVariant
 
 open Board
 open Check
@@ -8,6 +9,10 @@ open Check
 type command =
   | Move of piece_type * string list
   | Resign
+
+type variant =
+  | Standard
+  | ThreeCheck
 
 let piece_match x =
   if x = "Pawn" then Pawn
@@ -17,6 +22,11 @@ let piece_match x =
   else if x = "King" then King
   else if x = "Rook" then Rook
   else raise InvalidPiece
+
+let variant_match x =
+  if x = "Standard" then Standard
+  else if x = "3-check" then ThreeCheck
+  else raise InvalidVariant
 
 let parse_move (move_cmd : string list) =
   match move_cmd with
@@ -50,3 +60,11 @@ let parse_promotion str =
       | Pawn -> raise InvalidPiece
       | _ -> matched)
   | _ -> raise InvalidPiece
+
+let parse_variant str =
+  match
+    str |> String.split_on_char ' '
+    |> List.filter (fun x -> String.length x > 0)
+  with
+  | [ h ] -> variant_match h
+  | _ -> raise InvalidVariant
