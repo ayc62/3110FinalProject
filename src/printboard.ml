@@ -1,24 +1,25 @@
 open Board
 
-let piece_type_string piece = 
+let piece_type_string piece =
   match piece.piece_color with
-  | White -> begin match piece.piece_type with
-    | Rook -> "♖"
-    | Knight -> "♘"
-    | Bishop -> "♗"
-    | Queen -> "♕"
-    | King -> "♔"
-    | Pawn -> "♙"
-  end
-  | Black -> begin match piece.piece_type with
-  | Rook -> "♜"
-  | Knight -> "♞"
-  | Bishop -> "♝"
-  | Queen -> "♛"
-  | King -> "♚"
-  | Pawn -> "♟︎"
-  end
-  
+  | White -> begin
+      match piece.piece_type with
+      | Rook -> "♖"
+      | Knight -> "♘"
+      | Bishop -> "♗"
+      | Queen -> "♕"
+      | King -> "♔"
+      | Pawn -> "♙"
+    end
+  | Black -> begin
+      match piece.piece_type with
+      | Rook -> "♜"
+      | Knight -> "♞"
+      | Bishop -> "♝"
+      | Queen -> "♛"
+      | King -> "♚"
+      | Pawn -> "♟︎"
+    end
 
 let piece_color_string piece =
   match piece.piece_color with

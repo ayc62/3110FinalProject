@@ -2,6 +2,7 @@ exception InvalidPiece
 exception InvalidSquare
 exception InvalidCommand
 exception InvalidVariant
+exception InvalidResponse
 
 open Board
 open Check
@@ -9,11 +10,16 @@ open Check
 type command =
   | Move of piece_type * string list
   | Resign
+  | DrawOffer
 
 type variant =
   | Standard
   | ThreeCheck
   | KingOfTheHill
+
+type response =
+  | Yes
+  | No
 
 let piece_match x =
   if x = "Pawn" then Pawn
@@ -48,6 +54,7 @@ let parse str =
   | [] -> raise InvalidCommand
   | h :: t ->
       if h = "move" then parse_move t
+      else if h = "draw" then DrawOffer
       else if h = "resign" then Resign
       else raise InvalidCommand
 
@@ -70,3 +77,14 @@ let parse_variant str =
   with
   | [ h ] -> variant_match h
   | _ -> raise InvalidVariant
+
+let response_match x =
+  if x = "Y" then Yes else if x = "N" then No else raise InvalidResponse
+
+let parse_draw_offer str =
+  match
+    str |> String.split_on_char ' '
+    |> List.filter (fun x -> String.length x > 0)
+  with
+  | [ h ] -> response_match h
+  | _ -> raise InvalidResponse

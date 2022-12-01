@@ -83,6 +83,7 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
         | Illegal ->
             print_endline "The specified move is illegal. Please try again.";
             get_new_player_move ~print:false color state)
+    | DrawOffer -> get_draw color state
     | Resign ->
         print_endline
           ((color |> opposite_color |> color_string)
@@ -120,6 +121,22 @@ and get_promoted_piece color pos (state : state) : state =
         get_promoted_piece color pos state
     end
 
+and get_draw color state =
+  print_endline
+    ((color |> color_string) ^ " has offered a draw. "
+    ^ (color |> opposite_color |> color_string)
+    ^ ", would you like to accept? Type Y or N to respond.");
+  match read_line () with
+  | response -> begin
+      try
+        match parse_draw_offer response with
+        | Yes -> print_endline "It is a draw! Thank you for playing."
+        | No -> get_new_player_move color state
+      with InvalidResponse ->
+        print_endline "Invalid response, please try again.";
+        get_draw color state
+    end
+
 let rec get_variant () =
   print_endline
     "Select an option by typing 'Standard', '3-check', or 'KOTH'. All options \
@@ -135,7 +152,7 @@ let rec get_variant () =
         | ThreeCheck -> variant_selected := ThreeCheck
         | KingOfTheHill -> variant_selected := KingOfTheHill
       with InvalidVariant ->
-        print_endline "Invalid variant selected. Please try again";
+        print_endline "Invalid variant selected. Please try again.";
         get_variant ())
 
 let main () =
@@ -152,7 +169,7 @@ let main () =
      [ending square]', such as 'move Pawn e2 e4'. Note that the piece names \
      and squares are case-sensitive: the piece name should be capitalized, and \
      the squares should not be capitalized. You can also resign the game by \
-     typing 'resign'.";
+     typing 'resign', or offer a draw by typing 'draw'.";
   Printboard.print_board_white init_state;
   print_endline "To move: White";
   print_string "> ";
