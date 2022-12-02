@@ -126,6 +126,7 @@ and get_draw color state =
     ((color |> color_string) ^ " has offered a draw. "
     ^ (color |> opposite_color |> color_string)
     ^ ", would you like to accept? Type Y or N to respond.");
+  print_endline "> ";
   match read_line () with
   | response -> begin
       try
