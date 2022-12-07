@@ -20,6 +20,108 @@ let color_string (color : piece_color) =
 let variant_selected = ref Standard
 let check_counter_white = ref 0
 let check_counter_black = ref 0
+let white_score = ref 0.
+let black_score = ref 0.
+let num_games = ref 1
+
+let print_score color =
+  if !num_games = 0 then
+    if !white_score > !black_score then
+      if Float.is_integer !white_score then (
+        print_endline
+          ("White wins the game "
+          ^ (!white_score |> int_of_float |> string_of_int)
+          ^ "-"
+          ^ (!black_score |> int_of_float |> string_of_int)
+          ^ "! Thanks for playing.");
+        exit 0)
+      else (
+        print_endline
+          ("White wins the game "
+          ^ string_of_float !white_score
+          ^ "-"
+          ^ string_of_float !black_score
+          ^ "! Thanks for playing.");
+        exit 0)
+    else if !black_score > !white_score then
+      if Float.is_integer !white_score then (
+        print_endline
+          ("Black wins the game "
+          ^ (!black_score |> int_of_float |> string_of_int)
+          ^ "-"
+          ^ (!white_score |> int_of_float |> string_of_int)
+          ^ "! Thanks for playing.");
+        exit 0)
+      else (
+        print_endline
+          ("Black wins the game "
+          ^ string_of_float !black_score
+          ^ "-"
+          ^ string_of_float !white_score
+          ^ "! Thanks for playing.");
+        exit 0)
+    else if Float.is_integer !white_score then (
+      print_endline
+        ("Black wins the game "
+        ^ (!black_score |> int_of_float |> string_of_int)
+        ^ "-"
+        ^ (!white_score |> int_of_float |> string_of_int)
+        ^ "! Thanks for playing.");
+      exit 0)
+    else if Float.is_integer !white_score then (
+      print_endline
+        ("The game is tied "
+        ^ (!black_score |> int_of_float |> string_of_int)
+        ^ "-"
+        ^ (!white_score |> int_of_float |> string_of_int)
+        ^ "! Thanks for playing.");
+      exit 0)
+    else (
+      print_endline
+        ("The game is tied "
+        ^ string_of_float !black_score
+        ^ "-"
+        ^ string_of_float !white_score
+        ^ "! Thanks for playing.");
+      exit 0)
+  else if !white_score > !black_score then
+    if Float.is_integer !white_score then
+      print_endline
+        ((color |> color_string) ^ " wins! White leads "
+        ^ (!white_score |> int_of_float |> string_of_int)
+        ^ "-"
+        ^ (!black_score |> int_of_float |> string_of_int))
+    else
+      print_endline
+        ((color |> color_string) ^ " wins! White leads "
+        ^ string_of_float !white_score
+        ^ "-"
+        ^ string_of_float !black_score)
+  else if !white_score < !black_score then
+    if Float.is_integer !black_score then
+      print_endline
+        ((color |> color_string) ^ " wins! Black leads "
+        ^ (!black_score |> int_of_float |> string_of_int)
+        ^ "-"
+        ^ (!white_score |> int_of_float |> string_of_int))
+    else
+      print_endline
+        ((color |> color_string) ^ " wins! Black leads "
+        ^ string_of_float !black_score
+        ^ "-"
+        ^ string_of_float !white_score)
+  else if Float.is_integer !black_score then
+    print_endline
+      ((color |> color_string) ^ " wins! The game is tied "
+      ^ (!black_score |> int_of_float |> string_of_int)
+      ^ "-"
+      ^ (!white_score |> int_of_float |> string_of_int))
+  else
+    print_endline
+      ((color |> color_string) ^ " wins! The game is tied "
+      ^ string_of_float !black_score
+      ^ "-"
+      ^ string_of_float !white_score)
 
 let is_koth_won color state =
   square_has_pt state "d4" King color
@@ -74,9 +176,18 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
                   ((color |> color_string) ^ " wins! Thank you for playing.");
                 exit 0);
             print_endline "It is a draw! Thank you for playing."
-        | Checkmate st ->
-            print_endline
-              ((color |> color_string) ^ " wins! Thank you for playing.")
+        | Checkmate st -> begin
+            match !variant_selected with
+            | BestOf i ->
+                num_games := !num_games - 1;
+                if color = White then white_score := !white_score +. 1.
+                else black_score := !black_score +. 1.;
+                print_score color;
+                get_new_player_move color init_state
+            | _ ->
+                print_endline
+                  ((color |> color_string) ^ " wins! Thank you for playing.")
+          end
         | PawnPromotion st ->
             get_new_player_move (opposite_color color)
               (get_promoted_piece color (moves |> List.rev |> List.hd) st)
@@ -84,10 +195,18 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
             print_endline "The specified move is illegal. Please try again.";
             get_new_player_move ~print:false color state)
     | DrawOffer -> get_draw color state
-    | Resign ->
-        print_endline
-          ((color |> opposite_color |> color_string)
-          ^ " wins! Thank you for playing.")
+    | Resign -> begin
+        match !variant_selected with
+        | BestOf i ->
+            num_games := !num_games - 1;
+            if color = White then black_score := !black_score +. 1.
+            else white_score := !white_score +. 1.;
+            print_score color
+        | _ ->
+            print_endline
+              ((color |> opposite_color |> color_string)
+              ^ " wins! Thank you for playing.")
+      end
   with
   | Command.InvalidCommand ->
       print_endline "This is not a valid command as entered. Please try again.";
@@ -152,7 +271,9 @@ let rec get_variant () =
         | Standard -> ()
         | ThreeCheck -> variant_selected := ThreeCheck
         | KingOfTheHill -> variant_selected := KingOfTheHill
-        | BestOf i -> variant_selected := BestOf i
+        | BestOf i ->
+            variant_selected := BestOf i;
+            num_games := i
       with InvalidVariant ->
         print_endline "Invalid variant selected. Please try again.";
         get_variant ())
