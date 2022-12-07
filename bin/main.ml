@@ -201,7 +201,8 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
             num_games := !num_games - 1;
             if color = White then black_score := !black_score +. 1.
             else white_score := !white_score +. 1.;
-            print_score color
+            print_score (opposite_color color);
+            get_new_player_move color init_state
         | _ ->
             print_endline
               ((color |> opposite_color |> color_string)
