@@ -144,12 +144,23 @@ let check_stalemate color state =
   && all_valid_moves color state = []
 
 let promote_pawn color pos to_piece state =
-  {
-    state with
-    board =
-      piece_helper ~moved:true pos to_piece color
-      :: (state |> get_board |> List.remove_assoc pos);
-  }
+  let new_state =
+    {
+      state with
+      board =
+        piece_helper ~moved:true pos to_piece color
+        :: (state |> get_board |> List.remove_assoc pos);
+    }
+  in
+  if check_check color new_state && check_checkmate color new_state then
+    Checkmate new_state
+  else if check_stalemate (opp_color color) new_state then Stalemate new_state
+  else if check_check color new_state then Check new_state
+  else if
+    new_state |> get_fifty_move_rule = 50
+    || new_state |> get_num_repetitions = 3
+  then Draw new_state
+  else Legal new_state
 
 (**[move_piece] moves a piece [piece] of color [color] from an old position
    [orig_pos] to a new position [new_pos]. It also takes in the old state of the
