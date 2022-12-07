@@ -16,7 +16,8 @@ type variant =
   | Standard
   | ThreeCheck
   | KingOfTheHill
-  | BestOf of int
+
+type rounds = BestOf of int
 
 type response =
   | Yes
@@ -35,6 +36,10 @@ let variant_match x =
   if x = "Standard" then Standard
   else if x = "3-check" then ThreeCheck
   else if x = "KOTH" then KingOfTheHill
+  else raise InvalidVariant
+
+let rounds_match x =
+  if x = "Single" then BestOf 1
   else if String.starts_with "Best of " x then
     let substr = String.sub x 8 (String.length x - 8) in
     try BestOf (int_of_string substr) with _ -> raise InvalidVariant
@@ -44,7 +49,6 @@ let string_of_variant = function
   | Standard -> "Standard"
   | ThreeCheck -> "3-check"
   | KingOfTheHill -> "King of the Hill"
-  | BestOf i -> "Best of " ^ string_of_int i
 
 let parse_move (move_cmd : string list) =
   match move_cmd with
@@ -87,6 +91,15 @@ let parse_variant str =
   with
   | [ h ] -> variant_match h
   | [ "Best"; "of"; s ] -> variant_match ("Best of " ^ s)
+  | _ -> raise InvalidVariant
+
+let parse_rounds str =
+  match
+    str |> String.split_on_char ' '
+    |> List.filter (fun x -> String.length x > 0)
+  with
+  | [ h ] -> rounds_match h
+  | [ "Best"; "of"; s ] -> rounds_match ("Best of " ^ s)
   | _ -> raise InvalidVariant
 
 let response_match x =
