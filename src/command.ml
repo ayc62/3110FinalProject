@@ -50,6 +50,9 @@ let string_of_variant = function
   | ThreeCheck -> "3-check"
   | KingOfTheHill -> "King of the Hill"
 
+let string_of_rounds = function
+  | BestOf i -> if i = 1 then "Single" else "Best of " ^ string_of_int i
+
 let parse_move (move_cmd : string list) =
   match move_cmd with
   | [] | [ _ ] | [ _; _ ] -> raise InvalidCommand
