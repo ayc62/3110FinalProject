@@ -40,7 +40,7 @@ let variant_match x =
     try BestOf (int_of_string substr) with _ -> raise InvalidVariant
   else raise InvalidVariant
 
-let variant_to_string = function
+let string_of_variant = function
   | Standard -> "Standard"
   | ThreeCheck -> "3-check"
   | KingOfTheHill -> "King of the Hill"
@@ -86,7 +86,7 @@ let parse_variant str =
     |> List.filter (fun x -> String.length x > 0)
   with
   | [ h ] -> variant_match h
-  | [ _; _; s ] -> variant_match ("Best of " ^ s)
+  | [ "Best"; "of"; s ] -> variant_match ("Best of " ^ s)
   | _ -> raise InvalidVariant
 
 let response_match x =
