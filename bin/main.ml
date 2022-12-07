@@ -101,8 +101,8 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
 
 and get_new_player_move ?(print = true) color (state : state) =
   if print then
-    if color = White then Printboard.print_board_white state
-    else Printboard.print_board_black state
+    if color = White then Printboard.print_board_white state !variant_selected
+    else Printboard.print_board_black state !variant_selected
   else ();
   print_endline ("To move: " ^ (color |> color_string));
   print_string "> ";
@@ -172,7 +172,7 @@ let main () =
      and squares are case-sensitive: the piece name should be capitalized, and \
      the squares should not be capitalized. You can also resign the game by \
      typing 'resign', or offer a draw by typing 'draw'.";
-  Printboard.print_board_white init_state;
+  Printboard.print_board_white init_state !variant_selected;
   print_endline "To move: White";
   print_string "> ";
   match read_line () with
