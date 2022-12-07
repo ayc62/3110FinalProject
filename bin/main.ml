@@ -23,9 +23,14 @@ let check_counter_black = ref 0
 let white_score = ref 0.
 let black_score = ref 0.
 let num_games = ref 1
+let games_played = ref 0
 
 let print_score color =
-  if !num_games = 0 then
+  if
+    !games_played = !num_games
+    || !white_score >= (float_of_int !num_games /. 2.) +. 0.5
+    || !black_score >= (float_of_int !num_games /. 2.) +. 0.5
+  then
     if !white_score > !black_score then
       if Float.is_integer !white_score then (
         print_endline
@@ -112,13 +117,13 @@ let print_score color =
         ^ string_of_float !white_score)
   else if Float.is_integer !black_score then
     print_endline
-      ((color |> color_string) ^ " wins! The game is tied "
+      ("It's a draw! The game is tied "
       ^ (!black_score |> int_of_float |> string_of_int)
       ^ "-"
       ^ (!white_score |> int_of_float |> string_of_int))
   else
     print_endline
-      ((color |> color_string) ^ " wins! The game is tied "
+      ("It's a draw! The game is tied "
       ^ string_of_float !black_score
       ^ "-"
       ^ string_of_float !white_score)
@@ -171,23 +176,36 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
             get_new_player_move (opposite_color color) st
         | Draw st | Stalemate st ->
             if !variant_selected = KingOfTheHill then
-              if is_koth_won color st then (
-                print_endline
-                  ((color |> color_string) ^ " wins! Thank you for playing.");
-                exit 0);
-            print_endline "It is a draw! Thank you for playing."
-        | Checkmate st -> begin
-            match !variant_selected with
-            | BestOf i ->
-                num_games := !num_games - 1;
-                if color = White then white_score := !white_score +. 1.
-                else black_score := !black_score +. 1.;
-                print_score color;
-                get_new_player_move color init_state
-            | _ ->
-                print_endline
-                  ((color |> color_string) ^ " wins! Thank you for playing.")
-          end
+              if is_koth_won color st then
+                if !num_games = 1 then (
+                  print_endline
+                    ((color |> color_string) ^ " wins! Thank you for playing.");
+                  exit 0)
+                else (
+                  if color = White then white_score := !white_score +. 1.
+                  else black_score := !black_score +. 1.;
+                  print_score color)
+              else if !num_games = 1 then
+                print_endline "It is a draw! Thank you for playing."
+              else (
+                white_score := !white_score +. 0.5;
+                black_score := !black_score +. 0.5;
+                print_score color)
+            else if !num_games = 1 then
+              print_endline "It is a draw! Thank you for playing."
+            else (
+              white_score := !white_score +. 0.5;
+              black_score := !black_score +. 0.5;
+              print_score color)
+        | Checkmate st ->
+            games_played := !games_played + 1;
+            if !num_games = 1 then
+              print_endline
+                ((color |> color_string) ^ " wins! Thank you for playing.")
+            else if color = White then white_score := !white_score +. 1.
+            else black_score := !black_score +. 1.;
+            print_score color;
+            get_new_player_move color init_state
         | PawnPromotion st ->
             get_new_player_move (opposite_color color)
               (get_promoted_piece color (moves |> List.rev |> List.hd) st)
@@ -195,19 +213,16 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
             print_endline "The specified move is illegal. Please try again.";
             get_new_player_move ~print:false color state)
     | DrawOffer -> get_draw color state
-    | Resign -> begin
-        match !variant_selected with
-        | BestOf i ->
-            num_games := !num_games - 1;
-            if color = White then black_score := !black_score +. 1.
-            else white_score := !white_score +. 1.;
-            print_score (opposite_color color);
-            get_new_player_move color init_state
-        | _ ->
-            print_endline
-              ((color |> opposite_color |> color_string)
-              ^ " wins! Thank you for playing.")
-      end
+    | Resign ->
+        games_played := !games_played + 1;
+        if !num_games = 1 then
+          print_endline
+            ((color |> opposite_color |> color_string)
+            ^ " wins! Thank you for playing.")
+        else if color = White then white_score := !white_score +. 1.
+        else black_score := !black_score +. 1.;
+        print_score (opposite_color color);
+        get_new_player_move color init_state
   with
   | Command.InvalidCommand ->
       print_endline "This is not a valid command as entered. Please try again.";
@@ -251,7 +266,15 @@ and get_draw color state =
   | response -> begin
       try
         match parse_draw_offer response with
-        | Yes -> print_endline "It is a draw! Thank you for playing."
+        | Yes ->
+            games_played := !games_played + 1;
+            if !num_games = 1 then
+              print_endline "It is a draw! Thank you for playing."
+            else (
+              white_score := !white_score +. 0.5;
+              black_score := !black_score +. 0.5;
+              print_score color;
+              get_new_player_move color init_state)
         | No -> get_new_player_move color state
       with InvalidResponse ->
         print_endline "Invalid response, please try again.";
@@ -260,8 +283,8 @@ and get_draw color state =
 
 let rec get_variant () =
   print_endline
-    "Select an option by typing 'Standard', '3-check', 'KOTH', or 'Best of \
-     [int]'. All options are case-sensitive.";
+    "Select an option by typing 'Standard', '3-check', or 'KOTH'. All options \
+     are case-sensitive.";
   print_string "> ";
   match read_line () with
   | exception End_of_file -> ()
@@ -272,12 +295,26 @@ let rec get_variant () =
         | Standard -> ()
         | ThreeCheck -> variant_selected := ThreeCheck
         | KingOfTheHill -> variant_selected := KingOfTheHill
-        | BestOf i ->
-            variant_selected := BestOf i;
-            num_games := i
       with InvalidVariant ->
         print_endline "Invalid variant selected. Please try again.";
         get_variant ())
+
+let rec get_rounds () =
+  print_endline
+    "How many rounds of the game would you like to play? Select 'Single' for 1 \
+     round, or 'Best of [int]' for multiple rounds. All options are \
+     case-sensitive.";
+  print_string "> ";
+  match read_line () with
+  | exception End_of_file -> ()
+  | str -> (
+      try
+        let rnds = parse_rounds str in
+        match rnds with
+        | BestOf i -> if i <= 0 then raise InvalidVariant else num_games := i
+      with InvalidVariant ->
+        print_endline "Invalid variant selected. Please try again.";
+        get_rounds ())
 
 let main () =
   print_endline "Welcome to a very unfinished implementation of Chess.";
@@ -288,6 +325,7 @@ let main () =
      hill ends immediately after one of the kings reaches the center four \
      squares: d4, e4, d5, or e5.";
   get_variant ();
+  get_rounds ();
   print_endline
     "A player may make a move by entering 'move [piece name] [starting square] \
      [ending square]', such as 'move Pawn e2 e4'. Note that the piece names \
