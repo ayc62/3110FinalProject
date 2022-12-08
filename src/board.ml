@@ -145,14 +145,13 @@ let fischer_random_state () : state =
     fischer_random_pieces White
       [ "a1"; "b1"; "c1"; "d1"; "e1"; "f1"; "g1"; "h1" ]
   in
-  let b_pieces =
-    fischer_random_pieces Black
-      [ "a8"; "b8"; "c8"; "d8"; "e8"; "f8"; "g8"; "h8" ]
-  in
   {
     board =
       List.map (fun elt -> piece_helper (snd elt) (fst elt) White) w_pieces
-      @ List.map (fun elt -> piece_helper (snd elt) (fst elt) Black) b_pieces
+      @ List.map
+          (fun elt ->
+            piece_helper (String.sub (snd elt) 0 1 ^ "8") (fst elt) Black)
+          w_pieces
       @ [
           piece_helper "a2" Pawn White;
           piece_helper "b2" Pawn White;

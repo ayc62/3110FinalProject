@@ -24,6 +24,7 @@ let white_score = ref 0.
 let black_score = ref 0.
 let num_games = ref 1
 let games_played = ref 0
+let cur_state = ref init_state
 
 let print_score color =
   if
@@ -117,13 +118,13 @@ let print_score color =
         ^ string_of_float !white_score)
   else if Float.is_integer !black_score then
     print_endline
-      ("It's a draw! The game is tied "
+      ((color |> color_string) ^ " wins! The game is tied "
       ^ (!black_score |> int_of_float |> string_of_int)
       ^ "-"
       ^ (!white_score |> int_of_float |> string_of_int))
   else
     print_endline
-      ("It's a draw! The game is tied "
+      ((color |> color_string) ^ " wins! The game is tied "
       ^ string_of_float !black_score
       ^ "-"
       ^ string_of_float !white_score)
@@ -146,11 +147,15 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
         in
         match attempted_state with
         | Legal st ->
-            if !variant_selected = KingOfTheHill then
-              if is_koth_won color st then (
+            if is_koth_won color st then
+              if !num_games = 1 then (
                 print_endline
                   ((color |> color_string) ^ " wins! Thank you for playing.");
-                exit 0);
+                exit 0)
+              else (
+                if color = White then white_score := !white_score +. 1.
+                else black_score := !black_score +. 1.;
+                print_score color);
             get_new_player_move (opposite_color color) st
         | Check st ->
             if !variant_selected = ThreeCheck then
@@ -208,12 +213,12 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
             else if color = White then white_score := !white_score +. 1.
             else black_score := !black_score +. 1.;
             print_score color;
-            if !variant_selected = FischerRandom then
-              get_new_player_move color (fischer_random_state ())
-            else get_new_player_move color init_state
+            cur_state := fischer_random_state ();
+            get_new_player_move color !cur_state
         | PawnPromotion st ->
-            get_new_player_move (opposite_color color)
-              (get_promoted_piece color (moves |> List.rev |> List.hd) st)
+            failwith ""
+            (* get_new_player_move (opposite_color color) (get_promoted_piece
+               color (moves |> List.rev |> List.hd) st) *)
         | Illegal ->
             print_endline "The specified move is illegal. Please try again.";
             get_new_player_move ~print:false color state)
@@ -227,9 +232,8 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
         else if color = White then white_score := !white_score +. 1.
         else black_score := !black_score +. 1.;
         print_score (opposite_color color);
-        if !variant_selected = FischerRandom then
-          get_new_player_move color (fischer_random_state ())
-        else get_new_player_move color init_state
+        cur_state := fischer_random_state ();
+        get_new_player_move color !cur_state
   with
   | Command.InvalidCommand ->
       print_endline "This is not a valid command as entered. Please try again.";
@@ -254,16 +258,11 @@ and get_new_player_move ?(print = true) color (state : state) =
   | exception End_of_file -> ()
   | command -> execute_player_move color state command
 
-and get_promoted_piece color pos (state : state) : state =
-  print_endline "What piece would you like to promote to?";
-  print_string "> ";
-  match read_line () with
-  | piece -> begin
-      try promote_pawn color pos (parse_promotion piece) state
-      with InvalidPiece ->
-        print_endline "Invalid piece, please try again.";
-        get_promoted_piece color pos state
-    end
+(* and get_promoted_piece color pos (state : state) : state = print_endline
+   "What piece would you like to promote to?"; print_string "> "; match
+   read_line () with | piece -> begin try promote_pawn color pos
+   (parse_promotion piece) state with InvalidPiece -> print_endline "Invalid
+   piece, please try again."; get_promoted_piece color pos state end *)
 
 and get_draw color state =
   print_endline
@@ -283,9 +282,8 @@ and get_draw color state =
               white_score := !white_score +. 0.5;
               black_score := !black_score +. 0.5;
               print_score color;
-              if !variant_selected = FischerRandom then
-                get_new_player_move color (fischer_random_state ())
-              else get_new_player_move color init_state)
+              cur_state := fischer_random_state ();
+              get_new_player_move color !cur_state)
         | No -> get_new_player_move color state
       with InvalidResponse ->
         print_endline "Invalid response, please try again.";
@@ -344,17 +342,13 @@ let main () =
      and squares are case-sensitive: the piece name should be capitalized, and \
      the squares should not be capitalized. You can also resign the game by \
      typing 'resign', or offer a draw by typing 'draw'.";
-  if !variant_selected = FischerRandom then
-    Printboard.print_board_white (fischer_random_state ()) !variant_selected
-      (BestOf !num_games)
-  else
-    Printboard.print_board_white init_state !variant_selected
-      (BestOf !num_games);
+  if !variant_selected = FischerRandom then cur_state := fischer_random_state ();
+  Printboard.print_board_white !cur_state !variant_selected (BestOf !num_games);
   print_endline "To move: White";
   print_string "> ";
   match read_line () with
   | exception End_of_file -> ()
-  | command -> execute_player_move White init_state command
+  | command -> execute_player_move White !cur_state command
 
 (** Execute the game engine. *)
 
