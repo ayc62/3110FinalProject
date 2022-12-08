@@ -138,7 +138,34 @@ let gen_fischer_random_pos color : state =
     fischer_random_pieces Black
       [ "a8"; "b8"; "c8"; "d8"; "e8"; "f8"; "g8"; "h8" ]
   in
-  failwith ""
+  {
+    board =
+      List.map (fun elt -> piece_helper (snd elt) (fst elt) White) w_pieces
+      @ List.map (fun elt -> piece_helper (snd elt) (fst elt) Black) b_pieces
+      @ [
+          piece_helper "a2" Pawn White;
+          piece_helper "b2" Pawn White;
+          piece_helper "c2" Pawn White;
+          piece_helper "d2" Pawn White;
+          piece_helper "e2" Pawn White;
+          piece_helper "f2" Pawn White;
+          piece_helper "g2" Pawn White;
+          piece_helper "h2" Pawn White;
+          piece_helper "a7" Pawn Black;
+          piece_helper "b7" Pawn Black;
+          piece_helper "c7" Pawn Black;
+          piece_helper "d7" Pawn Black;
+          piece_helper "e7" Pawn Black;
+          piece_helper "f7" Pawn Black;
+          piece_helper "g7" Pawn Black;
+          piece_helper "h7" Pawn Black;
+          piece_helper "a8" Rook Black;
+        ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
 
 let square_has_pt (state : state) (square : string) (piece_type : piece_type)
     (piece_color : piece_color) =
