@@ -16,6 +16,7 @@ type variant =
   | Standard
   | ThreeCheck
   | KingOfTheHill
+  | FischerRandom
 
 type rounds = BestOf of int
 
@@ -36,6 +37,7 @@ let variant_match x =
   if x = "Standard" then Standard
   else if x = "3-check" then ThreeCheck
   else if x = "KOTH" then KingOfTheHill
+  else if x = "Fischer Random" then FischerRandom
   else raise InvalidVariant
 
 let rounds_match x =
@@ -49,6 +51,7 @@ let string_of_variant = function
   | Standard -> "Standard"
   | ThreeCheck -> "3-check"
   | KingOfTheHill -> "King of the Hill"
+  | FischerRandom -> "Fischer Random"
 
 let string_of_rounds = function
   | BestOf i -> if i = 1 then "Single" else "Best of " ^ string_of_int i

@@ -285,8 +285,8 @@ and get_draw color state =
 
 let rec get_variant () =
   print_endline
-    "Select an option by typing 'Standard', '3-check', or 'KOTH'. All options \
-     are case-sensitive.";
+    "Select an option by typing 'Standard', '3-check', 'KOTH', or 'Fischer \
+     Random'. All options are case-sensitive.";
   print_string "> ";
   match read_line () with
   | exception End_of_file -> ()
@@ -297,6 +297,7 @@ let rec get_variant () =
         | Standard -> ()
         | ThreeCheck -> variant_selected := ThreeCheck
         | KingOfTheHill -> variant_selected := KingOfTheHill
+        | FischerRandom -> variant_selected := FischerRandom
       with InvalidVariant ->
         print_endline "Invalid variant selected. Please try again.";
         get_variant ())
