@@ -100,11 +100,22 @@ let int_to_pos color i =
 
 let gen_bishop_pos color sq_color =
   if (sq_color = Dark && color = White) || (sq_color = Light && color = Black)
-  then int_to_pos color (Random.int 4 * 2)
-  else int_to_pos color ((Random.int 4 * 2) + 1)
+  then
+    int_to_pos color
+      (Random.self_init ();
+       Random.int 4 * 2)
+  else
+    int_to_pos color
+      ((Random.self_init ();
+        Random.int 4 * 2)
+      + 1)
 
 let rec gen_rand_pos color taken =
-  let pos = int_to_pos color (Random.int 9) in
+  let pos =
+    int_to_pos color
+      (Random.self_init ();
+       Random.int 8)
+  in
   if List.exists (fun x -> x = pos) taken then gen_rand_pos color taken else pos
 
 let difference (lst1 : string list) (lst2 : string list) =
@@ -129,7 +140,7 @@ let fischer_random_pieces color arr =
   :: (Rook, List.hd diff)
   :: lst4
 
-let gen_fischer_random_pos color : state =
+let fischer_random_state () : state =
   let w_pieces =
     fischer_random_pieces White
       [ "a1"; "b1"; "c1"; "d1"; "e1"; "f1"; "g1"; "h1" ]
@@ -159,7 +170,6 @@ let gen_fischer_random_pos color : state =
           piece_helper "f7" Pawn Black;
           piece_helper "g7" Pawn Black;
           piece_helper "h7" Pawn Black;
-          piece_helper "a8" Rook Black;
         ];
     old_boards = [];
     captured_pieces = [];

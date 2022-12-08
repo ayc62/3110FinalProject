@@ -167,10 +167,15 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
                   exit 0)
               end;
             if !variant_selected = KingOfTheHill then
-              if is_koth_won color st then (
-                print_endline
-                  ((color |> color_string) ^ " wins! Thank you for playing.");
-                exit 0);
+              if is_koth_won color st then
+                if !num_games = 1 then (
+                  print_endline
+                    ((color |> color_string) ^ " wins! Thank you for playing.");
+                  exit 0)
+                else (
+                  if color = White then white_score := !white_score +. 1.
+                  else black_score := !black_score +. 1.;
+                  print_score color);
             print_endline
               ((color |> opposite_color |> color_string) ^ " is under check!");
             get_new_player_move (opposite_color color) st
@@ -185,8 +190,6 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
                   if color = White then white_score := !white_score +. 1.
                   else black_score := !black_score +. 1.;
                   print_score color)
-              else if !num_games = 1 then
-                print_endline "It is a draw! Thank you for playing."
               else (
                 white_score := !white_score +. 0.5;
                 black_score := !black_score +. 0.5;
@@ -205,7 +208,9 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
             else if color = White then white_score := !white_score +. 1.
             else black_score := !black_score +. 1.;
             print_score color;
-            get_new_player_move color init_state
+            if !variant_selected = FischerRandom then
+              get_new_player_move color (fischer_random_state ())
+            else get_new_player_move color init_state
         | PawnPromotion st ->
             get_new_player_move (opposite_color color)
               (get_promoted_piece color (moves |> List.rev |> List.hd) st)
@@ -222,7 +227,9 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
         else if color = White then white_score := !white_score +. 1.
         else black_score := !black_score +. 1.;
         print_score (opposite_color color);
-        get_new_player_move color init_state
+        if !variant_selected = FischerRandom then
+          get_new_player_move color (fischer_random_state ())
+        else get_new_player_move color init_state
   with
   | Command.InvalidCommand ->
       print_endline "This is not a valid command as entered. Please try again.";
@@ -276,7 +283,9 @@ and get_draw color state =
               white_score := !white_score +. 0.5;
               black_score := !black_score +. 0.5;
               print_score color;
-              get_new_player_move color init_state)
+              if !variant_selected = FischerRandom then
+                get_new_player_move color (fischer_random_state ())
+              else get_new_player_move color init_state)
         | No -> get_new_player_move color state
       with InvalidResponse ->
         print_endline "Invalid response, please try again.";
@@ -322,11 +331,11 @@ let rec get_rounds () =
 let main () =
   print_endline "Welcome to a very unfinished implementation of Chess.";
   print_endline
-    "We currently support standard chess, 3-check, and king of the hill; \
-     3-check operates on the same rules as standard chess but the game ends \
-     immediately after one player checks the opponent 3 times, and king of the \
-     hill ends immediately after one of the kings reaches the center four \
-     squares: d4, e4, d5, or e5.";
+    "We currently support standard chess, 3-check, king of the hill, and \
+     Fischer random; 3-check operates on the same rules as standard chess but \
+     the game ends immediately after one player checks the opponent 3 times, \
+     and king of the hill ends immediately after one of the kings reaches the \
+     center four squares: d4, e4, d5, or e5.";
   get_variant ();
   get_rounds ();
   print_endline
@@ -335,7 +344,12 @@ let main () =
      and squares are case-sensitive: the piece name should be capitalized, and \
      the squares should not be capitalized. You can also resign the game by \
      typing 'resign', or offer a draw by typing 'draw'.";
-  Printboard.print_board_white init_state !variant_selected (BestOf !num_games);
+  if !variant_selected = FischerRandom then
+    Printboard.print_board_white (fischer_random_state ()) !variant_selected
+      (BestOf !num_games)
+  else
+    Printboard.print_board_white init_state !variant_selected
+      (BestOf !num_games);
   print_endline "To move: White";
   print_string "> ";
   match read_line () with

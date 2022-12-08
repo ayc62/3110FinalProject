@@ -96,6 +96,7 @@ let parse_variant str =
     |> List.filter (fun x -> String.length x > 0)
   with
   | [ h ] -> variant_match h
+  | [ "Fischer"; "Random" ] -> FischerRandom
   | [ "Best"; "of"; s ] -> variant_match ("Best of " ^ s)
   | _ -> raise InvalidVariant
 
