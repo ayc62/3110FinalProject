@@ -26,6 +26,14 @@ let num_games = ref 1
 let games_played = ref 0
 let cur_state = ref init_state
 
+let gen_new_fischer should_change =
+  if should_change then (
+    Random.self_init ();
+    let temp = fischer_random_state () in
+    cur_state := temp;
+    !cur_state)
+  else !cur_state
+
 let print_score color =
   if
     !games_played = !num_games
@@ -204,7 +212,11 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
             else (
               white_score := !white_score +. 0.5;
               black_score := !black_score +. 0.5;
-              print_score color)
+              print_score color;
+              let new_state = gen_new_fischer true in
+              if !variant_selected = FischerRandom then
+                get_new_player_move White new_state
+              else get_new_player_move White init_state)
         | Checkmate st ->
             games_played := !games_played + 1;
             if !num_games = 1 then
@@ -213,8 +225,10 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
             else if color = White then white_score := !white_score +. 1.
             else black_score := !black_score +. 1.;
             print_score color;
-            cur_state := fischer_random_state ();
-            get_new_player_move color !cur_state
+            let new_state = gen_new_fischer true in
+            if !variant_selected = FischerRandom then
+              get_new_player_move White new_state
+            else get_new_player_move White init_state
         | PawnPromotion st ->
             failwith ""
             (* get_new_player_move (opposite_color color) (get_promoted_piece
@@ -229,11 +243,13 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
           print_endline
             ((color |> opposite_color |> color_string)
             ^ " wins! Thank you for playing.")
-        else if color = White then white_score := !white_score +. 1.
-        else black_score := !black_score +. 1.;
+        else if color = White then black_score := !black_score +. 1.
+        else white_score := !white_score +. 1.;
         print_score (opposite_color color);
-        cur_state := fischer_random_state ();
-        get_new_player_move color !cur_state
+        let new_state = gen_new_fischer true in
+        if !variant_selected = FischerRandom then
+          get_new_player_move White new_state
+        else get_new_player_move White init_state
   with
   | Command.InvalidCommand ->
       print_endline "This is not a valid command as entered. Please try again.";
@@ -282,8 +298,10 @@ and get_draw color state =
               white_score := !white_score +. 0.5;
               black_score := !black_score +. 0.5;
               print_score color;
-              cur_state := fischer_random_state ();
-              get_new_player_move color !cur_state)
+              let new_state = gen_new_fischer true in
+              if !variant_selected = FischerRandom then
+                get_new_player_move White new_state
+              else get_new_player_move White init_state)
         | No -> get_new_player_move color state
       with InvalidResponse ->
         print_endline "Invalid response, please try again.";
@@ -342,13 +360,20 @@ let main () =
      and squares are case-sensitive: the piece name should be capitalized, and \
      the squares should not be capitalized. You can also resign the game by \
      typing 'resign', or offer a draw by typing 'draw'.";
-  if !variant_selected = FischerRandom then cur_state := fischer_random_state ();
-  Printboard.print_board_white !cur_state !variant_selected (BestOf !num_games);
+  let new_state = gen_new_fischer true in
+  if !variant_selected = FischerRandom then
+    Printboard.print_board_white new_state !variant_selected (BestOf !num_games)
+  else
+    Printboard.print_board_white init_state !variant_selected
+      (BestOf !num_games);
   print_endline "To move: White";
   print_string "> ";
   match read_line () with
   | exception End_of_file -> ()
-  | command -> execute_player_move White !cur_state command
+  | command ->
+      if !variant_selected = FischerRandom then
+        execute_player_move White new_state command
+      else execute_player_move White init_state command
 
 (** Execute the game engine. *)
 
