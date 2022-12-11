@@ -22,11 +22,6 @@ let piece_type_string piece =
       | Pawn -> " ♟︎ "
     end
 
-let piece_color_string piece =
-  match piece.piece_color with
-  | White -> "w"
-  | Black -> "b"
-
 let piece state square =
   try
     let piece = List.assoc square state in
@@ -64,20 +59,32 @@ let rec print_white state row bottom_row next_row col last_col next_col last_col
   print_endline "";
   if row = bottom_row then (
     print_bottom_border col last_col next_col;
-    print_endline "";)
+    print_endline "\n")
   else
     print_white state (next_row row 1) bottom_row next_row col last_col next_col (not last_color)
 
-let print_board_helper row bottom_row next_row col last_col next_col last_color cur_variant rounds state =
+let print_board_helper row bottom_row next_row col last_col next_col last_color state =
   print_endline "";
+  print_white state row bottom_row next_row col last_col next_col last_color
+
+let print_captured color state = state |> get_captured_pieces |> List.filter (fun x -> x.piece_color = color)
+  |> List.map piece_type_string |> List.fold_left (fun a b -> a ^ " " ^ b) "" 
+
+let print_header_message cur_variant rounds = 
   print_endline
     ("Current variant: "
     ^ string_of_variant cur_variant
-    ^ " [" ^ string_of_rounds rounds ^ "]");
-  print_white state row bottom_row next_row col last_col next_col last_color
+    ^ " [" ^ string_of_rounds rounds ^ "]")
 
 let print_board_white state cur_variant rounds =
-  state |> get_board |> print_board_helper 8 1 ( - ) 'a' 'h' ( + ) false cur_variant rounds
+  print_header_message cur_variant rounds;
+  print_endline ("Black's captured pieces:" ^ (state |> print_captured White));
+  state |> get_board |> print_board_helper 8 1 ( - ) 'a' 'h' ( + ) false ;
+  print_endline ("White's captured pieces:" ^ (state |> print_captured Black))
+
 
 let print_board_black state cur_variant rounds =
-  state |> get_board |> print_board_helper 1 8 ( + ) 'h' 'a' ( - ) true cur_variant rounds
+  print_header_message cur_variant rounds;
+  print_endline ("White's captured pieces:" ^ (state |> print_captured Black));
+  state |> get_board |> print_board_helper 1 8 ( + ) 'h' 'a' ( - ) true;
+  print_endline ("Black's captured pieces:" ^ (state |> print_captured White))
