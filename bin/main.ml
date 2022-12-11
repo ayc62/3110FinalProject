@@ -222,13 +222,14 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
             if !num_games = 1 then
               print_endline
                 ((color |> color_string) ^ " wins! Thank you for playing.")
-            else if color = White then white_score := !white_score +. 1.
-            else black_score := !black_score +. 1.;
-            print_score color;
-            let new_state = gen_new_fischer true in
-            if !variant_selected = FischerRandom then
-              get_new_player_move White new_state
-            else get_new_player_move White init_state
+            else (
+              if color = White then white_score := !white_score +. 1.
+              else black_score := !black_score +. 1.;
+              print_score color;
+              let new_state = gen_new_fischer true in
+              if !variant_selected = FischerRandom then
+                get_new_player_move White new_state
+              else get_new_player_move White init_state)
         | PawnPromotion st ->
             failwith ""
             (* get_new_player_move (opposite_color color) (get_promoted_piece
@@ -243,13 +244,14 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
           print_endline
             ((color |> opposite_color |> color_string)
             ^ " wins! Thank you for playing.")
-        else if color = White then black_score := !black_score +. 1.
-        else white_score := !white_score +. 1.;
-        print_score (opposite_color color);
-        let new_state = gen_new_fischer true in
-        if !variant_selected = FischerRandom then
-          get_new_player_move White new_state
-        else get_new_player_move White init_state
+        else (
+          if color = White then black_score := !black_score +. 1.
+          else white_score := !white_score +. 1.;
+          print_score (opposite_color color);
+          let new_state = gen_new_fischer true in
+          if !variant_selected = FischerRandom then
+            get_new_player_move White new_state
+          else get_new_player_move White init_state)
   with
   | Command.InvalidCommand ->
       print_endline "This is not a valid command as entered. Please try again.";
@@ -344,7 +346,7 @@ let rec get_rounds () =
         print_endline "Invalid variant selected. Please try again.";
         get_rounds ())
 
-let main () =
+let rec main () =
   print_endline "Welcome to a very unfinished implementation of Chess.";
   print_endline
     "We currently support standard chess, 3-check, king of the hill, and \
@@ -368,12 +370,32 @@ let main () =
       (BestOf !num_games);
   print_endline "To move: White";
   print_string "> ";
+  begin
+    match read_line () with
+    | exception End_of_file -> ()
+    | command ->
+        if !variant_selected = FischerRandom then
+          execute_player_move White new_state command
+        else execute_player_move White init_state command
+  end;
+  restart_game ()
+
+and restart_game () =
+  print_endline "Would you like to play again? Type Y or N to respond.";
+  print_endline "> ";
   match read_line () with
-  | exception End_of_file -> ()
-  | command ->
-      if !variant_selected = FischerRandom then
-        execute_player_move White new_state command
-      else execute_player_move White init_state command
+  | response -> begin
+      try
+        match parse_draw_offer response with
+        | Yes -> main ()
+        | No ->
+            print_endline
+              "Thanks for stopping by! We hope you've enjoyed your stay \
+               here... Hope to see you soon!"
+      with InvalidResponse ->
+        print_endline "Invalid response, please try again.";
+        restart_game ()
+    end
 
 (** Execute the game engine. *)
 

@@ -64,6 +64,8 @@ val init_state : state
 (**[init_state] is the initial state of the chessboard*)
 
 val fischer_random_state : unit -> state
+(**[fischer_random_state] generates a random initial state of the chessboard in
+   accordance to the rules for Fischer Random chess*)
 
 val square_has_pt : state -> string -> piece_type -> piece_color -> bool
 (** [square_has_pt state square piece_type piece_color] returns whether a piece

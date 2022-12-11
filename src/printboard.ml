@@ -76,7 +76,7 @@ let print_board_helper row bottom_row next_row col last_col next_col cur_variant
   print_endline
     ("Current variant: "
     ^ string_of_variant cur_variant
-    ^ "; " ^ string_of_rounds rounds);
+    ^ " [" ^ string_of_rounds rounds ^ "]");
   print_white state row bottom_row next_row col last_col next_col
 
 let print_board_white state cur_variant rounds =
