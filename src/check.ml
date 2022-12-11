@@ -4,8 +4,6 @@ let opp_color = function
   | White -> Black
   | Black -> White
 
-(** [check_square square] checks if the square [square] is a valid square in the
-    board*)
 let check_square (square : string) : bool =
   if not (String.length square = 2) then false
   else if not ('a' <= String.get square 0 && String.get square 0 <= 'h') then
@@ -34,34 +32,21 @@ let rec get_columns c =
 (** [all_squares] is all the squares on the chess board*)
 let all_squares = get_columns "h"
 
-(** [diff new_pos orig_pos index] is the difference in position between
-    [orig_pos] and [new_pos] in index [index]. [index] is 0 for horizontal
-    distance and 1 for vertical distance*)
 let diff new_pos orig_pos index =
   Char.code (String.get new_pos index) - Char.code (String.get orig_pos index)
 
-(** [move_horizontal dir pos] is the position [dir] horizontal squares away from
-    square [pos] in the direction [dir]*)
 let move_horizontal dir pos =
   String.get pos 1 |> Char.escaped
   |> ( ^ )
        (String.get pos 0 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1)
 
-(** [move_vertical dir pos] is the position [dir] vertical squares away from
-    square [pos] in the direction [dir]*)
 let move_vertical dir pos =
   String.get pos 1 |> Char.code |> ( + ) dir |> Char.chr |> String.make 1
   |> ( ^ ) (String.get pos 0 |> Char.escaped)
 
-(** [is_horizontal orig_pos new_pos] checks if two pieces are in the same row.
-    Requires: [orig_pos] and [new_pos] are valid squares on the board*)
 let is_horizontal orig_pos new_pos =
   String.get new_pos 1 = String.get orig_pos 1
 
-(** [check_horizontal orig_pos new_pos state] checks if there are any pieces
-    between [orig_pos] and [new_pos] exclusive in the board [state], returning
-    true if no pieces are in the way. Requires: [orig_pos] and [new_pos] are
-    horizontal from each other and [state] is a valid state of the board *)
 let rec check_horizontal orig_pos new_pos (state : state) =
   let diff = diff new_pos orig_pos 0 in
   if abs diff = 1 then true
@@ -71,14 +56,8 @@ let rec check_horizontal orig_pos new_pos (state : state) =
       check_horizontal next_pos new_pos state
     else false
 
-(** [is_vertical orig_pos new_pos] checks if two pieces are in the same column.
-    Requires: [orig_pos] and [new_pos] are valid squares on the board*)
 let is_vertical orig_pos new_pos = String.get new_pos 0 = String.get orig_pos 0
 
-(** [check_vertical orig_pos new_pos state] checks if there are any pieces
-    between [orig_pos] and [new_pos] exclusive in the board [state], returning
-    true if no pieces are in the way. Requires: [orig_pos] and [new_pos] are
-    vertical from each other and [state] is a valid state of the board *)
 let rec check_vertical orig_pos new_pos (state : state) =
   let diff = diff new_pos orig_pos 1 in
   if abs diff = 1 then true
@@ -88,15 +67,9 @@ let rec check_vertical orig_pos new_pos (state : state) =
       check_vertical next_pos new_pos state
     else false
 
-(** [is_diagonal orig_pos new_pos] checks if two pieces are in the same
-    diagonal. Requires: [orig_pos] and [new_pos] are valid squares on the board*)
 let is_diagonal orig_pos new_pos =
   abs (diff new_pos orig_pos 0) = abs (diff new_pos orig_pos 1)
 
-(** [check_diagonal orig_pos new_pos state] checks if there are any pieces
-    between [orig_pos] and [new_pos] exclusive in the board [state], returning
-    true if no pieces are in the way. Requires: [orig_pos] and [new_pos] are
-    diagonal from each other and [state] is a valid state of the board *)
 let rec check_diagonal orig_pos new_pos state =
   let column_diff = diff new_pos orig_pos 0 in
   if abs column_diff = 1 then true
@@ -111,9 +84,6 @@ let rec check_diagonal orig_pos new_pos state =
       check_diagonal next_pos new_pos state
     else false
 
-(** [check_en_passant color orig_pos new_pos state] checks if en_passant is
-    possible from [orig_pos] to [new_pos] for a pawn with color [color] in the
-    current state [state]. *)
 let check_en_passant color orig_pos new_pos state =
   try
     let dir = if color = White then 1 else -1 in
@@ -254,8 +224,6 @@ let rec check_attack color pos state board =
   | h :: t ->
       if can_see h color pos state then true else check_attack color pos state t
 
-(**[castle_rook col row dir state] is the rook that the king is castling with in
-   the current state [state]*)
 let rec castle_rook pos dir state =
   let col = String.get pos 0 in
   if col = '`' || col = 'i' then None
@@ -267,9 +235,6 @@ let rec castle_rook pos dir state =
         then Some pos
         else None
 
-(** [check_castle color orig_pos new_pos state] checks if castling is possible
-    for side [color] with the King moving from [orig_pos] to [new_pos] in the
-    current state [state]*)
 let check_castle color orig_pos new_pos state =
   let piece_state = state |> get_board |> List.assoc orig_pos in
   if
@@ -303,10 +268,6 @@ let check_king color orig_pos new_pos state =
      |> not
   || check_castle color orig_pos new_pos state
 
-(** [check_piece_move piece color orig_pos new_pos state] checks if the piece
-    [piece] of color [color] can move (based solely on piece restriction, and
-    not other rules) from square [orig_pos] to square [new_pos] in the current
-    state [state]*)
 let check_piece_move piece color orig_pos new_pos state =
   match state |> get_board |> List.assoc_opt orig_pos with
   | None -> false
@@ -336,8 +297,6 @@ let rec king_square color state = function
           then h
           else king_square color state t)
 
-(** [check_check color state] checks if color [color] is checking the opposing
-    kick in the current state [state]*)
 let check_check color state =
   let king_square = king_square (color |> opp_color) state all_squares in
   check_attack color king_square state (get_board state)
@@ -345,7 +304,8 @@ let check_check color state =
 (** [move_list_helper piece orig_pos possible_new_pos acc] is a helper that
     generates a list of moves. The return format is
     [...; (piece, orig_pos, new_pos); ...;]*)
-let rec moves_list_helper piece orig_pos possible_new_pos acc =
+let rec moves_list_helper (piece : piece_type) (orig_pos : string)
+    possible_new_pos acc =
   match possible_new_pos with
   | [] -> acc
   | h :: t ->
@@ -356,7 +316,7 @@ let rec moves_list_helper piece orig_pos possible_new_pos acc =
 
 (** [all_pawn_moves color orig_pos state] is all the squares a pawn on square
     [orig_pos] can move to. Does not need to be a valid move*)
-let all_pawn_moves color orig_pos state =
+let all_pawn_moves (color : piece_color) (orig_pos : string) (state : state) =
   let dir = if color = White then 1 else -1 in
   let for_pos = orig_pos |> move_vertical dir in
   moves_list_helper Pawn orig_pos
@@ -434,7 +394,8 @@ let all_king_moves color orig_pos state =
     ]
     []
 
-(** [filter_moves color orig_pos state] is all the moves a pawn on square
+(** [filter_moves color orig_pos
+   state] is all the moves a pawn on square
     [orig_pos] can make in the current state [state]*)
 let rec filter_moves color state moves acc =
   match moves with
@@ -456,8 +417,6 @@ let rec filter_moves color state moves acc =
           else filter_moves color state t acc
     end
 
-(** [possible_moves color state board acc] is all the possible moves color
-    [color] could make in the current state*)
 let rec possible_moves color state board acc =
   match board with
   | [] -> filter_moves color state acc []

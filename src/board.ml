@@ -10,6 +10,10 @@ type piece_color =
   | White
   | Black
 
+type square_color =
+  | Light
+  | Dark
+
 type piece_state = {
   piece_type : piece_type;
   piece_color : piece_color;
@@ -83,6 +87,89 @@ let init_state : state =
         piece_helper "g8" Knight Black;
         piece_helper "h8" Rook Black;
       ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let possible_pos = [| "a"; "b"; "c"; "d"; "e"; "f"; "g"; "h" |]
+
+let int_to_pos color i =
+  if color = White then possible_pos.(i) ^ "1" else possible_pos.(i) ^ "8"
+
+let gen_bishop_pos color sq_color =
+  if (sq_color = Dark && color = White) || (sq_color = Light && color = Black)
+  then
+    int_to_pos color
+      (Random.self_init ();
+       Random.int 4 * 2)
+  else
+    int_to_pos color
+      ((Random.self_init ();
+        Random.int 4 * 2)
+      + 1)
+
+let rec gen_rand_pos color taken =
+  let pos =
+    int_to_pos color
+      (Random.self_init ();
+       Random.int 8)
+  in
+  if List.exists (fun x -> x = pos) taken then gen_rand_pos color taken else pos
+
+let difference (lst1 : string list) (lst2 : string list) =
+  List.filter (fun elt -> not (List.mem elt lst2)) lst1
+
+let fischer_random_pieces color arr =
+  let lst1 =
+    [
+      (Bishop, gen_bishop_pos color Light); (Bishop, gen_bishop_pos color Dark);
+    ]
+  in
+  let taken1 = snd (List.split lst1) in
+  let lst2 = (Queen, gen_rand_pos color taken1) :: lst1 in
+  let taken2 = snd (List.split lst2) in
+  let lst3 = (Knight, gen_rand_pos color taken2) :: lst2 in
+  let taken3 = snd (List.split lst3) in
+  let lst4 = (Knight, gen_rand_pos color taken3) :: lst3 in
+  let taken4 = snd (List.split lst4) in
+  let diff = difference arr taken4 in
+  (Rook, List.nth diff 2)
+  :: (King, List.nth diff 1)
+  :: (Rook, List.hd diff)
+  :: lst4
+
+let fischer_random_state () : state =
+  let w_pieces =
+    fischer_random_pieces White
+      [ "a1"; "b1"; "c1"; "d1"; "e1"; "f1"; "g1"; "h1" ]
+  in
+  {
+    board =
+      List.map (fun elt -> piece_helper (snd elt) (fst elt) White) w_pieces
+      @ List.map
+          (fun elt ->
+            piece_helper (String.sub (snd elt) 0 1 ^ "8") (fst elt) Black)
+          w_pieces
+      @ [
+          piece_helper "a2" Pawn White;
+          piece_helper "b2" Pawn White;
+          piece_helper "c2" Pawn White;
+          piece_helper "d2" Pawn White;
+          piece_helper "e2" Pawn White;
+          piece_helper "f2" Pawn White;
+          piece_helper "g2" Pawn White;
+          piece_helper "h2" Pawn White;
+          piece_helper "a7" Pawn Black;
+          piece_helper "b7" Pawn Black;
+          piece_helper "c7" Pawn Black;
+          piece_helper "d7" Pawn Black;
+          piece_helper "e7" Pawn Black;
+          piece_helper "f7" Pawn Black;
+          piece_helper "g7" Pawn Black;
+          piece_helper "h7" Pawn Black;
+        ];
     old_boards = [];
     captured_pieces = [];
     fifty_move_rule = 0;

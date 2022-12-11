@@ -1,4 +1,5 @@
 open Board
+open Command
 
 let piece_type_string piece =
   match piece.piece_color with
@@ -67,12 +68,12 @@ let rec print_white state row bottom_row next_row col last_col next_col last_col
   else
     print_white state (next_row row 1) bottom_row next_row col last_col next_col (not last_color)
 
-let print_board_helper row bottom_row next_row col last_col next_col last_color state=
+let print_board_helper row bottom_row next_row col last_col next_col state =
   print_endline "";
-  print_white state row bottom_row next_row col last_col next_col last_color
+  print_white state row bottom_row next_row col last_col next_col
 
 let print_board_white state =
-  state |> get_board |> print_board_helper 8 1 ( - ) 'a' 'h' ( + ) false
+  state |> get_board |> print_board_helper 8 1 ( - ) 'a' 'h' ( + )
 
 let print_board_black state =
-  state |> get_board |> print_board_helper 1 8 ( + ) 'h' 'a' ( - ) true
+  state |> get_board |> print_board_helper 1 8 ( + ) 'h' 'a' ( - )
