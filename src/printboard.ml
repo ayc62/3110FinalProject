@@ -74,17 +74,17 @@ let print_header_message cur_variant rounds =
   print_endline
     ("Current variant: "
     ^ string_of_variant cur_variant
-    ^ " [" ^ string_of_rounds rounds ^ "]")
+    ^ " [" ^ string_of_rounds rounds ^ "] \n")
 
 let print_board_white state cur_variant rounds =
   print_header_message cur_variant rounds;
-  print_endline ("Black's captured pieces:" ^ (state |> print_captured White));
+  print_endline ((state |> print_captured White));
   state |> get_board |> print_board_helper 8 1 ( - ) 'a' 'h' ( + ) false ;
-  print_endline ("White's captured pieces:" ^ (state |> print_captured Black))
+  print_endline ((state |> print_captured Black) ^ "\n")
 
 
 let print_board_black state cur_variant rounds =
   print_header_message cur_variant rounds;
-  print_endline ("White's captured pieces:" ^ (state |> print_captured Black));
+  print_endline ((state |> print_captured Black));
   state |> get_board |> print_board_helper 1 8 ( + ) 'h' 'a' ( - ) true;
-  print_endline ("Black's captured pieces:" ^ (state |> print_captured White))
+  print_endline ((state |> print_captured White) ^ "\n")
