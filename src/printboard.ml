@@ -68,12 +68,16 @@ let rec print_white state row bottom_row next_row col last_col next_col last_col
   else
     print_white state (next_row row 1) bottom_row next_row col last_col next_col (not last_color)
 
-let print_board_helper row bottom_row next_row col last_col next_col state =
+let print_board_helper row bottom_row next_row col last_col next_col last_color cur_variant rounds state =
   print_endline "";
-  print_white state row bottom_row next_row col last_col next_col
+  print_endline
+    ("Current variant: "
+    ^ string_of_variant cur_variant
+    ^ " [" ^ string_of_rounds rounds ^ "]");
+  print_white state row bottom_row next_row col last_col next_col last_color
 
-let print_board_white state =
-  state |> get_board |> print_board_helper 8 1 ( - ) 'a' 'h' ( + )
+let print_board_white state cur_variant rounds =
+  state |> get_board |> print_board_helper 8 1 ( - ) 'a' 'h' ( + ) false cur_variant rounds
 
-let print_board_black state =
-  state |> get_board |> print_board_helper 1 8 ( + ) 'h' 'a' ( - )
+let print_board_black state cur_variant rounds =
+  state |> get_board |> print_board_helper 1 8 ( + ) 'h' 'a' ( - ) true cur_variant rounds
