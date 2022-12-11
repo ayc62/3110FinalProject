@@ -7,14 +7,6 @@ val check_square : string -> bool
 (** [check_square square] checks if the square [square] is a valid square in the
     board*)
 
-val get_column : string -> string -> string list -> string list
-(**[get_column c r acc] are the squares on column [c] starting on row [r] and
-   going down. Returns [acc]*)
-
-val get_columns : string -> string list
-(** [get_columns c acc] gets all the columns and adds to [acc]. Return [acc] at
-    the end *)
-
 val diff : string -> string -> int -> int
 (** [diff new_pos orig_pos index] is the difference in position between
     [orig_pos] and [new_pos] in index [index]. [index] is 0 for horizontal

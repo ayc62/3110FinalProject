@@ -12,12 +12,16 @@ let check_square (square : string) : bool =
     false
   else true
 
+(**[get_column c r acc] are the squares on column [c] starting on row [r] and
+   going down. Returns [acc]*)
 let rec get_column c r acc =
   if r = "0" then acc
   else
     get_column c (r |> int_of_string |> ( + ) (-1) |> string_of_int) []
     @ ((c ^ r) :: acc)
 
+(** [get_columns c acc] gets all the columns and adds to [acc]. Return [acc] at
+    the end *)
 let rec get_columns c =
   if c = "`" then []
   else
