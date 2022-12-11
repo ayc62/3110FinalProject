@@ -163,7 +163,8 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
               else (
                 if color = White then white_score := !white_score +. 1.
                 else black_score := !black_score +. 1.;
-                print_score color);
+                print_score color;
+                get_new_player_move White init_state);
             get_new_player_move (opposite_color color) st
         | Check st ->
             if !variant_selected = ThreeCheck then
@@ -188,7 +189,8 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
                 else (
                   if color = White then white_score := !white_score +. 1.
                   else black_score := !black_score +. 1.;
-                  print_score color);
+                  print_score color;
+                  get_new_player_move White init_state);
             print_endline
               ((color |> opposite_color |> color_string) ^ " is under check!");
             get_new_player_move (opposite_color color) st
@@ -202,7 +204,8 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
                 else (
                   if color = White then white_score := !white_score +. 1.
                   else black_score := !black_score +. 1.;
-                  print_score color)
+                  print_score color;
+                  get_new_player_move White init_state)
               else (
                 white_score := !white_score +. 0.5;
                 black_score := !black_score +. 0.5;
