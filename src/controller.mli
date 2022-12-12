@@ -19,10 +19,10 @@ val move_piece :
   result
 (**[move_piece] moves a piece [piece] of color [color] from an old position
    [orig_pos] to a new position [new_pos]. It also takes in the old state of the
-   chessboard [old_state] and returns the new state of the chessboard with the
-   move applied. The state of the chessboard is represented as an associated
-   list of positions as keys and a record with the piece type and piece color as
-   the entry.*)
+   chessboard [old_state] and a value of type result, which indicates the
+   resulting situation of the chessboard as a result of the move.*)
 
 val promote_pawn :
   Board.piece_color -> string -> Board.piece_type -> Board.state -> result
+(**[promote_pawn] promotes a pawn to a specified piece type of the player's
+   choice. *)
