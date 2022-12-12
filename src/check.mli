@@ -57,8 +57,8 @@ val check_en_passant : Board.piece_color -> 'a -> string -> Board.state -> bool
     current state [state]. *)
 
 val castle_rook : string -> int -> Board.state -> string option
-(**[castle_rook col row dir state] is the rook that the king is castling with in
-   the current state [state]*)
+(**[castle_rook pos dir state] is the rook that the king is castling with in the
+   current state [state]*)
 
 val check_castle : Board.piece_color -> string -> string -> Board.state -> bool
 (** [check_castle color orig_pos new_pos state] checks if castling is possible
