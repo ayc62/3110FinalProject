@@ -56,6 +56,11 @@ let string_of_variant = function
 let string_of_rounds = function
   | BestOf i -> if i = 1 then "Single" else "Best of " ^ string_of_int i
 
+let castled_square (color : piece_color) (is_kingside : bool) : string =
+  match color with
+  | White -> if is_kingside then "g1" else "c1"
+  | Black -> if is_kingside then "g8" else "c8"
+
 let parse_move (move_cmd : string list) =
   match move_cmd with
   | [] | [ _ ] | [ _; _ ] -> raise InvalidCommand
@@ -66,17 +71,25 @@ let parse_move (move_cmd : string list) =
       else Move (piece, [ h2; h3 ])
   | _ -> raise InvalidCommand
 
-let parse str =
-  match
+let parse str (color : piece_color) (state : state) =
+  let parsed =
     str |> String.split_on_char ' '
     |> List.filter (fun x -> String.length x > 0)
-  with
-  | [] -> raise InvalidCommand
-  | h :: t ->
-      if h = "move" then parse_move t
-      else if h = "draw" then DrawOffer
-      else if h = "resign" then Resign
-      else raise InvalidCommand
+  in
+  if parsed = [ "castle"; "kingside" ] then
+    Move
+      (King, [ king_square color state all_squares; castled_square color true ])
+  else if parsed = [ "castle"; "queenside" ] then
+    Move
+      (King, [ king_square color state all_squares; castled_square color false ])
+  else
+    match parsed with
+    | [] -> raise InvalidCommand
+    | h :: t ->
+        if h = "move" then parse_move t
+        else if h = "draw" then DrawOffer
+        else if h = "resign" then Resign
+        else raise InvalidCommand
 
 let parse_promotion str =
   match

@@ -146,7 +146,7 @@ let is_koth_won color state =
 let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
     =
   try
-    match parse cmd with
+    match parse cmd color state with
     | Move (piece, moves) ->
         let result_of_move =
           Controller.move_piece piece color (List.hd moves)
@@ -373,8 +373,10 @@ let rec main () =
     "A player may make a move by entering 'move [piece name] [starting square] \
      [ending square]', such as 'move Pawn e2 e4'. Note that the piece names \
      and squares are case-sensitive: the piece name should be capitalized, and \
-     the squares should not be capitalized. You can also resign the game by \
-     typing 'resign', or offer a draw by typing 'draw'.";
+     the squares should not be capitalized. To castle either kingside or \
+     queenside, type 'castle kingside' or 'castle queenside'; both words are \
+     case-sensitive. You can also resign the game by typing 'resign', or offer \
+     a draw by typing 'draw'.";
   let new_state = gen_new_fischer true in
   if !variant_selected = FischerRandom then
     Printboard.print_board_white new_state !variant_selected (BestOf !num_games)

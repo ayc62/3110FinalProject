@@ -183,3 +183,37 @@ let square_has_pt (state : state) (square : string) (piece_type : piece_type)
     square_piece.piece_type = piece_type
     && square_piece.piece_color = piece_color
   with Not_found -> false
+
+(**[get_column c r acc] are the squares on column [c] starting on row [r] and
+   going down. Returns [acc]*)
+let rec get_column c r acc =
+  if r = "0" then acc
+  else
+    get_column c (r |> int_of_string |> ( + ) (-1) |> string_of_int) []
+    @ ((c ^ r) :: acc)
+
+(** [get_columns c acc] gets all the columns and adds to [acc]. Return [acc] at
+    the end *)
+let rec get_columns c =
+  if c = "`" then []
+  else
+    get_columns
+      (String.get c 0 |> Char.code |> ( + ) (-1) |> Char.chr |> String.make 1)
+    @ get_column c "8" []
+
+(** [all_squares] is all the squares on the chess board*)
+let all_squares = get_columns "h"
+
+(** [king_square color state] gets the current position of the king with color
+    [color] in the current state. Raises: Not_found if there is no king*)
+let rec king_square color state = function
+  | [] -> raise Not_found
+  | h :: t -> (
+      match List.assoc_opt h (get_board state) with
+      | None -> king_square color state t
+      | Some piece_state ->
+          if
+            get_piece_color piece_state = color
+            && get_piece_type piece_state = King
+          then h
+          else king_square color state t)

@@ -47,7 +47,7 @@ val string_of_variant : variant -> string
 val string_of_rounds : rounds -> string
 (** Represents a string representation of the number of rounds played. *)
 
-val parse : string -> command
+val parse : string -> Board.piece_color -> Board.state -> command
 (** Parses a player input into a command. Requires: the input must contain only
     alphanumeric characters or space characters.*)
 
