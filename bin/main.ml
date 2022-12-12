@@ -301,7 +301,7 @@ and get_draw color state =
   match read_line () with
   | response -> begin
       try
-        match parse_draw_offer response with
+        match parse_response response with
         | Yes ->
             games_played := !games_played + 1;
             if !num_games = 1 then
@@ -401,7 +401,7 @@ and restart_game () =
   match read_line () with
   | response -> begin
       try
-        match parse_draw_offer response with
+        match parse_response response with
         | Yes -> main ()
         | No ->
             print_endline

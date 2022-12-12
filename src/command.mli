@@ -60,5 +60,5 @@ val parse_variant : string -> variant
 val parse_rounds : string -> rounds
 (** Parses the selection of the number of rounds selected.*)
 
-val parse_draw_offer : string -> response
-(** Parses the response to a draw offer.*)
+val parse_response : string -> response
+(** Parses the response to a draw offer or a takeback.*)

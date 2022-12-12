@@ -125,7 +125,7 @@ let parse_rounds str =
 let response_match x =
   if x = "Y" then Yes else if x = "N" then No else raise InvalidResponse
 
-let parse_draw_offer str =
+let parse_response str =
   match
     str |> String.split_on_char ' '
     |> List.filter (fun x -> String.length x > 0)
