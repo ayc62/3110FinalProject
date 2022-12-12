@@ -5,6 +5,28 @@ open Check
 open Command
 open Controller
 
+let cmp_set_like_lists lst1 lst2 =
+  let uniq1 = List.sort_uniq compare lst1 in
+  let uniq2 = List.sort_uniq compare lst2 in
+  List.length lst1 = List.length uniq1
+  && List.length lst2 = List.length uniq2
+  && uniq1 = uniq2
+
+let to_str piece =
+  match piece with
+  | Pawn -> "Pawn"
+  | Knight -> "Knight"
+  | Rook -> "Rook"
+  | Queen -> "Queen"
+  | Bishop -> "Bishop"
+  | King -> "King"
+
+let rec print_lst = function
+  | [] -> print_endline "-----------------"
+  | (piece, orig_pos, new_pos) :: t ->
+      print_endline (to_str piece ^ " " ^ orig_pos ^ " -> " ^ new_pos);
+      print_lst t
+
 let board_setup = Board.init_state
 let board_tests = []
 
@@ -60,7 +82,10 @@ let check_check_test (name : string) (color : piece_color) (state : state)
 let possible_moves_test (name : string) (color : piece_color) (state : state)
     (expected_output : (Board.piece_type * string * string) list) =
   name >:: fun _ ->
-  assert_equal expected_output (possible_moves color state state.board [])
+  print_lst (possible_moves color state state.board []);
+  assert (
+    cmp_set_like_lists expected_output
+      (possible_moves color state state.board []))
 
 let en_passant_state1 =
   {
@@ -181,6 +206,47 @@ let possible_moves_knight =
     num_repetition = 1;
   }
 
+let possible_moves_pawn_unmoved =
+  {
+    board = [ piece_helper "e4" Pawn White ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let possible_moves_pawn_moved =
+  {
+    board = [ piece_helper ~moved:true "e6" Pawn White ];
+    old_boards = [ possible_moves_pawn_unmoved.board ];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let possible_moves_king =
+  {
+    board = [ piece_helper "e4" King White ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let possible_moves_king_restricted =
+  {
+    board =
+      [
+        piece_helper "f3" King White;
+        piece_helper "d6" Bishop Black;
+        piece_helper "g1" Bishop Black;
+      ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
 let check_tests =
   [
     (* is_horizontal_test "a3 and g3 are in the same row" "a3" "g3" true;
@@ -230,6 +296,28 @@ let check_tests =
         (Knight, "e4", "f6");
         (Knight, "e4", "g3");
         (Knight, "e4", "g5");
+      ];
+    possible_moves_test "unmoved pawn moves" White possible_moves_pawn_unmoved
+      [ (Pawn, "e4", "e5"); (Pawn, "e4", "e6") ];
+    possible_moves_test "moved pawn moves" White possible_moves_pawn_moved
+      [ (Pawn, "e6", "e7") ];
+    possible_moves_test "king moves" White possible_moves_king
+      [
+        (King, "e4", "d3");
+        (King, "e4", "e3");
+        (King, "e4", "f3");
+        (King, "e4", "d4");
+        (King, "e4", "f4");
+        (King, "e4", "d5");
+        (King, "e4", "e5");
+        (King, "e4", "f5");
+      ];
+    possible_moves_test "king moves" White possible_moves_king_restricted
+      [
+        (King, "f3", "e2");
+        (King, "f3", "g2");
+        (King, "f3", "e4");
+        (King, "f3", "g4");
       ];
   ]
 
