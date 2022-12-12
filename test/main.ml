@@ -79,12 +79,14 @@ let check_check_test (name : string) (color : piece_color) (state : state)
     (expected_output : bool) =
   name >:: fun _ -> assert_equal expected_output (check_check color state)
 
+let cur_check (x, _, _) = x
+
 let possible_moves_test (name : string) (color : piece_color) (state : state)
     (expected_output : (Board.piece_type * string * string) list) =
   name >:: fun _ ->
-  (* if cur_check (List.hd expected_output) = Queen then print_endline
-     "currently checking queen"; print_lst (possible_moves color state
-     state.board []); *)
+  if cur_check (List.hd expected_output) = Queen then
+    print_endline "currently checking queen";
+  print_lst (possible_moves color state state.board []);
   assert (
     cmp_set_like_lists expected_output
       (possible_moves color state state.board []))
@@ -392,34 +394,33 @@ let check_tests =
       ];
     possible_moves_test "queen moves" White possible_moves_queen
       [
-        (Queen, "e4", "d3");
-        (Queen, "e4", "e3");
-        (Queen, "e4", "f3");
-        (Queen, "e4", "d4");
-        (Queen, "e4", "f4");
+        (Queen, "e4", "a8");
+        (Queen, "e4", "b7");
+        (Queen, "e4", "c6");
         (Queen, "e4", "d5");
-        (Queen, "e4", "e5");
+        (Queen, "e4", "f3");
+        (Queen, "e4", "g2");
+        (Queen, "e4", "h1");
+        (Queen, "e4", "b1");
+        (Queen, "e4", "c2");
+        (Queen, "e4", "d3");
         (Queen, "e4", "f5");
+        (Queen, "e4", "g6");
+        (Queen, "e4", "h7");
         (Queen, "e4", "e1");
         (Queen, "e4", "e2");
+        (Queen, "e4", "e3");
+        (Queen, "e4", "e5");
         (Queen, "e4", "e6");
         (Queen, "e4", "e7");
         (Queen, "e4", "e8");
         (Queen, "e4", "a4");
         (Queen, "e4", "b4");
         (Queen, "e4", "c4");
+        (Queen, "e4", "d4");
+        (Queen, "e4", "f4");
         (Queen, "e4", "g4");
         (Queen, "e4", "h4");
-        (Queen, "e4", "d3");
-        (Queen, "e4", "c2");
-        (Queen, "e4", "b1");
-        (Queen, "e4", "g6");
-        (Queen, "e4", "h7");
-        (Queen, "e4", "g2");
-        (Queen, "e4", "h1");
-        (Queen, "e4", "c6");
-        (Queen, "e4", "b7");
-        (Queen, "e4", "a8");
       ];
   ]
 
