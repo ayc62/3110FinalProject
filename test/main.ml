@@ -82,7 +82,9 @@ let check_check_test (name : string) (color : piece_color) (state : state)
 let possible_moves_test (name : string) (color : piece_color) (state : state)
     (expected_output : (Board.piece_type * string * string) list) =
   name >:: fun _ ->
-  print_lst (possible_moves color state state.board []);
+  (* if cur_check (List.hd expected_output) = Queen then print_endline
+     "currently checking queen"; print_lst (possible_moves color state
+     state.board []); *)
   assert (
     cmp_set_like_lists expected_output
       (possible_moves color state state.board []))
@@ -247,6 +249,33 @@ let possible_moves_king_restricted =
     num_repetition = 1;
   }
 
+let possible_moves_queen =
+  {
+    board = [ piece_helper "e4" Queen White ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let possible_moves_bishop =
+  {
+    board = [ piece_helper "e4" Bishop White ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let possible_moves_rook =
+  {
+    board = [ piece_helper "e4" Rook White ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
 let check_tests =
   [
     (* is_horizontal_test "a3 and g3 are in the same row" "a3" "g3" true;
@@ -312,12 +341,77 @@ let check_tests =
         (King, "e4", "e5");
         (King, "e4", "f5");
       ];
-    possible_moves_test "king moves" White possible_moves_king_restricted
+    possible_moves_test "king moves restricted" White
+      possible_moves_king_restricted
       [
         (King, "f3", "e2");
         (King, "f3", "g2");
         (King, "f3", "e4");
         (King, "f3", "g4");
+      ];
+    possible_moves_test "bishop moves" White possible_moves_bishop
+      [
+        (Bishop, "e4", "d3");
+        (Bishop, "e4", "c2");
+        (Bishop, "e4", "b1");
+        (Bishop, "e4", "f5");
+        (Bishop, "e4", "g6");
+        (Bishop, "e4", "h7");
+        (Bishop, "e4", "f3");
+        (Bishop, "e4", "g2");
+        (Bishop, "e4", "h1");
+        (Bishop, "e4", "d5");
+        (Bishop, "e4", "c6");
+        (Bishop, "e4", "b7");
+        (Bishop, "e4", "a8");
+      ];
+    possible_moves_test "rook moves" White possible_moves_rook
+      [
+        (Rook, "e4", "e3");
+        (Rook, "e4", "e2");
+        (Rook, "e4", "e1");
+        (Rook, "e4", "e5");
+        (Rook, "e4", "e6");
+        (Rook, "e4", "e7");
+        (Rook, "e4", "e8");
+        (Rook, "e4", "a4");
+        (Rook, "e4", "b4");
+        (Rook, "e4", "c4");
+        (Rook, "e4", "d4");
+        (Rook, "e4", "f4");
+        (Rook, "e4", "g4");
+        (Rook, "e4", "h4");
+      ];
+    possible_moves_test "queen moves" White possible_moves_queen
+      [
+        (Queen, "e4", "d3");
+        (Queen, "e4", "e3");
+        (Queen, "e4", "f3");
+        (Queen, "e4", "d4");
+        (Queen, "e4", "f4");
+        (Queen, "e4", "d5");
+        (Queen, "e4", "e5");
+        (Queen, "e4", "f5");
+        (Queen, "e4", "e1");
+        (Queen, "e4", "e2");
+        (Queen, "e4", "e6");
+        (Queen, "e4", "e7");
+        (Queen, "e4", "e8");
+        (Queen, "e4", "a4");
+        (Queen, "e4", "b4");
+        (Queen, "e4", "c4");
+        (Queen, "e4", "g4");
+        (Queen, "e4", "h4");
+        (Queen, "e4", "d3");
+        (Queen, "e4", "c2");
+        (Queen, "e4", "b1");
+        (Queen, "e4", "g6");
+        (Queen, "e4", "h7");
+        (Queen, "e4", "g2");
+        (Queen, "e4", "h1");
+        (Queen, "e4", "c6");
+        (Queen, "e4", "b7");
+        (Queen, "e4", "a8");
       ];
   ]
 
