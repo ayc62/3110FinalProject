@@ -364,7 +364,9 @@ let rec get_variant () =
         | KingOfTheHill -> variant_selected := KingOfTheHill
         | FischerRandom -> variant_selected := FischerRandom
       with InvalidVariant ->
-        print_endline "Invalid variant selected. Please try again.";
+        ANSITerminal.print_string [ ANSITerminal.green ]
+          "Invalid variant selected. Please try again.";
+        print_endline "";
         get_variant ())
 
 let rec get_rounds () =
@@ -398,14 +400,19 @@ let rec main () =
   get_variant ();
   get_rounds ();
   print_endline
-    "In our implementation, a player may make a move by entering 'move [piece \
-     name] [starting square] [ending square]', such as 'move Pawn e2 e4'. Note \
-     that the piece names and squares are case-sensitive: the piece name \
-     should be capitalized, and the squares should not be capitalized. To \
-     castle either kingside or queenside, type 'castle kingside' or 'castle \
-     queenside'; both words are case-sensitive. A player can also resign the \
-     game by typing 'resign', or offer a draw by typing 'draw', which will \
-     prompt for a response from the other player.";
+    "To make a move on the chessboard, enter 'move [piece name] [starting \
+     square] [ending square]', such as 'move Pawn e2 e4'.";
+  print_endline
+    "To castle either kingside or queenside, type 'castle kingside' or 'castle \
+     queenside'.";
+  print_endline
+    "To resign the game, type'resign', or offer a draw by typing 'draw', which \
+     will prompt for a response from the other player.";
+  print_endline
+    "Finally, entering [ctrl-c] at any point will abort the program.";
+  ANSITerminal.print_string [ ANSITerminal.green ]
+    "Note that all keywords are case-sensitive!";
+  print_endline "";
   let new_state = gen_new_fischer true in
   if !variant_selected = FischerRandom then
     Printboard.print_board_white new_state !variant_selected (BestOf !num_games)
@@ -423,11 +430,13 @@ let rec main () =
           execute_player_move White new_state command
         else execute_player_move White init_state command
   end;
+  print_endline "";
   restart_game ()
 
 and restart_game () =
   ANSITerminal.print_string [ ANSITerminal.green ]
     "Would you like to play again? Type Y or N to respond.";
+  print_endline "";
   print_endline "> ";
   match read_line () with
   | response -> begin

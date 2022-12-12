@@ -82,7 +82,7 @@ let print_captured color state =
   |> List.fold_left (fun a b -> a ^ " " ^ b) ""
 
 let print_header_message cur_variant rounds =
-  print_endline
+  ANSITerminal.print_string [ ANSITerminal.green ]
     ("Current variant: "
     ^ string_of_variant cur_variant
     ^ " [" ^ string_of_rounds rounds ^ "] \n")
