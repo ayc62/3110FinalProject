@@ -1,3 +1,4 @@
+(* Note: You may introduce new code anywhere in this file. *)
 open Board
 open Check
 
@@ -12,7 +13,7 @@ type result =
 
 (** [castle color orig_pos new_pos state board] castles [color] in the current*)
 let castle color orig_pos new_pos state board =
-  let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
+  let dir = if String.get new_pos 0 = 'g' then 1 else -1 in
   let col =
     String.get new_pos 0 |> Char.code
     |> ( + ) (-1 * dir)
@@ -161,6 +162,12 @@ let promote_pawn color pos to_piece state =
   then Draw new_state
   else Legal new_state
 
+(**[move_piece] moves a piece [piece] of color [color] from an old position
+   [orig_pos] to a new position [new_pos]. It also takes in the old state of the
+   chessboard [old_state] and returns the new state of the chessboard with the
+   move applied. The state of the chessboard is represented as an associated
+   list of positions as keys and a record with the piece type and piece color as
+   the entry.*)
 let move_piece (piece : piece_type) (color : piece_color) (orig_pos : string)
     (new_pos : string) (cur_state : state) =
   if not (check_piece_move piece color orig_pos new_pos cur_state) then Illegal
