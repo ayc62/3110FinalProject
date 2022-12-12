@@ -15,12 +15,20 @@ type result =
 let castle color orig_pos new_pos state board =
   let dir = if String.get new_pos 0 = 'g' then 1 else -1 in
   let new_rook_pos = move_horizontal (-1 * dir) new_pos in
-  let rook_pos = castle_rook new_rook_pos dir state in
+  let rook_pos = castle_rook (move_horizontal (-1 * dir) new_pos) dir state in
   match rook_pos with
-  | None -> board
-  | Some pos ->
-      piece_helper ~moved:true new_rook_pos Rook color
-      :: (board |> List.remove_assoc pos)
+  | None -> failwith "Why is there no rook??"
+  | Some pos -> (
+      print_endline ("new rook pos " ^ new_rook_pos);
+      print_endline ("old rook pos " ^ pos);
+      match List.assoc_opt new_rook_pos board with
+      | None ->
+          piece_helper ~moved:true new_rook_pos Rook color
+          :: (board |> List.remove_assoc pos)
+      | Some piece ->
+          (new_rook_pos, piece)
+          :: piece_helper ~moved:true new_rook_pos Rook color
+          :: (board |> List.remove_assoc pos |> List.remove_assoc new_rook_pos))
 
 (** [update_board_state piece color orig_pos new_pos state board] removes piece
     [piece] with color [color] that moves from position [orig_pos] to position

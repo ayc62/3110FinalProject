@@ -214,10 +214,11 @@ let rec check_empty color cur_pos end_pos dir state =
   let board = get_board state in
   if
     List.assoc_opt cur_pos board <> None
-    && (not
-          (get_piece_type (List.assoc cur_pos board) = Rook
-          || get_piece_type (List.assoc cur_pos board) = King))
-    && get_piece_color (List.assoc cur_pos board) <> color
+    && not
+         (get_piece_type (List.assoc cur_pos board) = Rook
+          && get_piece_color (List.assoc cur_pos board) = color
+         || get_piece_type (List.assoc cur_pos board) = King
+            && get_piece_color (List.assoc cur_pos board) = color)
   then false
   else if cur_pos = end_pos then true
   else check_empty color (move_horizontal dir cur_pos) end_pos dir state
@@ -331,7 +332,7 @@ let all_knight_moves color orig_pos state =
     board [board]. [acc] is the accumulated list of positions*)
 let rec continuous_moves pos hor_dir vert_dir board acc =
   let new_pos = pos |> move_horizontal hor_dir |> move_vertical vert_dir in
-  if board |> List.assoc_opt pos = None && check_square new_pos then
+  if board |> List.assoc_opt new_pos = None && check_square new_pos then
     continuous_moves new_pos hor_dir vert_dir board (new_pos :: acc)
   else List.rev acc
 
@@ -348,7 +349,7 @@ let all_bishop_moves color orig_pos state =
 (** [all_rook_moves color orig_pos state] is all the squares a pawn on square
     [orig_pos] can move to. Does not need to be a valid move*)
 let all_rook_moves color orig_pos state =
-  moves_list_helper Bishop orig_pos
+  moves_list_helper Rook orig_pos
     (continuous_moves orig_pos 1 0 (get_board state) []
     @ continuous_moves orig_pos (-1) 0 (get_board state) []
     @ continuous_moves orig_pos 0 1 (get_board state) []
@@ -358,7 +359,16 @@ let all_rook_moves color orig_pos state =
 (** [all_queen_moves color orig_pos state] is all the squares a pawn on square
     [orig_pos] can move to. Does not need to be a valid move*)
 let all_queen_moves color orig_pos state =
-  all_bishop_moves color orig_pos state @ all_rook_moves color orig_pos state
+  moves_list_helper Queen orig_pos
+    (continuous_moves orig_pos 1 1 (get_board state) []
+    @ continuous_moves orig_pos 1 (-1) (get_board state) []
+    @ continuous_moves orig_pos (-1) 1 (get_board state) []
+    @ continuous_moves orig_pos (-1) (-1) (get_board state) []
+    @ continuous_moves orig_pos 1 0 (get_board state) []
+    @ continuous_moves orig_pos (-1) 0 (get_board state) []
+    @ continuous_moves orig_pos 0 1 (get_board state) []
+    @ continuous_moves orig_pos 0 (-1) (get_board state) [])
+    []
 
 (** [all_king_moves color orig_pos state] is all the squares a pawn on square
     [orig_pos] can move to. Does not need to be a valid move*)
