@@ -41,6 +41,270 @@ let check_diagonal_test (name : string) (orig_pos : string) (new_pos : string)
   name >:: fun _ ->
   assert_equal expected_output (check_diagonal orig_pos new_pos state)
 
+let check_en_passant_test (name : string) (color : piece_color)
+    (orig_pos : string) (new_pos : string) (state : state)
+    (expected_output : bool) =
+  name >:: fun _ ->
+  assert_equal expected_output (check_en_passant color orig_pos new_pos state)
+
+let state1 =
+  {
+    board =
+      [
+        piece_helper "a1" Rook White;
+        piece_helper "b1" Knight White;
+        piece_helper "c1" Bishop White;
+        piece_helper "d1" Queen White;
+        piece_helper "e1" King White;
+        piece_helper "f1" Bishop White;
+        piece_helper "g1" Knight White;
+        piece_helper "h1" Rook White;
+        piece_helper "a2" Pawn White;
+        piece_helper "b2" Pawn White;
+        piece_helper "c2" Pawn White;
+        piece_helper "d2" Pawn White;
+        piece_helper "e2" Pawn White;
+        piece_helper "f5" Pawn White;
+        piece_helper "g2" Pawn White;
+        piece_helper "h2" Pawn White;
+        piece_helper "a7" Pawn Black;
+        piece_helper "b7" Pawn Black;
+        piece_helper "c7" Pawn Black;
+        piece_helper "d7" Pawn Black;
+        piece_helper "e7" Pawn Black;
+        piece_helper "f7" Pawn Black;
+        piece_helper "g7" Pawn Black;
+        piece_helper "h7" Pawn Black;
+        piece_helper "a8" Rook Black;
+        piece_helper "b8" Knight Black;
+        piece_helper "c8" Bishop Black;
+        piece_helper "d8" Queen Black;
+        piece_helper "e8" King Black;
+        piece_helper "f8" Bishop Black;
+        piece_helper "g8" Knight Black;
+        piece_helper "h8" Rook Black;
+      ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let state2 =
+  {
+    board =
+      [
+        piece_helper "a1" Rook White;
+        piece_helper "b1" Knight White;
+        piece_helper "c1" Bishop White;
+        piece_helper "d1" Queen White;
+        piece_helper "e1" King White;
+        piece_helper "f1" Bishop White;
+        piece_helper "g1" Knight White;
+        piece_helper "h1" Rook White;
+        piece_helper "a2" Pawn White;
+        piece_helper "b2" Pawn White;
+        piece_helper "c2" Pawn White;
+        piece_helper "d2" Pawn White;
+        piece_helper "e2" Pawn White;
+        piece_helper "f5" Pawn White;
+        piece_helper "g2" Pawn White;
+        piece_helper "h2" Pawn White;
+        piece_helper "a7" Pawn Black;
+        piece_helper "b7" Pawn Black;
+        piece_helper "c7" Pawn Black;
+        piece_helper "d7" Pawn Black;
+        piece_helper "e5" Pawn Black;
+        piece_helper "f7" Pawn Black;
+        piece_helper "g7" Pawn Black;
+        piece_helper "h7" Pawn Black;
+        piece_helper "a8" Rook Black;
+        piece_helper "b8" Knight Black;
+        piece_helper "c8" Bishop Black;
+        piece_helper "d8" Queen Black;
+        piece_helper "e8" King Black;
+        piece_helper "f8" Bishop Black;
+        piece_helper "g8" Knight Black;
+        piece_helper "h8" Rook Black;
+      ];
+    old_boards = [ state1.board ];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let state3 =
+  {
+    board =
+      [
+        piece_helper "a1" Rook White;
+        piece_helper "b1" Knight White;
+        piece_helper "c1" Bishop White;
+        piece_helper "d1" Queen White;
+        piece_helper "e1" King White;
+        piece_helper "f1" Bishop White;
+        piece_helper "g1" Knight White;
+        piece_helper "h1" Rook White;
+        piece_helper "a2" Pawn White;
+        piece_helper "b2" Pawn White;
+        piece_helper "c4" Pawn White;
+        piece_helper "d2" Pawn White;
+        piece_helper "e2" Pawn White;
+        piece_helper "f5" Pawn White;
+        piece_helper "g2" Pawn White;
+        piece_helper "h2" Pawn White;
+        piece_helper "a7" Pawn Black;
+        piece_helper "b7" Pawn Black;
+        piece_helper "c7" Pawn Black;
+        piece_helper "d7" Pawn Black;
+        piece_helper "e5" Pawn Black;
+        piece_helper "f7" Pawn Black;
+        piece_helper "g7" Pawn Black;
+        piece_helper "h7" Pawn Black;
+        piece_helper "a8" Rook Black;
+        piece_helper "b8" Knight Black;
+        piece_helper "c8" Bishop Black;
+        piece_helper "d8" Queen Black;
+        piece_helper "e8" King Black;
+        piece_helper "f8" Bishop Black;
+        piece_helper "g8" Knight Black;
+        piece_helper "h8" Rook Black;
+      ];
+    old_boards = [ state2.board; state1.board ];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let state4 =
+  {
+    board =
+      [
+        piece_helper "a1" Rook White;
+        piece_helper "b1" Knight White;
+        piece_helper "c1" Bishop White;
+        piece_helper "d1" Queen White;
+        piece_helper "e1" King White;
+        piece_helper "f1" Bishop White;
+        piece_helper "g1" Knight White;
+        piece_helper "h1" Rook White;
+        piece_helper "a2" Pawn White;
+        piece_helper "b2" Pawn White;
+        piece_helper "c4" Pawn White;
+        piece_helper "d2" Pawn White;
+        piece_helper "e2" Pawn White;
+        piece_helper "f5" Pawn White;
+        piece_helper "g2" Pawn White;
+        piece_helper "h2" Pawn White;
+        piece_helper "a7" Pawn Black;
+        piece_helper "b7" Pawn Black;
+        piece_helper "c7" Pawn Black;
+        piece_helper "d5" Pawn Black;
+        piece_helper "e5" Pawn Black;
+        piece_helper "f7" Pawn Black;
+        piece_helper "g7" Pawn Black;
+        piece_helper "h7" Pawn Black;
+        piece_helper "a8" Rook Black;
+        piece_helper "b8" Knight Black;
+        piece_helper "c8" Bishop Black;
+        piece_helper "d8" Queen Black;
+        piece_helper "e8" King Black;
+        piece_helper "f8" Bishop Black;
+        piece_helper "g8" Knight Black;
+        piece_helper "h8" Rook Black;
+      ];
+    old_boards = [ state3.board; state2.board; state1.board ];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let state5 =
+  {
+    board =
+      [
+        piece_helper "a1" Rook White;
+        piece_helper "b1" Knight White;
+        piece_helper "c1" Bishop White;
+        piece_helper "d1" Queen White;
+        piece_helper "e1" King White;
+        piece_helper "f1" Bishop White;
+        piece_helper "g1" Knight White;
+        piece_helper "h1" Rook White;
+        piece_helper "a2" Pawn White;
+        piece_helper "b2" Pawn White;
+        piece_helper "c4" Pawn White;
+        piece_helper "d2" Pawn White;
+        piece_helper "d3" Pawn White;
+        piece_helper "f2" Pawn White;
+        piece_helper "g2" Pawn White;
+        piece_helper "h2" Pawn White;
+        piece_helper "a7" Pawn Black;
+        piece_helper "b7" Pawn Black;
+        piece_helper "c7" Pawn Black;
+        piece_helper "d5" Pawn Black;
+        piece_helper "e3" Pawn Black;
+        piece_helper "f7" Pawn Black;
+        piece_helper "g7" Pawn Black;
+        piece_helper "h7" Pawn Black;
+        piece_helper "a8" Rook Black;
+        piece_helper "b8" Knight Black;
+        piece_helper "c8" Bishop Black;
+        piece_helper "d8" Queen Black;
+        piece_helper "e8" King Black;
+        piece_helper "f8" Bishop Black;
+        piece_helper "g8" Knight Black;
+        piece_helper "h8" Rook Black;
+      ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let state6 =
+  {
+    board =
+      [
+        piece_helper "a1" Rook White;
+        piece_helper "b1" Knight White;
+        piece_helper "c1" Bishop White;
+        piece_helper "d1" Queen White;
+        piece_helper "e1" King White;
+        piece_helper "f1" Bishop White;
+        piece_helper "g1" Knight White;
+        piece_helper "h1" Rook White;
+        piece_helper "a2" Pawn White;
+        piece_helper "b2" Pawn White;
+        piece_helper "c4" Pawn White;
+        piece_helper "d2" Pawn White;
+        piece_helper "d3" Pawn White;
+        piece_helper "f2" Pawn White;
+        piece_helper "g2" Pawn White;
+        piece_helper "h2" Pawn White;
+        piece_helper "a7" Pawn Black;
+        piece_helper "b7" Pawn Black;
+        piece_helper "c7" Pawn Black;
+        piece_helper "d5" Pawn Black;
+        piece_helper "e2" Pawn Black;
+        piece_helper "f7" Pawn Black;
+        piece_helper "g7" Pawn Black;
+        piece_helper "h7" Pawn Black;
+        piece_helper "a8" Rook Black;
+        piece_helper "b8" Knight Black;
+        piece_helper "c8" Bishop Black;
+        piece_helper "d8" Queen Black;
+        piece_helper "e8" King Black;
+        piece_helper "f8" Bishop Black;
+        piece_helper "g8" Knight Black;
+        piece_helper "h8" Rook Black;
+      ];
+    old_boards = [ state5.board ];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
 let check_tests =
   [
     is_horizontal_test "a3 and g3 are in the same row" "a3" "g3" true;
@@ -79,6 +343,9 @@ let check_tests =
       board_setup false;
     check_diagonal_test "board setup has pieces between c3 and a1" "c3" "a1"
       board_setup false;
+    check_en_passant_test "valid en passant" White "f5" "e6" state2 true;
+    check_en_passant_test "invalid en passant" White "f5" "e6" state4 false;
+    check_en_passant_test "invalid en passant 2" White "f2" "e3" state6 false;
   ]
 
 let command_tests = []
