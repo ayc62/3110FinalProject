@@ -20,6 +20,13 @@ play:
 check:
 	@bash check.sh
 
+bisect: bisect-clean
+	-dune exec --instrument-with bisect_ppx --force test/main.exe
+	bisect-ppx-report html
+	
+bisect-clean:
+	rm -rf _coverage bisect*.coverage
+
 finalcheck:
 	@bash check.sh final
 
