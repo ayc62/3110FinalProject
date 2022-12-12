@@ -243,14 +243,20 @@ let rec castle_rook pos dir state =
 
 let check_castle color orig_pos new_pos state =
   let piece_state = state |> get_board |> List.assoc orig_pos in
-  if (new_pos = "b8" || new_pos = "g8") && get_moved piece_state = false then
-    let dir = if new_pos = "g8" then 1 else -1 in
+  if
+    (String.get new_pos 0 = 'c' || String.get new_pos 0 = 'g')
+    && diff new_pos orig_pos 1 = 0
+    && get_moved piece_state = false
+  then
+    let dir = if String.get new_pos 0 = 'g' then 1 else -1 in
     match castle_rook (move_horizontal dir orig_pos) dir state with
     | None -> false
     | Some _ ->
-        let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
-        check_attack_seq (opp_color color) orig_pos new_pos dir state
-          (get_board state)
+        let diff = diff new_pos orig_pos 0 in
+        let dir = if diff = 0 then 1 else diff / abs diff in
+        not
+          (check_attack_seq (opp_color color) orig_pos new_pos dir state
+             (get_board state))
   else false
 
 (**[check_king color orig_pos new_pos state] checks if moving a king from
@@ -379,18 +385,18 @@ let all_king_moves color orig_pos state =
   moves_list_helper King orig_pos
     [
       orig_pos |> move_horizontal 1 |> move_vertical 1;
+      orig_pos |> move_horizontal 1 |> move_vertical 0;
       orig_pos |> move_horizontal 1 |> move_vertical (-1);
-      orig_pos |> move_horizontal (-1) |> move_vertical 2;
-      orig_pos |> move_horizontal (-1) |> move_vertical (-2);
-      orig_pos |> move_horizontal 2 |> move_vertical 1;
-      orig_pos |> move_horizontal 2 |> move_vertical (-1);
-      orig_pos |> move_horizontal (-2) |> move_vertical 1;
-      orig_pos |> move_horizontal (-2) |> move_vertical (-1);
+      orig_pos |> move_horizontal 0 |> move_vertical 1;
+      orig_pos |> move_horizontal 0 |> move_vertical (-1);
+      orig_pos |> move_horizontal (-1) |> move_vertical 1;
+      orig_pos |> move_horizontal (-1) |> move_vertical 0;
+      orig_pos |> move_horizontal (-1) |> move_vertical (-1);
     ]
     []
 
 (** [filter_moves color orig_pos
-   state] is all the moves a pawn on square
+   state] is all the moves a piece on square
     [orig_pos] can make in the current state [state]*)
 let rec filter_moves color state moves acc =
   match moves with
