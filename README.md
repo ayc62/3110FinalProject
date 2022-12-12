@@ -3,7 +3,7 @@
 OCaml-based version of chess, to be played from the terminal. Written as the final project for CS 3110, Fall 2022.
 
 Some resources for rules of the variants implemented:
-| Variant        | Rule                                          |
+| Variant        | Rules                                         |
 | -------------- | --------------------------------------------- |
 | Standard       | https://www.chess.com/learn-how-to-play-chess |
 | 3-check        | https://www.chess.com/terms/3-check-chess     |
