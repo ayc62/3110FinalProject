@@ -230,6 +230,18 @@ let rec check_attack_seq color cur_pos end_pos dir state board =
   else
     check_attack_seq color (move_horizontal dir cur_pos) end_pos dir state board
 
+let rec check_empty color cur_pos end_pos dir state =
+  let board = get_board state in
+  if
+    List.assoc_opt cur_pos board <> None
+    && (not
+          (get_piece_type (List.assoc cur_pos board) = Rook
+          || get_piece_type (List.assoc cur_pos board) = King))
+    && get_piece_color (List.assoc cur_pos board) <> color
+  then false
+  else if cur_pos = end_pos then true
+  else check_empty color (move_horizontal dir cur_pos) end_pos dir state
+
 let rec castle_rook pos dir state =
   let col = String.get pos 0 in
   if col = '`' || col = 'i' then None
@@ -253,10 +265,13 @@ let check_castle color orig_pos new_pos state =
     | None -> false
     | Some _ ->
         let diff = diff new_pos orig_pos 0 in
-        let dir = if diff = 0 then 1 else diff / abs diff in
-        not
-          (check_attack_seq (opp_color color) orig_pos new_pos dir state
-             (get_board state))
+        let rook_pos = move_horizontal (-1 * dir) new_pos in
+        let dir' = if diff = 0 then 1 else diff / abs diff in
+        (not
+           (check_attack_seq (opp_color color) orig_pos new_pos dir' state
+              (get_board state)))
+        && check_empty color orig_pos new_pos dir' state
+        && check_empty color rook_pos rook_pos 0 state
   else false
 
 (**[check_king color orig_pos new_pos state] checks if moving a king from

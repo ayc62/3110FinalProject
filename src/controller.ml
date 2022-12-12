@@ -14,17 +14,12 @@ type result =
 (** [castle color orig_pos new_pos state board] castles [color] in the current*)
 let castle color orig_pos new_pos state board =
   let dir = if String.get new_pos 0 = 'g' then 1 else -1 in
-  let col =
-    String.get new_pos 0 |> Char.code
-    |> ( + ) (-1 * dir)
-    |> Char.chr |> String.make 1
-  in
-  let row = String.get orig_pos 1 |> String.make 1 in
-  let rook_pos = castle_rook (col ^ row) dir state in
+  let new_rook_pos = move_horizontal (-1 * dir) new_pos in
+  let rook_pos = castle_rook new_rook_pos dir state in
   match rook_pos with
   | None -> board
   | Some pos ->
-      piece_helper ~moved:true (col ^ row) Rook color
+      piece_helper ~moved:true new_rook_pos Rook color
       :: (board |> List.remove_assoc pos)
 
 (** [update_board_state piece color orig_pos new_pos state board] removes piece
@@ -65,7 +60,8 @@ let update_board_state piece color orig_pos new_pos (state : state) board =
           state with
           board = board |> List.remove_assoc new_pos;
           captured_pieces =
-            (board |> List.assoc new_pos) :: (state |> get_captured_pieces);
+            (if color = get_piece_color piece then state |> get_captured_pieces
+            else (board |> List.assoc new_pos) :: (state |> get_captured_pieces));
           fifty_move_rule = 0;
         }
   in
