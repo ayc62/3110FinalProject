@@ -25,6 +25,7 @@ let black_score = ref 0.
 let num_games = ref 1
 let games_played = ref 0
 let cur_state = ref init_state
+let is_won = ref false
 
 let gen_new_fischer should_change =
   if should_change then (
@@ -34,83 +35,76 @@ let gen_new_fischer should_change =
     !cur_state)
   else !cur_state
 
-let print_score color =
-  if
-    !games_played = !num_games
-    || !white_score >= (float_of_int !num_games /. 2.) +. 0.5
-    || !black_score >= (float_of_int !num_games /. 2.) +. 0.5
-  then
-    if !white_score > !black_score then
-      if Float.is_integer !white_score then (
-        ANSITerminal.print_string [ ANSITerminal.cyan ]
-          ("White wins "
-          ^ (!white_score |> int_of_float |> string_of_int)
-          ^ "-"
-          ^ (!black_score |> int_of_float |> string_of_int)
-          ^ "! Thanks for playing.");
-        exit 0)
-      else (
-        ANSITerminal.print_string [ ANSITerminal.cyan ]
-          ("White wins "
-          ^ string_of_float !white_score
-          ^ "-"
-          ^ string_of_float !black_score
-          ^ "! Thanks for playing!");
-        exit 0)
-    else if !black_score > !white_score then
-      if Float.is_integer !white_score then (
-        ANSITerminal.print_string [ ANSITerminal.cyan ]
-          ("Black wins "
-          ^ (!black_score |> int_of_float |> string_of_int)
-          ^ "-"
-          ^ (!white_score |> int_of_float |> string_of_int)
-          ^ "! Thanks for playing!");
-        exit 0)
-      else (
-        ANSITerminal.print_string [ ANSITerminal.cyan ]
-          ("Black wins "
-          ^ string_of_float !black_score
-          ^ "-"
-          ^ string_of_float !white_score
-          ^ "! Thanks for playing!");
-        exit 0)
-    else if Float.is_integer !white_score then (
+let win_print_score color =
+  is_won := true;
+  if !white_score > !black_score then
+    if Float.is_integer !white_score then
+      ANSITerminal.print_string [ ANSITerminal.cyan ]
+        ("White wins "
+        ^ (!white_score |> int_of_float |> string_of_int)
+        ^ "-"
+        ^ (!black_score |> int_of_float |> string_of_int)
+        ^ "! Thanks for playing.")
+    else
+      ANSITerminal.print_string [ ANSITerminal.cyan ]
+        ("White wins "
+        ^ string_of_float !white_score
+        ^ "-"
+        ^ string_of_float !black_score
+        ^ "! Thanks for playing!")
+  else if !black_score > !white_score then
+    if Float.is_integer !white_score then
       ANSITerminal.print_string [ ANSITerminal.cyan ]
         ("Black wins "
         ^ (!black_score |> int_of_float |> string_of_int)
         ^ "-"
         ^ (!white_score |> int_of_float |> string_of_int)
-        ^ "! Thanks for playing!");
-      exit 0)
-    else if Float.is_integer !white_score then (
+        ^ "! Thanks for playing!")
+    else
       ANSITerminal.print_string [ ANSITerminal.cyan ]
-        ("It's tied "
-        ^ (!black_score |> int_of_float |> string_of_int)
-        ^ "-"
-        ^ (!white_score |> int_of_float |> string_of_int)
-        ^ "! Thanks for playing!");
-      exit 0)
-    else (
-      ANSITerminal.print_string [ ANSITerminal.cyan ]
-        ("It's tied "
+        ("Black wins "
         ^ string_of_float !black_score
         ^ "-"
         ^ string_of_float !white_score
-        ^ "! Thanks for playing!");
-      exit 0)
-  else if !white_score > !black_score then
+        ^ "! Thanks for playing!")
+  else if Float.is_integer !white_score then
+    ANSITerminal.print_string [ ANSITerminal.cyan ]
+      ("Black wins "
+      ^ (!black_score |> int_of_float |> string_of_int)
+      ^ "-"
+      ^ (!white_score |> int_of_float |> string_of_int)
+      ^ "! Thanks for playing!")
+  else if Float.is_integer !white_score then
+    ANSITerminal.print_string [ ANSITerminal.cyan ]
+      ("It's tied "
+      ^ (!black_score |> int_of_float |> string_of_int)
+      ^ "-"
+      ^ (!white_score |> int_of_float |> string_of_int)
+      ^ "! Thanks for playing!")
+  else
+    ANSITerminal.print_string [ ANSITerminal.cyan ]
+      ("It's tied "
+      ^ string_of_float !black_score
+      ^ "-"
+      ^ string_of_float !white_score
+      ^ "! Thanks for playing!")
+
+let continue_game_print_score color =
+  if !white_score > !black_score then
     if Float.is_integer !white_score then
       print_endline
         ((color |> color_string) ^ " wins! White leads "
         ^ (!white_score |> int_of_float |> string_of_int)
         ^ "-"
-        ^ (!black_score |> int_of_float |> string_of_int))
+        ^ (!black_score |> int_of_float |> string_of_int)
+        ^ "\n")
     else
       print_endline
         ((color |> color_string) ^ " wins! White leads "
         ^ string_of_float !white_score
         ^ "-"
-        ^ string_of_float !black_score)
+        ^ string_of_float !black_score
+        ^ "\n")
   else if !white_score < !black_score then
     if Float.is_integer !black_score then
       ANSITerminal.print_string [ ANSITerminal.cyan ]
@@ -118,28 +112,36 @@ let print_score color =
         ^ (!black_score |> int_of_float |> string_of_int)
         ^ "-"
         ^ (!white_score |> int_of_float |> string_of_int)
-        ^ ".")
+        ^ ".\n")
     else
       ANSITerminal.print_string [ ANSITerminal.cyan ]
         ((color |> color_string) ^ " wins! Black leads "
         ^ string_of_float !black_score
         ^ "-"
         ^ string_of_float !white_score
-        ^ ".")
+        ^ ".\n")
   else if Float.is_integer !black_score then
     ANSITerminal.print_string [ ANSITerminal.cyan ]
       ((color |> color_string) ^ " wins! The game is tied "
       ^ (!black_score |> int_of_float |> string_of_int)
       ^ "-"
       ^ (!white_score |> int_of_float |> string_of_int)
-      ^ ".")
+      ^ ".\n")
   else
     ANSITerminal.print_string [ ANSITerminal.cyan ]
       ((color |> color_string) ^ " wins! The game is tied "
       ^ string_of_float !black_score
       ^ "-"
       ^ string_of_float !white_score
-      ^ ".")
+      ^ ".\n")
+
+let print_score color =
+  if
+    !games_played = !num_games
+    || !white_score >= (float_of_int !num_games /. 2.) +. 0.5
+    || !black_score >= (float_of_int !num_games /. 2.) +. 0.5
+  then win_print_score color
+  else continue_game_print_score color
 
 let is_koth_won color state =
   square_has_pt state "d4" King color
@@ -164,15 +166,16 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
         if !num_games = 1 then
           ANSITerminal.print_string [ ANSITerminal.cyan ]
             ((color |> opposite_color |> color_string)
-            ^ " wins! Thanks for playing!")
+            ^ " wins! Thanks for playing! \n")
         else (
           if color = White then black_score := !black_score +. 1.
           else white_score := !white_score +. 1.;
           print_score (opposite_color color);
-          let new_state = gen_new_fischer true in
-          if !variant_selected = FischerRandom then
-            get_new_player_move White new_state
-          else get_new_player_move White init_state)
+          if not !is_won then
+            let new_state = gen_new_fischer true in
+            if !variant_selected = FischerRandom then
+              get_new_player_move White new_state
+            else get_new_player_move White init_state)
   with
   | Command.InvalidCommand ->
       ANSITerminal.print_string [ ANSITerminal.cyan ]
@@ -194,15 +197,14 @@ and match_result (result : result) (color : piece_color) (state : state) =
   match result with
   | Legal st ->
       if is_koth_won color st then
-        if !num_games = 1 then (
+        if !num_games = 1 then
           ANSITerminal.print_string [ ANSITerminal.cyan ]
-            ((color |> color_string) ^ " wins! Thanks for playing!");
-          exit 0)
+            ((color |> color_string) ^ " wins! Thanks for playing!")
         else (
           if color = White then white_score := !white_score +. 1.
           else black_score := !black_score +. 1.;
           print_score color;
-          get_new_player_move White init_state);
+          if not !is_won then get_new_player_move White init_state);
       get_new_player_move (opposite_color color) st
   | Check st ->
       if !variant_selected = ThreeCheck then
@@ -211,30 +213,31 @@ and match_result (result : result) (color : piece_color) (state : state) =
           if !check_counter_white = 3 then (
             if !num_games = 1 then
               ANSITerminal.print_string [ ANSITerminal.cyan ]
-                "White wins! Thanks for playing!"
+                "White wins! Thanks for playing!\n"
             else print_score color;
-            get_new_player_move White init_state)
+            if not !is_won then get_new_player_move White init_state)
         end
         else begin
           check_counter_black := !check_counter_black + 1;
           if !check_counter_black = 3 then (
             if !num_games = 1 then
               ANSITerminal.print_string [ ANSITerminal.cyan ]
-                "White wins! Thanks for playing!"
-            else print_score color;
-            get_new_player_move White init_state)
+                "White wins! Thanks for playing!\n"
+            else if color = White then white_score := !white_score +. 1.
+            else black_score := !black_score +. 1.;
+            print_score color;
+            if not !is_won then get_new_player_move White init_state)
         end;
       if !variant_selected = KingOfTheHill then
         if is_koth_won color st then
-          if !num_games = 1 then (
+          if !num_games = 1 then
             ANSITerminal.print_string [ ANSITerminal.cyan ]
-              ((color |> color_string) ^ " wins! Thanks for playing!");
-            exit 0)
+              ((color |> color_string) ^ " wins! Thanks for playing!\n")
           else (
             if color = White then white_score := !white_score +. 1.
             else black_score := !black_score +. 1.;
             print_score color;
-            get_new_player_move White init_state);
+            if not !is_won then get_new_player_move White init_state);
       ANSITerminal.print_string [ ANSITerminal.cyan ]
         ((color |> opposite_color |> color_string) ^ " is under check!");
       print_endline "";
@@ -244,40 +247,42 @@ and match_result (result : result) (color : piece_color) (state : state) =
         if is_koth_won color st then
           if !num_games = 1 then
             ANSITerminal.print_string [ ANSITerminal.cyan ]
-              ((color |> color_string) ^ " wins! Thanks for playing!")
+              ((color |> color_string) ^ " wins! Thanks for playing!\n")
           else (
             if color = White then white_score := !white_score +. 1.
             else black_score := !black_score +. 1.;
             print_score color;
-            get_new_player_move White init_state)
+            if not !is_won then get_new_player_move White init_state)
         else (
           white_score := !white_score +. 0.5;
           black_score := !black_score +. 0.5;
           print_score color)
       else if !num_games = 1 then
         ANSITerminal.print_string [ ANSITerminal.cyan ]
-          "It is a draw! Thanks for playing!"
+          "It is a draw! Thanks for playing!\n"
       else (
         white_score := !white_score +. 0.5;
         black_score := !black_score +. 0.5;
         print_score color;
-        let new_state = gen_new_fischer true in
-        if !variant_selected = FischerRandom then
-          get_new_player_move White new_state
-        else get_new_player_move White init_state)
+        if not !is_won then
+          let new_state = gen_new_fischer true in
+          if !variant_selected = FischerRandom then
+            get_new_player_move White new_state
+          else get_new_player_move White init_state)
   | Checkmate st ->
       games_played := !games_played + 1;
       if !num_games = 1 then
         ANSITerminal.print_string [ ANSITerminal.cyan ]
-          ((color |> color_string) ^ " wins! Thanks for playing!")
+          ((color |> color_string) ^ " wins! Thanks for playing!\n")
       else (
         if color = White then white_score := !white_score +. 1.
         else black_score := !black_score +. 1.;
         print_score color;
-        let new_state = gen_new_fischer true in
-        if !variant_selected = FischerRandom then
-          get_new_player_move White new_state
-        else get_new_player_move White init_state)
+        if not !is_won then
+          let new_state = gen_new_fischer true in
+          if !variant_selected = FischerRandom then
+            get_new_player_move White new_state
+          else get_new_player_move White init_state)
   | PawnPromotion st ->
       match_result
         (get_promoted_piece color (fst (List.hd st.board)) st)
@@ -313,7 +318,7 @@ and get_promoted_piece color (pos : string) (state : state) : result =
       try promote_pawn color pos (parse_promotion piece) state
       with InvalidPiece ->
         ANSITerminal.print_string [ ANSITerminal.cyan ]
-          "Invalid\n   piece, please try again.";
+          "Invalid piece, please try again.";
         print_endline "";
         get_promoted_piece color pos state
     end
@@ -338,10 +343,11 @@ and get_draw color state =
               white_score := !white_score +. 0.5;
               black_score := !black_score +. 0.5;
               print_score color;
-              let new_state = gen_new_fischer true in
-              if !variant_selected = FischerRandom then
-                get_new_player_move White new_state
-              else get_new_player_move White init_state)
+              if not !is_won then
+                let new_state = gen_new_fischer true in
+                if !variant_selected = FischerRandom then
+                  get_new_player_move White new_state
+                else get_new_player_move White init_state)
         | No -> get_new_player_move color state
       with InvalidResponse ->
         ANSITerminal.print_string [ ANSITerminal.cyan ]
@@ -391,6 +397,10 @@ let rec get_rounds () =
         get_rounds ())
 
 let rec main () =
+  white_score := 0.;
+  black_score := 0.;
+  games_played := 0;
+  is_won := false;
   ANSITerminal.print_string [ ANSITerminal.green ]
     "Welcome to our CS 3110 Final Project, an implementation of chess in OCaml!";
   print_endline "";
@@ -437,6 +447,10 @@ let rec main () =
   restart_game ()
 
 and restart_game () =
+  white_score := 0.;
+  black_score := 0.;
+  games_played := 0;
+  is_won := false;
   ANSITerminal.print_string [ ANSITerminal.green ]
     "Would you like to play again? Type Y or N to respond.";
   print_endline "";
