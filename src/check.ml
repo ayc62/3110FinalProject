@@ -210,18 +210,18 @@ let rec check_attack_seq color cur_pos end_pos dir state board =
   else
     check_attack_seq color (move_horizontal dir cur_pos) end_pos dir state board
 
-let rec check_empty color cur_pos end_pos dir state =
+let rec check_empty color cur_pos end_pos rook_pos dir state =
   let board = get_board state in
   if
     List.assoc_opt cur_pos board <> None
     && not
-         (get_piece_type (List.assoc cur_pos board) = Rook
-          && get_piece_color (List.assoc cur_pos board) = color
+         (cur_pos = rook_pos
          || get_piece_type (List.assoc cur_pos board) = King
             && get_piece_color (List.assoc cur_pos board) = color)
   then false
   else if cur_pos = end_pos then true
-  else check_empty color (move_horizontal dir cur_pos) end_pos dir state
+  else
+    check_empty color (move_horizontal dir cur_pos) end_pos rook_pos dir state
 
 let rec castle_rook pos dir state =
   let col = String.get pos 0 in
@@ -235,24 +235,30 @@ let rec castle_rook pos dir state =
         else None
 
 let check_castle color orig_pos new_pos state =
+  print_endline "checking castling";
   let piece_state = state |> get_board |> List.assoc orig_pos in
   if
     (String.get new_pos 0 = 'c' || String.get new_pos 0 = 'g')
     && diff new_pos orig_pos 1 = 0
     && get_moved piece_state = false
   then
-    let dir = if String.get new_pos 0 = 'g' then 1 else -1 in
+    let dir =
+      print_endline "intial conditions checked";
+      if String.get new_pos 0 = 'g' then 1 else -1
+    in
     match castle_rook (move_horizontal dir orig_pos) dir state with
-    | None -> false
-    | Some _ ->
+    | None ->
+        print_endline "no castle rook";
+        false
+    | Some cur_rook_pos ->
         let diff = diff new_pos orig_pos 0 in
-        let rook_pos = move_horizontal (-1 * dir) new_pos in
+        let new_rook_pos = move_horizontal (-1 * dir) new_pos in
         let dir' = if diff = 0 then 1 else diff / abs diff in
         (not
            (check_attack_seq (opp_color color) orig_pos new_pos dir' state
               (get_board state)))
-        && check_empty color orig_pos new_pos dir' state
-        && check_empty color rook_pos rook_pos 0 state
+        && check_empty color orig_pos new_pos cur_rook_pos dir' state
+        && check_empty color new_rook_pos new_rook_pos cur_rook_pos 0 state
   else false
 
 (**[check_king color orig_pos new_pos state] checks if moving a king from
@@ -263,7 +269,10 @@ let check_king color orig_pos new_pos state =
   && state |> get_board
      |> check_attack (color |> opp_color) new_pos state
      |> not
-  || check_castle color orig_pos new_pos state
+  ||
+  let x = check_castle color orig_pos new_pos state in
+  print_endline ("castling result:" ^ string_of_bool x);
+  x
 
 let check_piece_move piece color orig_pos new_pos state =
   match state |> get_board |> List.assoc_opt orig_pos with
