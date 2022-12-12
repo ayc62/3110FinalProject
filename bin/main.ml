@@ -360,10 +360,13 @@ let rec main () =
   print_endline "Welcome to a very unfinished implementation of Chess.";
   print_endline
     "We currently support standard chess, 3-check, king of the hill, and \
-     Fischer random; 3-check operates on the same rules as standard chess but \
-     the game ends immediately after one player checks the opponent 3 times, \
-     and king of the hill ends immediately after one of the kings reaches the \
-     center four squares: d4, e4, d5, or e5.";
+     Fischer random. 3-check operates on the same rules as standard chess but \
+     the game ends immediately after one player checks the opponent 3 times. \
+     King of the hill ends immediately after one of the kings reaches the \
+     center four squares: d4, e4, d5, or e5. Fischer Random chess operates \
+     much like standard chess, except the starting positions are one of 960 \
+     possible random starting positions, named after chess legend Bobby \
+     Fischer, with analogous castling rules.";
   get_variant ();
   get_rounds ();
   print_endline
