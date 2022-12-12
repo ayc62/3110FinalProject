@@ -8,5 +8,5 @@ Follow the instructions below to install Chess. Make sure that you installed OCa
 
 2. We now need to install ANSITerminal in order for the colors on the chessboard to work. When you are currently in the `chess` folder, run <br/> <br/> `opam install ANSITerminal`<br/> <br/>
 
-Now you're all done with the installation process! You can proceed to play our Chess game by simply running `make play`. If you're unfamiliar with chess, [here](https://www.chess.com/learn-how-to-play-chess) are the rules on how to play. Good luck, and most importantly have fun!
+Now you're all done with the installation process! You can proceed to play our Chess game by simply running `make play`. If you're unfamiliar with chess, refer to the README.md file in this repository for a set of links on how to play both standard chess and the variants included in our implementation. Good luck, and most importantly have fun!
 
