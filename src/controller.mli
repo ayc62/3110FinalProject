@@ -23,3 +23,6 @@ val move_piece :
    move applied. The state of the chessboard is represented as an associated
    list of positions as keys and a record with the piece type and piece color as
    the entry.*)
+
+val promote_pawn :
+  Board.piece_color -> string -> Board.piece_type -> Board.state -> result

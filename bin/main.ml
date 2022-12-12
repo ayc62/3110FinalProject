@@ -147,99 +147,13 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
     =
   try
     match parse cmd with
-    | Move (piece, moves) -> (
-        let attempted_state =
+    | Move (piece, moves) ->
+        let result_of_move =
           Controller.move_piece piece color (List.hd moves)
             (moves |> List.rev |> List.hd)
             state
         in
-        match attempted_state with
-        | Legal st ->
-            if is_koth_won color st then
-              if !num_games = 1 then (
-                print_endline
-                  ((color |> color_string) ^ " wins! Thank you for playing.");
-                exit 0)
-              else (
-                if color = White then white_score := !white_score +. 1.
-                else black_score := !black_score +. 1.;
-                print_score color;
-                get_new_player_move White init_state);
-            get_new_player_move (opposite_color color) st
-        | Check st ->
-            if !variant_selected = ThreeCheck then
-              if color = White then begin
-                check_counter_white := !check_counter_white + 1;
-                if !check_counter_white = 3 then (
-                  print_endline "White wins! Thank you for playing.";
-                  exit 0)
-              end
-              else begin
-                check_counter_black := !check_counter_black + 1;
-                if !check_counter_black = 3 then (
-                  print_endline "Black wins! Thank you for playing.";
-                  exit 0)
-              end;
-            if !variant_selected = KingOfTheHill then
-              if is_koth_won color st then
-                if !num_games = 1 then (
-                  print_endline
-                    ((color |> color_string) ^ " wins! Thank you for playing.");
-                  exit 0)
-                else (
-                  if color = White then white_score := !white_score +. 1.
-                  else black_score := !black_score +. 1.;
-                  print_score color;
-                  get_new_player_move White init_state);
-            print_endline
-              ((color |> opposite_color |> color_string) ^ " is under check!");
-            get_new_player_move (opposite_color color) st
-        | Draw st | Stalemate st ->
-            if !variant_selected = KingOfTheHill then
-              if is_koth_won color st then
-                if !num_games = 1 then (
-                  print_endline
-                    ((color |> color_string) ^ " wins! Thank you for playing.");
-                  exit 0)
-                else (
-                  if color = White then white_score := !white_score +. 1.
-                  else black_score := !black_score +. 1.;
-                  print_score color;
-                  get_new_player_move White init_state)
-              else (
-                white_score := !white_score +. 0.5;
-                black_score := !black_score +. 0.5;
-                print_score color)
-            else if !num_games = 1 then
-              print_endline "It is a draw! Thank you for playing."
-            else (
-              white_score := !white_score +. 0.5;
-              black_score := !black_score +. 0.5;
-              print_score color;
-              let new_state = gen_new_fischer true in
-              if !variant_selected = FischerRandom then
-                get_new_player_move White new_state
-              else get_new_player_move White init_state)
-        | Checkmate st ->
-            games_played := !games_played + 1;
-            if !num_games = 1 then
-              print_endline
-                ((color |> color_string) ^ " wins! Thank you for playing.")
-            else (
-              if color = White then white_score := !white_score +. 1.
-              else black_score := !black_score +. 1.;
-              print_score color;
-              let new_state = gen_new_fischer true in
-              if !variant_selected = FischerRandom then
-                get_new_player_move White new_state
-              else get_new_player_move White init_state)
-        | PawnPromotion st ->
-            failwith ""
-            (* get_new_player_move (opposite_color color) (get_promoted_piece
-               color (moves |> List.rev |> List.hd) st) *)
-        | Illegal ->
-            print_endline "The specified move is illegal. Please try again.";
-            get_new_player_move ~print:false color state)
+        match_result result_of_move color state
     | DrawOffer -> get_draw color state
     | Resign ->
         games_played := !games_played + 1;
@@ -266,6 +180,94 @@ let rec execute_player_move (color : piece_color) (state : state) (cmd : string)
       print_endline "The piece specified is invalid. Please try again.";
       get_new_player_move ~print:false color state
 
+and match_result (result : result) (color : piece_color) (state : state) =
+  match result with
+  | Legal st ->
+      if is_koth_won color st then
+        if !num_games = 1 then (
+          print_endline
+            ((color |> color_string) ^ " wins! Thank you for playing.");
+          exit 0)
+        else (
+          if color = White then white_score := !white_score +. 1.
+          else black_score := !black_score +. 1.;
+          print_score color;
+          get_new_player_move White init_state);
+      get_new_player_move (opposite_color color) st
+  | Check st ->
+      if !variant_selected = ThreeCheck then
+        if color = White then begin
+          check_counter_white := !check_counter_white + 1;
+          if !check_counter_white = 3 then (
+            print_endline "White wins! Thank you for playing.";
+            exit 0)
+        end
+        else begin
+          check_counter_black := !check_counter_black + 1;
+          if !check_counter_black = 3 then (
+            print_endline "Black wins! Thank you for playing.";
+            exit 0)
+        end;
+      if !variant_selected = KingOfTheHill then
+        if is_koth_won color st then
+          if !num_games = 1 then (
+            print_endline
+              ((color |> color_string) ^ " wins! Thank you for playing.");
+            exit 0)
+          else (
+            if color = White then white_score := !white_score +. 1.
+            else black_score := !black_score +. 1.;
+            print_score color;
+            get_new_player_move White init_state);
+      print_endline
+        ((color |> opposite_color |> color_string) ^ " is under check!");
+      get_new_player_move (opposite_color color) st
+  | Draw st | Stalemate st ->
+      if !variant_selected = KingOfTheHill then
+        if is_koth_won color st then
+          if !num_games = 1 then (
+            print_endline
+              ((color |> color_string) ^ " wins! Thank you for playing.");
+            exit 0)
+          else (
+            if color = White then white_score := !white_score +. 1.
+            else black_score := !black_score +. 1.;
+            print_score color;
+            get_new_player_move White init_state)
+        else (
+          white_score := !white_score +. 0.5;
+          black_score := !black_score +. 0.5;
+          print_score color)
+      else if !num_games = 1 then
+        print_endline "It is a draw! Thank you for playing."
+      else (
+        white_score := !white_score +. 0.5;
+        black_score := !black_score +. 0.5;
+        print_score color;
+        let new_state = gen_new_fischer true in
+        if !variant_selected = FischerRandom then
+          get_new_player_move White new_state
+        else get_new_player_move White init_state)
+  | Checkmate st ->
+      games_played := !games_played + 1;
+      if !num_games = 1 then
+        print_endline ((color |> color_string) ^ " wins! Thank you for playing.")
+      else (
+        if color = White then white_score := !white_score +. 1.
+        else black_score := !black_score +. 1.;
+        print_score color;
+        let new_state = gen_new_fischer true in
+        if !variant_selected = FischerRandom then
+          get_new_player_move White new_state
+        else get_new_player_move White init_state)
+  | PawnPromotion st ->
+      match_result
+        (get_promoted_piece color (fst (List.hd st.board)) st)
+        color state
+  | Illegal ->
+      print_endline "The specified move is illegal. Please try again.";
+      get_new_player_move ~print:false color state
+
 and get_new_player_move ?(print = true) color (state : state) =
   if print then
     if color = White then
@@ -279,11 +281,16 @@ and get_new_player_move ?(print = true) color (state : state) =
   | exception End_of_file -> ()
   | command -> execute_player_move color state command
 
-(* and get_promoted_piece color pos (state : state) : state = print_endline
-   "What piece would you like to promote to?"; print_string "> "; match
-   read_line () with | piece -> begin try promote_pawn color pos
-   (parse_promotion piece) state with InvalidPiece -> print_endline "Invalid
-   piece, please try again."; get_promoted_piece color pos state end *)
+and get_promoted_piece color (pos : string) (state : state) : result =
+  print_endline "What piece would you like to promote to?";
+  print_string "> ";
+  match read_line () with
+  | piece -> begin
+      try promote_pawn color pos (parse_promotion piece) state
+      with InvalidPiece ->
+        print_endline "Invalid\n   piece, please try again.";
+        get_promoted_piece color pos state
+    end
 
 and get_draw color state =
   print_endline
