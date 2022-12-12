@@ -25,7 +25,7 @@ let move_vertical dir pos =
   |> ( ^ ) (String.get pos 0 |> Char.escaped)
 
 let is_horizontal orig_pos new_pos =
-  String.get new_pos 1 = String.get orig_pos 1
+  String.get new_pos 1 = String.get orig_pos 1 && orig_pos <> new_pos
 
 let rec check_horizontal orig_pos new_pos (state : state) =
   let diff = diff new_pos orig_pos 0 in
@@ -36,7 +36,8 @@ let rec check_horizontal orig_pos new_pos (state : state) =
       check_horizontal next_pos new_pos state
     else false
 
-let is_vertical orig_pos new_pos = String.get new_pos 0 = String.get orig_pos 0
+let is_vertical orig_pos new_pos =
+  String.get new_pos 0 = String.get orig_pos 0 && orig_pos <> new_pos
 
 let rec check_vertical orig_pos new_pos (state : state) =
   let diff = diff new_pos orig_pos 1 in
@@ -49,6 +50,7 @@ let rec check_vertical orig_pos new_pos (state : state) =
 
 let is_diagonal orig_pos new_pos =
   abs (diff new_pos orig_pos 0) = abs (diff new_pos orig_pos 1)
+  && orig_pos <> new_pos
 
 let rec check_diagonal orig_pos new_pos state =
   let column_diff = diff new_pos orig_pos 0 in
@@ -345,8 +347,8 @@ let rec continuous_moves pos hor_dir vert_dir board acc =
     continuous_moves new_pos hor_dir vert_dir board (new_pos :: acc)
   else List.rev acc
 
-(** [all_bishop_moves color orig_pos state] is all the squares a pawn on square
-    [orig_pos] can move to. Does not need to be a valid move*)
+(** [all_bishop_moves color orig_pos state] is all the squares a bishop on
+    square [orig_pos] can move to. Does not need to be a valid move*)
 let all_bishop_moves color orig_pos state =
   moves_list_helper Bishop orig_pos
     (continuous_moves orig_pos 1 1 (get_board state) []
@@ -355,7 +357,7 @@ let all_bishop_moves color orig_pos state =
     @ continuous_moves orig_pos (-1) (-1) (get_board state) [])
     []
 
-(** [all_rook_moves color orig_pos state] is all the squares a pawn on square
+(** [all_rook_moves color orig_pos state] is all the squares a rook on square
     [orig_pos] can move to. Does not need to be a valid move*)
 let all_rook_moves color orig_pos state =
   moves_list_helper Rook orig_pos
@@ -365,7 +367,7 @@ let all_rook_moves color orig_pos state =
     @ continuous_moves orig_pos 0 (-1) (get_board state) [])
     []
 
-(** [all_queen_moves color orig_pos state] is all the squares a pawn on square
+(** [all_queen_moves color orig_pos state] is all the squares a queen on square
     [orig_pos] can move to. Does not need to be a valid move*)
 let all_queen_moves color orig_pos state =
   moves_list_helper Queen orig_pos
@@ -379,7 +381,7 @@ let all_queen_moves color orig_pos state =
     @ continuous_moves orig_pos 0 (-1) (get_board state) [])
     []
 
-(** [all_king_moves color orig_pos state] is all the squares a pawn on square
+(** [all_king_moves color orig_pos state] is all the squares a king on square
     [orig_pos] can move to. Does not need to be a valid move*)
 let all_king_moves color orig_pos state =
   moves_list_helper King orig_pos
