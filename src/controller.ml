@@ -13,15 +13,12 @@ type result =
 
 (** [castle color orig_pos new_pos state board] castles [color] in the current*)
 let castle color orig_pos new_pos state board =
-  print_endline ("castling: " ^ orig_pos ^ " " ^ new_pos);
   let dir = if String.get new_pos 0 = 'g' then 1 else -1 in
   let new_rook_pos = move_horizontal (-1 * dir) new_pos in
-  let rook_pos = castle_rook (move_horizontal (-1 * dir) new_pos) dir state in
+  let rook_pos = castle_rook (move_horizontal dir orig_pos) dir state in
   match rook_pos with
   | None -> failwith "Why is there no rook??"
   | Some pos -> (
-      print_endline ("new rook pos " ^ new_rook_pos);
-      print_endline ("old rook pos " ^ pos);
       match List.assoc_opt new_rook_pos board with
       | None ->
           piece_helper ~moved:true new_rook_pos Rook color
@@ -53,7 +50,6 @@ let update_board_state piece color orig_pos new_pos (state : state) board =
             }
           else { state with board; fifty_move_rule = 0 }
         else if piece = King && check_castle color orig_pos new_pos state then
-          let _ = print_endline "castling" in
           {
             state with
             board = castle color orig_pos new_pos state board;
@@ -67,7 +63,6 @@ let update_board_state piece color orig_pos new_pos (state : state) board =
           }
     | Some captured_piece ->
         if piece = King && check_castle color orig_pos new_pos state then
-          let _ = print_endline "castling" in
           {
             state with
             board = castle color orig_pos new_pos state board;
@@ -186,15 +181,10 @@ let move_piece (piece : piece_type) (color : piece_color) (orig_pos : string)
   if not (check_piece_move piece color orig_pos new_pos cur_state) then Illegal
   else
     let new_state =
-      print_endline "making new state";
       move_piece_helper piece color orig_pos new_pos cur_state
       |> update_num_repetitions 1 (cur_state |> get_old_boards)
     in
-    print_endline "new state made";
-    if
-      print_endline "checking check";
-      check_check (opp_color color) new_state
-    then Illegal
+    if check_check (opp_color color) new_state then Illegal
     else
       let new_state =
         {
@@ -202,18 +192,11 @@ let move_piece (piece : piece_type) (color : piece_color) (orig_pos : string)
           old_boards = get_board cur_state :: get_old_boards cur_state;
         }
       in
-      if
-        print_endline "\ncheckmate";
-        check_check color new_state && check_checkmate color new_state
-      then Checkmate new_state
-      else if
-        print_endline "\nstalemate";
-        check_stalemate (opp_color color) new_state
-      then Stalemate new_state
-      else if
-        print_endline "\ncheck";
-        check_check color new_state
-      then Check new_state
+      if check_check color new_state && check_checkmate color new_state then
+        Checkmate new_state
+      else if check_stalemate (opp_color color) new_state then
+        Stalemate new_state
+      else if check_check color new_state then Check new_state
       else if
         new_state |> get_fifty_move_rule = 50
         || new_state |> get_num_repetitions = 3

@@ -237,21 +237,15 @@ let rec castle_rook pos dir state =
         else None
 
 let check_castle color orig_pos new_pos state =
-  print_endline "checking castling";
   let piece_state = state |> get_board |> List.assoc orig_pos in
   if
     (String.get new_pos 0 = 'c' || String.get new_pos 0 = 'g')
     && diff new_pos orig_pos 1 = 0
     && get_moved piece_state = false
   then
-    let dir =
-      print_endline "intial conditions checked";
-      if String.get new_pos 0 = 'g' then 1 else -1
-    in
+    let dir = if String.get new_pos 0 = 'g' then 1 else -1 in
     match castle_rook (move_horizontal dir orig_pos) dir state with
-    | None ->
-        print_endline "no castle rook";
-        false
+    | None -> false
     | Some cur_rook_pos ->
         let diff = diff new_pos orig_pos 0 in
         let new_rook_pos = move_horizontal (-1 * dir) new_pos in
@@ -271,10 +265,7 @@ let check_king color orig_pos new_pos state =
   && state |> get_board
      |> check_attack (color |> opp_color) new_pos state
      |> not
-  ||
-  let x = check_castle color orig_pos new_pos state in
-  print_endline ("castling result:" ^ string_of_bool x);
-  x
+  || check_castle color orig_pos new_pos state
 
 let check_piece_move piece color orig_pos new_pos state =
   match state |> get_board |> List.assoc_opt orig_pos with
