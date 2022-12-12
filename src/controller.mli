@@ -1,6 +1,6 @@
 (** Interactions between the board and the chess logic *)
 
-(** The possible outcomes of any given chess move *)
+(** type [result] represents the possible outcomes of any given chess move. *)
 type result =
   | Legal of Board.state
   | Illegal

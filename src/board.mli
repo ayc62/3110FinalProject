@@ -1,21 +1,25 @@
+(** Implementation of a chessboard in OCaml *)
+
+(**[piece_type] represents what type of piece something is.*)
 type piece_type =
   | Rook
   | Knight
   | Bishop
   | Queen
   | King
-  | Pawn  (**The abstract type representing what type a piece is*)
+  | Pawn
 
+(**[piece_color] represents whether a piece is black or white.*)
 type piece_color =
   | White
-  | Black  (**The abstract type representing the color of a piece*)
+  | Black
 
 type piece_state = {
   piece_type : piece_type;
   piece_color : piece_color;
   moved : bool;
 }
-(**The abstract type representing a piece*)
+(**[piece_state] is the abstract type representing a piece.*)
 
 val piece_helper :
   ?moved:bool -> string -> piece_type -> piece_color -> string * piece_state
@@ -25,16 +29,16 @@ val piece_helper :
    [p_color].*)
 
 val get_piece_type : piece_state -> piece_type
-(**[get_piece_type] returns the type of the piece*)
+(**[get_piece_type] returns the type of the piece.*)
 
 val get_piece_color : piece_state -> piece_color
-(**[get_piece_color] returns the color of the piece*)
+(**[get_piece_color] returns the color of the piece.*)
 
 val get_moved : piece_state -> bool
-(**[get_moved] returns whether or not the piece has been moved*)
+(**[get_moved] returns whether or not the piece has been moved.*)
 
 type board = (string * piece_state) list
-(**The abstract type representing the chessboard*)
+(**[board] represents a chessboard at a given time.*)
 
 type state = {
   board : (string * piece_state) list;
@@ -43,29 +47,30 @@ type state = {
   captured_pieces : piece_state list;
   num_repetition : int;
 }
-(**The abstract type representing the current and past states of the chessboard*)
+(**[state] represents a chessboard, along with its past forms and various other
+   markers that determine whether a draw has taken place. *)
 
 val get_board : state -> (string * piece_state) list
-(**[get_board] returns the chessboard*)
+(**[get_board] returns the chessboard/*)
 
 val get_old_boards : state -> board list
-(**[get_old_boards] returns the chessboards in previous moves*)
+(**[get_old_boards] returns the chessboards in previous moves.*)
 
 val get_fifty_move_rule : state -> int
-(**[get_fifty_move_rule] returns the number of moves since last capture*)
+(**[get_fifty_move_rule] returns the number of moves since last capture.*)
 
 val get_captured_pieces : state -> piece_state list
-(**[get_fifty_move_rule] returns the number of moves since last capture*)
+(**[get_fifty_move_rule] returns the number of moves since last capture.*)
 
 val get_num_repetitions : state -> int
-(**[get_fifty_move_rule] returns the number of moves since last capture*)
+(**[get_fifty_move_rule] returns the number of moves since last capture.*)
 
 val init_state : state
-(**[init_state] is the initial state of the chessboard*)
+(**[init_state] is the initial state of the chessboard.*)
 
 val fischer_random_state : unit -> state
 (**[fischer_random_state] generates a random initial state of the chessboard in
-   accordance to the rules for Fischer Random chess*)
+   accordance to the rules for Fischer Random chess.*)
 
 val square_has_pt : state -> string -> piece_type -> piece_color -> bool
 (** [square_has_pt state square piece_type piece_color] returns whether a piece
