@@ -79,14 +79,9 @@ let check_check_test (name : string) (color : piece_color) (state : state)
     (expected_output : bool) =
   name >:: fun _ -> assert_equal expected_output (check_check color state)
 
-let cur_check (x, _, _) = x
-
 let possible_moves_test (name : string) (color : piece_color) (state : state)
     (expected_output : (Board.piece_type * string * string) list) =
   name >:: fun _ ->
-  if cur_check (List.hd expected_output) = Queen then
-    print_endline "currently checking queen";
-  print_lst (possible_moves color state state.board []);
   assert (
     cmp_set_like_lists expected_output
       (possible_moves color state state.board []))
@@ -174,9 +169,87 @@ let en_passant_state6 =
     num_repetition = 1;
   }
 
-let castle_state1 =
+let kingside_castle =
   {
     board = [ piece_helper "e1" King White; piece_helper "h1" Rook White ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let queenside_castle =
+  {
+    board = [ piece_helper "e1" King White; piece_helper "a1" Rook White ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let invalid_castle1 =
+  {
+    board =
+      [
+        piece_helper "e1" King White;
+        piece_helper "h1" Rook White;
+        piece_helper "f1" Queen White;
+      ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let invalid_castle2 =
+  {
+    board =
+      [
+        piece_helper "e1" King White;
+        piece_helper "h1" Rook White;
+        piece_helper "b4" Bishop Black;
+      ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let invalid_castle3 =
+  {
+    board =
+      [
+        piece_helper "e1" King White;
+        piece_helper "h1" Rook White;
+        piece_helper "a6" Bishop Black;
+      ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let invalid_castle4 =
+  {
+    board =
+      [
+        piece_helper "e1" King White;
+        piece_helper "h1" Rook White;
+        piece_helper "c5" Bishop Black;
+      ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let invalid_castle5 =
+  {
+    board =
+      [
+        piece_helper ~moved:true "e1" King White;
+        piece_helper ~moved:true "h1" Rook White;
+      ];
     old_boards = [];
     captured_pieces = [];
     fifty_move_rule = 0;
@@ -322,7 +395,18 @@ let check_tests =
       false;
     check_en_passant_test "invalid en passant 2" White "f2" "e3"
       en_passant_state6 false;
-    (* check_castling_test "valid castle" White "e1" "g1" castle_state1 true; *)
+    check_castling_test "kingside castle" White "e1" "g1" kingside_castle true;
+    check_castling_test "queenside castle" White "e1" "c1" queenside_castle true;
+    check_castling_test "castling with piece in between" White "e1" "g1"
+      invalid_castle1 false;
+    check_castling_test "castling when check" White "e1" "g1" invalid_castle2
+      false;
+    check_castling_test "castling through check" White "e1" "g1" invalid_castle3
+      false;
+    check_castling_test "castling into check" White "e1" "g1" invalid_castle4
+      false;
+    check_castling_test "castling after moved" White "e1" "g1" invalid_castle5
+      false;
     check_check_test "black check" Black check_state1 true;
     check_check_test "black and white check" Black check_state2 true;
     possible_moves_test "knight moves" White possible_moves_knight
