@@ -224,6 +224,12 @@ let rec check_attack color pos state board =
   | h :: t ->
       if can_see h color pos state then true else check_attack color pos state t
 
+let rec check_attack_seq color cur_pos end_pos dir state board =
+  if check_attack color cur_pos state board then true
+  else if cur_pos = end_pos then false
+  else
+    check_attack_seq color (move_horizontal dir cur_pos) end_pos dir state board
+
 let rec castle_rook pos dir state =
   let col = String.get pos 0 in
   if col = '`' || col = 'i' then None
@@ -237,25 +243,14 @@ let rec castle_rook pos dir state =
 
 let check_castle color orig_pos new_pos state =
   let piece_state = state |> get_board |> List.assoc orig_pos in
-  if
-    abs (diff new_pos orig_pos 0) = 2
-    && state |> get_board |> List.assoc_opt new_pos = None
-    && get_moved piece_state = false
-  then
-    let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
+  if (new_pos = "b8" || new_pos = "g8") && get_moved piece_state = false then
+    let dir = if new_pos = "g8" then 1 else -1 in
     match castle_rook (move_horizontal dir orig_pos) dir state with
     | None -> false
     | Some _ ->
-        (not
-           (check_attack (color |> opp_color) orig_pos state (state |> get_board)))
-        && (not
-              (check_attack (color |> opp_color)
-                 (orig_pos |> move_horizontal dir)
-                 state (state |> get_board)))
-        && not
-             (check_attack (color |> opp_color)
-                (orig_pos |> move_horizontal dir |> move_horizontal dir)
-                state (state |> get_board))
+        let dir = diff new_pos orig_pos 0 / abs (diff new_pos orig_pos 0) in
+        check_attack_seq (opp_color color) orig_pos new_pos dir state
+          (get_board state)
   else false
 
 (**[check_king color orig_pos new_pos state] checks if moving a king from
