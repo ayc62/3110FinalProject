@@ -209,16 +209,20 @@ and match_result (result : result) (color : piece_color) (state : state) =
         if color = White then begin
           check_counter_white := !check_counter_white + 1;
           if !check_counter_white = 3 then (
-            ANSITerminal.print_string [ ANSITerminal.cyan ]
-              "White wins! Thanks for playing!";
-            exit 0)
+            if !num_games = 1 then
+              ANSITerminal.print_string [ ANSITerminal.cyan ]
+                "White wins! Thanks for playing!"
+            else print_score color;
+            get_new_player_move White init_state)
         end
         else begin
           check_counter_black := !check_counter_black + 1;
           if !check_counter_black = 3 then (
-            ANSITerminal.print_string [ ANSITerminal.cyan ]
-              "Black wins! Thanks for playing!";
-            exit 0)
+            if !num_games = 1 then
+              ANSITerminal.print_string [ ANSITerminal.cyan ]
+                "White wins! Thanks for playing!"
+            else print_score color;
+            get_new_player_move White init_state)
         end;
       if !variant_selected = KingOfTheHill then
         if is_koth_won color st then
@@ -238,10 +242,9 @@ and match_result (result : result) (color : piece_color) (state : state) =
   | Draw st | Stalemate st ->
       if !variant_selected = KingOfTheHill then
         if is_koth_won color st then
-          if !num_games = 1 then (
+          if !num_games = 1 then
             ANSITerminal.print_string [ ANSITerminal.cyan ]
-              ((color |> color_string) ^ " wins! Thanks for playing!");
-            exit 0)
+              ((color |> color_string) ^ " wins! Thanks for playing!")
           else (
             if color = White then white_score := !white_score +. 1.
             else black_score := !black_score +. 1.;
