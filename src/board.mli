@@ -76,3 +76,11 @@ val square_has_pt : state -> string -> piece_type -> piece_color -> bool
 (** [square_has_pt state square piece_type piece_color] returns whether a piece
     of type piece_type and color piece_color is found in the square sq of the
     board of state. If no piece corresponds to that square, this returns false.*)
+
+val all_squares : string list
+(** [all_squares] is all the squares on the chess board.*)
+
+val king_square : piece_color -> state -> string list -> string
+(** [king_square color state all_squares] gets the current position of the king
+    with color [color] in the current state. Raises: Not_found if there is no
+    king.*)

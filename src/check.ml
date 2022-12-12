@@ -12,26 +12,6 @@ let check_square (square : string) : bool =
     false
   else true
 
-(**[get_column c r acc] are the squares on column [c] starting on row [r] and
-   going down. Returns [acc]*)
-let rec get_column c r acc =
-  if r = "0" then acc
-  else
-    get_column c (r |> int_of_string |> ( + ) (-1) |> string_of_int) []
-    @ ((c ^ r) :: acc)
-
-(** [get_columns c acc] gets all the columns and adds to [acc]. Return [acc] at
-    the end *)
-let rec get_columns c =
-  if c = "`" then []
-  else
-    get_columns
-      (String.get c 0 |> Char.code |> ( + ) (-1) |> Char.chr |> String.make 1)
-    @ get_column c "8" []
-
-(** [all_squares] is all the squares on the chess board*)
-let all_squares = get_columns "h"
-
 let diff new_pos orig_pos index =
   Char.code (String.get new_pos index) - Char.code (String.get orig_pos index)
 
@@ -298,20 +278,6 @@ let check_piece_move piece color orig_pos new_pos state =
       | Rook -> check_rook color orig_pos new_pos state
       | Queen -> check_queen color orig_pos new_pos state
       | King -> check_king color orig_pos new_pos state)
-
-(** [king_square color state] gets the current position of the king with color
-    [color] in the current state. Raises: Not_found if there is no king*)
-let rec king_square color state = function
-  | [] -> raise Not_found
-  | h :: t -> (
-      match List.assoc_opt h (get_board state) with
-      | None -> king_square color state t
-      | Some piece_state ->
-          if
-            get_piece_color piece_state = color
-            && get_piece_type piece_state = King
-          then h
-          else king_square color state t)
 
 let check_check color state =
   let king_square = king_square (color |> opp_color) state all_squares in
