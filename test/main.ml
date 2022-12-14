@@ -28,7 +28,9 @@ open Controller
    then controller.ml must also be correct. We manually verified this through
    playing many rounds/games of chess. We also manually tested board.ml; since
    Fischer Random generates a randomized board, it's very difficult to write any
-   meaningful tests for it, so we manually tested that.*)
+   meaningful tests for it, so we manually tested that. Lastly, we verified
+   printbaord.ml manually, since visually looking at the chessbaord is much
+   easier, efficient, and effective than writing test cases for it.*)
 
 let cmp_set_like_lists lst1 lst2 =
   let uniq1 = List.sort_uniq compare lst1 in
