@@ -5,10 +5,7 @@ open Check
 open Command
 open Controller
 
-(*
-
-*)
-
+(* *)
 
 let cmp_set_like_lists lst1 lst2 =
   let uniq1 = List.sort_uniq compare lst1 in
@@ -100,45 +97,63 @@ let possible_moves_test (name : string) (color : piece_color) (state : state)
     cmp_set_like_lists expected_output
       (possible_moves color state state.board []))
 
-let parse_move_test (name : string) (command : string list) (expected : command) 
-    (command_excn : bool ) (square_excn : bool)= 
-  name >:: fun  _ -> 
-    try let com = (parse_move command) in assert_equal com expected 
-  with 
-    | InvalidCommand -> assert command_excn 
-    | InvalidSquare -> assert square_excn
-
-let parse_test (name : string) (str : string) (color : piece_color) (state : state) 
-    (expected : command) (excn : bool) = 
-  name >:: fun _ -> 
-    try let com = parse str color state in 
+let parse_move_test (name : string) (command : string list) (expected : command)
+    (command_excn : bool) (square_excn : bool) =
+  name >:: fun _ ->
+  try
+    let com = parse_move command in
     assert_equal com expected
-    with | InvalidCommand -> assert excn
+  with
+  | InvalidCommand -> assert command_excn
+  | InvalidSquare -> assert square_excn
+
+let parse_test (name : string) (str : string) (color : piece_color)
+    (state : state) (expected : command) (excn : bool) =
+  name >:: fun _ ->
+  try
+    let com = parse str color state in
+    assert_equal com expected
+  with InvalidCommand -> assert excn
 
 let parse_promotion_test (name : string) (str : string) (expected : piece_type)
-      (excn : bool) = 
-  name >:: fun _ -> 
-    try let promo = parse_promotion str in assert_equal promo expected
-  with | InvalidPiece -> assert excn
+    (excn : bool) =
+  name >:: fun _ ->
+  try
+    let promo = parse_promotion str in
+    assert_equal promo expected
+  with InvalidPiece -> assert excn
 
 let parse_variant_test (name : string) (str : string) (var : variant)
-    (excn : bool) = 
-  name >:: fun _ -> 
-    try let out = parse_variant str in assert_equal out var
-  with | InvalidVariant -> assert excn
+    (excn : bool) =
+  name >:: fun _ ->
+  try
+    let out = parse_variant str in
+    assert_equal out var
+  with InvalidVariant -> assert excn
 
-
-  let parse_rounds_test (name : string) (str : string) (rounds : rounds)
-    (excn : bool) = 
-  name >:: fun _ -> 
-    try let out = parse_rounds str in assert_equal out rounds
-  with | InvalidVariant -> assert excn
+let parse_rounds_test (name : string) (str : string) (rounds : rounds)
+    (excn : bool) =
+  name >:: fun _ ->
+  try
+    let out = parse_rounds str in
+    assert_equal out rounds
+  with InvalidVariant -> assert excn
 
 let parse_response_test (name : string) (str : string) (resp : response)
-  (excn : bool) = 
-  name >:: fun _ -> 
-    try let out = parse_response str in assert_equal out resp
-  with | InvalidResponse -> assert excn
+    (excn : bool) =
+  name >:: fun _ ->
+  try
+    let out = parse_response str in
+    assert_equal out resp
+  with InvalidResponse -> assert excn
+
+let string_of_variant_test (name : string) (v : variant)
+    (expected_output : string) (excn : bool) =
+  name >:: fun _ ->
+  try
+    let out = string_of_variant v in
+    assert_equal out expected_output
+  with InvalidResponse -> assert excn
 
 let en_passant_state1 =
   {
@@ -560,51 +575,63 @@ let check_tests =
       ];
   ]
 
-let command_tests = [
-
-  parse_move_test "Empty list input" [] (Resign) true false;
-  parse_move_test "Two element list input" ["pawn"; "e1"] (Resign) true false;
-  parse_move_test "Correct list input" ["pawn"; "e1"; "e2"] (Move (Pawn, ["e1"; "e2"])) false false;
-  parse_move_test "Incorrect square input" ["pawn"; "x1"; "e2"] (Move (Pawn, ["e1"; "e2"])) false true;
-
-  parse_test "Castle kingside" "castle kingside" White kingside_castle  (Move (King, ["e1"; "g1"])) false;
-  parse_test "Castle queenside" "castle queenside" White queenside_castle  (Move (King, ["e1"; "c1"])) false;
-  parse_test "Castle queenside spaces" "  castle    queenside  " White queenside_castle  (Move (King, ["e1"; "c1"])) false;
-  parse_test "Empty command" "" White queenside_castle  (Move (King, ["e1"; "c1"])) true;
-  parse_test "Move command" "move pawn e1 e2" White init_state  (Move (Pawn, ["e1"; "e2"])) false;
-  parse_test "Draw command" "draw asdf asdf" White init_state  (DrawOffer) false;
-  parse_test "Resign command" "resign asdf asdf" White init_state  (Resign) false;
-  parse_test "Invalid command" "asdf asdf" White init_state  (Resign) true;
-
-  parse_promotion_test "Promote to Queen" "Queen" Queen false;
-  parse_promotion_test "Promote to Pawn" "Pawn" Pawn true;
-  parse_promotion_test "Promote to Queen with spaces" "  Queen " Queen false;
-  parse_promotion_test "Promote to asdf" "asdf" Queen true;
- 
-  parse_variant_test "Fischer" "Fischer    Random" FischerRandom false;
-  parse_variant_test "Fischer lowercase" "fischer random" FischerRandom true;
-  parse_variant_test "Standard" " Standard " Standard false;
-  parse_variant_test "KOTH" " KOTH " KingOfTheHill false;
-
-
-  parse_rounds_test "Single" "single" (BestOf 1) false;
-  parse_rounds_test "Single case" "SiNgLe" (BestOf 1) false;
-  parse_rounds_test "Best of non-int" "bet of d" (BestOf 1) true;
-  parse_rounds_test "Best of 3" "best of 3" (BestOf 3) false;
-
-
-  parse_response_test "Empty response" "" No true;
-  parse_response_test "Many word response" "a b c d " No true;
-  parse_response_test "yes response" "y" Yes false;
-  parse_response_test "no response" "n"  No false;
-  parse_response_test "no response case" "N"  No false;
-
+let command_tests =
+  [
+    parse_move_test "Empty list input" [] Resign true false;
+    parse_move_test "Two element list input" [ "pawn"; "e1" ] Resign true false;
+    parse_move_test "Correct list input" [ "pawn"; "e1"; "e2" ]
+      (Move (Pawn, [ "e1"; "e2" ]))
+      false false;
+    parse_move_test "Incorrect square input" [ "pawn"; "x1"; "e2" ]
+      (Move (Pawn, [ "e1"; "e2" ]))
+      false true;
+    parse_test "Castle kingside" "castle kingside" White kingside_castle
+      (Move (King, [ "e1"; "g1" ]))
+      false;
+    parse_test "Castle queenside" "castle queenside" White queenside_castle
+      (Move (King, [ "e1"; "c1" ]))
+      false;
+    parse_test "Castle queenside spaces" "  castle    queenside  " White
+      queenside_castle
+      (Move (King, [ "e1"; "c1" ]))
+      false;
+    parse_test "Empty command" "" White queenside_castle
+      (Move (King, [ "e1"; "c1" ]))
+      true;
+    parse_test "Move command" "move pawn e1 e2" White init_state
+      (Move (Pawn, [ "e1"; "e2" ]))
+      false;
+    parse_test "Draw command" "draw asdf asdf" White init_state DrawOffer false;
+    parse_test "Resign command" "resign asdf asdf" White init_state Resign false;
+    parse_test "Invalid command" "asdf asdf" White init_state Resign true;
+    parse_promotion_test "Promote to Queen" "Queen" Queen false;
+    parse_promotion_test "Promote to Pawn" "Pawn" Pawn true;
+    parse_promotion_test "Promote to Queen with spaces" "  Queen " Queen false;
+    parse_promotion_test "Promote to asdf" "asdf" Queen true;
+    parse_variant_test "Fischer" "Fischer    Random" FischerRandom false;
+    parse_variant_test "Fischer lowercase" "fischer random" FischerRandom true;
+    parse_variant_test "Standard" " Standard " Standard false;
+    parse_variant_test "KOTH" " KOTH " KingOfTheHill false;
+    parse_rounds_test "Single" "single" (BestOf 1) false;
+    parse_rounds_test "Single case" "SiNgLe" (BestOf 1) false;
+    parse_rounds_test "Best of non-int" "bet of d" (BestOf 1) true;
+    parse_rounds_test "Best of 3" "best of 3" (BestOf 3) false;
+    parse_response_test "Empty response" "" No true;
+    parse_response_test "Many word response" "a b c d " No true;
+    parse_response_test "yes response" "y" Yes false;
+    parse_response_test "no response" "n" No false;
+    parse_response_test "no response case" "N" No false;
+    string_of_variant_test "standard string" Standard "Standard" false;
+    string_of_variant_test "3-check string" ThreeCheck "3-check" false;
+    string_of_variant_test "KOTH string" KingOfTheHill "King of the Hill" false;
+    string_of_variant_test "fischer random string" FischerRandom
+      "Fischer Random" false;
   ]
+
 let controller_tests = []
 
 let suite =
   "chess project test suite"
-  >::: List.flatten
-         [ check_tests; command_tests; controller_tests ]
+  >::: List.flatten [ check_tests; command_tests; controller_tests ]
 
 let _ = run_test_tt_main suite

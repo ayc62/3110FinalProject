@@ -7,7 +7,6 @@ exception InvalidResponse
 open Board
 open Check
 
-
 type command =
   | Move of piece_type * string list
   | Resign
@@ -55,7 +54,7 @@ let string_of_variant = function
   | FischerRandom -> "Fischer Random"
 
 let string_of_rounds = function
-  | BestOf i -> if i = 1 then "single" else "best of " ^ string_of_int i
+  | BestOf i -> if i = 1 then "Single" else "Best of " ^ string_of_int i
 
 let castled_square (color : piece_color) (is_kingside : bool) : string =
   match color with
