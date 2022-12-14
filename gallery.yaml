@@ -25,9 +25,7 @@ demo-video-url: ""
 # Write a short, attention-grabbing description of your project.
 desc: >
   Our project is a multiplayer chess interface. Currently, we have implemented 
-  a functional program for a simple game of chess. Two players are able to play
-  a game using the same computer. Moves will be inputted via text, and the 
-  output of the chessboard will be updated after each move. In the future, we 
-  have plans to implement various other variants of chess, including 3-Check
-  Chess, King of the Hill, Fischer Random, Horde, or other variants which you 
-  can select from in a main menu.
+  a functional program for a a game (or multiple) of chess. Two players are able 
+  to play a game using the same computer. Moves will be inputted via text, and 
+  the output of the chessboard will be updated after each move. We also support 
+  the following popular variants: 3-check, King of the Hill, and Fischer Random.
