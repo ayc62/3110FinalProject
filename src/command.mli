@@ -18,28 +18,30 @@ exception InvalidResponse
 (** Raised when user doesn't input a valid response to a draw offer from his
     opponent.*)
 
+(** type [command] represents a player command decomposed into either an
+    attempt at a move, an indication to resign, or a draw offer.*)
 type command =
   | Move of Board.piece_type * string list
   | Resign
   | DrawOffer
-      (** type [command] represents a player command decomposed into either an
-          attempt at a move, an indication to resign, or a draw offer.*)
-
+      
+ (** type [variant] represents the variant selected by the players at the
+    start of the game: one of Standard, 3-check, KOTH, or Fischer Random.*)
 type variant =
   | Standard
   | ThreeCheck
   | KingOfTheHill
   | FischerRandom
-      (** type [variant] represents the variant selected by the players at the
-          start of the game: one of Standard, 3-check, KOTH, or Fischer Random.*)
-
+     
+(** type [rounds] represents a best-of match between the players.*)
 type rounds =
   | BestOf of int
-      (** type [rounds] represents a best-of match between the players.*)
-
+      
+(** Represents the response to a draw offer. *)
 type response =
   | Yes
-  | No  (** Represents the response to a draw offer. *)
+  | No  
+
 
 val string_of_variant : variant -> string
 (** Returns a string representation of a variant.*)
