@@ -155,6 +155,20 @@ let string_of_variant_test (name : string) (v : variant)
     assert_equal out expected_output
   with InvalidResponse -> assert excn
 
+let string_of_rounds_test (name : string) (r : rounds)
+    (expected_output : string) (excn : bool) =
+  name >:: fun _ ->
+  try
+    let out = string_of_rounds r in
+    assert_equal out expected_output
+  with InvalidResponse -> assert excn
+
+let move_piece_test (name : string) (t : piece_type) (color : piece_color)
+    (orig_pos : string) (new_pos : string) (orig_state : state)
+    (expected_output : result) =
+  name >:: fun _ ->
+  assert_equal expected_output (move_piece t color orig_pos new_pos orig_state)
+
 let en_passant_state1 =
   {
     board =
@@ -241,6 +255,15 @@ let en_passant_state6 =
 let kingside_castle =
   {
     board = [ piece_helper "e1" King White; piece_helper "h1" Rook White ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let after_kingside_castle =
+  {
+    board = [ piece_helper "g1" King White; piece_helper "f1" Rook White ];
     old_boards = [];
     captured_pieces = [];
     fifty_move_rule = 0;
@@ -636,14 +659,21 @@ let command_tests =
     parse_response_test "yes response" "y" Yes false;
     parse_response_test "no response" "n" No false;
     parse_response_test "no response case" "N" No false;
+    parse_response_test "invalid response case" "screw u" No true;
     string_of_variant_test "standard string" Standard "Standard" false;
     string_of_variant_test "3-check string" ThreeCheck "3-check" false;
     string_of_variant_test "KOTH string" KingOfTheHill "King of the Hill" false;
     string_of_variant_test "fischer random string" FischerRandom
       "Fischer Random" false;
+    string_of_rounds_test "Single string" (BestOf 1) "Single" false;
+    string_of_rounds_test "multi-round string" (BestOf 3) "Best of 3" false;
   ]
 
-let controller_tests = []
+let controller_tests =
+  [
+    move_piece_test "Castling move piece" King White "e1" "g1" kingside_castle
+      (Legal after_kingside_castle);
+  ]
 
 let suite =
   "chess project test suite"
