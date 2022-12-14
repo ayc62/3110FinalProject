@@ -384,9 +384,8 @@ let rec get_variant () =
 
 let rec get_rounds () =
   ANSITerminal.print_string [ ANSITerminal.green ]
-    "How many rounds of the game would you like to play? Type 'Single' for 1 \
-     round, or 'Best of [int]' for multiple rounds. All options are \
-     case-sensitive.";
+    "How many rounds of the game would you like to play? Type 'single' for 1 \
+     round, or 'best of [int]' for multiple rounds.";
   print_endline "";
   print_string "> ";
   match read_line () with
@@ -421,7 +420,7 @@ let rec main () =
   get_rounds ();
   print_endline
     "To make a move on the chessboard, enter 'move [piece name] [starting \
-     square] [ending square]', such as 'move Pawn e2 e4'.";
+     square] [ending square]', such as 'move pawn e2 e4'.";
   print_endline
     "To castle either kingside or queenside, type 'castle kingside' or 'castle \
      queenside'.";
@@ -430,8 +429,6 @@ let rec main () =
      will prompt for a response from the other player.";
   print_endline
     "Finally, entering [ctrl-c] at any point will abort the program.";
-  ANSITerminal.print_string [ ANSITerminal.green ]
-    "Note that all keywords are case-sensitive!";
   print_endline "";
   let new_state = gen_new_fischer true in
   if !variant_selected = FischerRandom then
