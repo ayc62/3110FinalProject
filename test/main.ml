@@ -138,7 +138,7 @@ let parse_response_test (name : string) (str : string) (resp : response)
   (excn : bool) = 
   name >:: fun _ -> 
     try let out = parse_response str in assert_equal out resp
-  with | InvalidVariant -> assert excn
+  with | InvalidResponse -> assert excn
 
 let en_passant_state1 =
   {
@@ -561,7 +561,7 @@ let check_tests =
   ]
 
 let command_tests = [
-  
+
   parse_move_test "Empty list input" [] (Resign) true false;
   parse_move_test "Two element list input" ["pawn"; "e1"] (Resign) true false;
   parse_move_test "Correct list input" ["pawn"; "e1"; "e2"] (Move (Pawn, ["e1"; "e2"])) false false;
