@@ -214,7 +214,10 @@ and match_result (result : result) (color : piece_color) (state : state) =
             if !num_games = 1 then
               ANSITerminal.print_string [ ANSITerminal.cyan ]
                 "White wins! Thanks for playing!\n"
-            else print_score color;
+            else (
+              if color = White then white_score := !white_score +. 1.
+              else black_score := !black_score +. 1.;
+              print_score color);
             if not !is_won then get_new_player_move White init_state)
         end
         else begin
@@ -223,9 +226,10 @@ and match_result (result : result) (color : piece_color) (state : state) =
             if !num_games = 1 then
               ANSITerminal.print_string [ ANSITerminal.cyan ]
                 "White wins! Thanks for playing!\n"
-            else if color = White then white_score := !white_score +. 1.
-            else black_score := !black_score +. 1.;
-            print_score color;
+            else (
+              if color = White then white_score := !white_score +. 1.
+              else black_score := !black_score +. 1.;
+              print_score color);
             if not !is_won then get_new_player_move White init_state)
         end;
       if !variant_selected = KingOfTheHill then
@@ -400,6 +404,9 @@ let rec main () =
   white_score := 0.;
   black_score := 0.;
   games_played := 0;
+  check_counter_black := 0;
+  check_counter_black := 0;
+  num_games := 1;
   is_won := false;
   ANSITerminal.print_string [ ANSITerminal.green ]
     "Welcome to our CS 3110 Final Project, an implementation of chess in OCaml!";

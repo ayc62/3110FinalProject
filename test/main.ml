@@ -35,6 +35,9 @@ let kings_pawn =
   | Legal st -> st
   | _ -> init_state
 
+let is_square_test (name : string) (pos : string) (expected_output : bool) =
+  name >:: fun _ -> assert_equal expected_output (check_square pos)
+
 let is_horizontal_test (name : string) (orig_pos : string) (new_pos : string)
     (expected_output : bool) =
   name >:: fun _ ->
@@ -78,6 +81,13 @@ let check_castling_test (name : string) (color : piece_color)
 let check_check_test (name : string) (color : piece_color) (state : state)
     (expected_output : bool) =
   name >:: fun _ -> assert_equal expected_output (check_check color state)
+
+let check_piece_move_test (name : string) (piece : piece_type)
+    (color : piece_color) (orig_pos : string) (new_pos : string) (state : state)
+    (expected_output : bool) =
+  name >:: fun _ ->
+  assert_equal expected_output
+    (check_piece_move piece color orig_pos new_pos state)
 
 let possible_moves_test (name : string) (color : piece_color) (state : state)
     (expected_output : (Board.piece_type * string * string) list) =
@@ -274,18 +284,9 @@ let check_state2 =
     num_repetition = 1;
   }
 
-let possible_moves_knight =
+let possible_moves piece =
   {
-    board = [ piece_helper "e4" Knight White ];
-    old_boards = [];
-    captured_pieces = [];
-    fifty_move_rule = 0;
-    num_repetition = 1;
-  }
-
-let possible_moves_pawn_unmoved =
-  {
-    board = [ piece_helper "e4" Pawn White ];
+    board = [ piece_helper "e4" piece White ];
     old_boards = [];
     captured_pieces = [];
     fifty_move_rule = 0;
@@ -295,15 +296,6 @@ let possible_moves_pawn_unmoved =
 let possible_moves_pawn_moved =
   {
     board = [ piece_helper ~moved:true "e6" Pawn White ];
-    old_boards = [ possible_moves_pawn_unmoved.board ];
-    captured_pieces = [];
-    fifty_move_rule = 0;
-    num_repetition = 1;
-  }
-
-let possible_moves_king =
-  {
-    board = [ piece_helper "e4" King White ];
     old_boards = [];
     captured_pieces = [];
     fifty_move_rule = 0;
@@ -324,27 +316,9 @@ let possible_moves_king_restricted =
     num_repetition = 1;
   }
 
-let possible_moves_queen =
+let possible_attack piece pos1 pos2 =
   {
-    board = [ piece_helper "e4" Queen White ];
-    old_boards = [];
-    captured_pieces = [];
-    fifty_move_rule = 0;
-    num_repetition = 1;
-  }
-
-let possible_moves_bishop =
-  {
-    board = [ piece_helper "e4" Bishop White ];
-    old_boards = [];
-    captured_pieces = [];
-    fifty_move_rule = 0;
-    num_repetition = 1;
-  }
-
-let possible_moves_rook =
-  {
-    board = [ piece_helper "e4" Rook White ];
+    board = [ piece_helper pos1 piece White; piece_helper pos2 Pawn Black ];
     old_boards = [];
     captured_pieces = [];
     fifty_move_rule = 0;
@@ -353,6 +327,8 @@ let possible_moves_rook =
 
 let check_tests =
   [
+    is_square_test "not a square" "a" false;
+    is_square_test "not a square 2" "a9" false;
     is_horizontal_test "a3 and g3 are in the same row" "a3" "g3" true;
     is_horizontal_test "a3 and c5 are not in the same row" "a3" "c5" false;
     check_horizontal_test "board setup has no pieces b/t a3 and c3" "a3" "b3"
@@ -409,7 +385,39 @@ let check_tests =
       false;
     check_check_test "black check" Black check_state1 true;
     check_check_test "black and white check" Black check_state2 true;
-    possible_moves_test "knight moves" White possible_moves_knight
+    check_piece_move_test "pawn valid move" Pawn White "e4" "e6"
+      (possible_moves Pawn) true;
+    check_piece_move_test "pawn invalid move" Pawn White "e4" "e6"
+      possible_moves_pawn_moved false;
+    check_piece_move_test "knight invalid move" Knight White "e4" "a7"
+      (possible_moves Knight) false;
+    check_piece_move_test "rook invalid move" Rook White "e4" "a7"
+      (possible_moves Rook) false;
+    check_piece_move_test "bishop invalid move" Bishop White "e4" "a7"
+      (possible_moves Bishop) false;
+    check_piece_move_test "queen invalid move" Queen White "e4" "a7"
+      (possible_moves Queen) false;
+    check_piece_move_test "king invalid move" King White "e4" "a7"
+      (possible_moves King) false;
+    check_piece_move_test "pawn valid attack" Pawn White "e4" "f5"
+      (possible_attack Pawn "e4" "f5")
+      true;
+    check_piece_move_test "king valid attack" King White "e4" "f5"
+      (possible_attack King "e4" "f5")
+      true;
+    check_piece_move_test "bishop valid attack" Bishop White "e4" "f5"
+      (possible_attack Bishop "e4" "f5")
+      true;
+    check_piece_move_test "queen valid attack" Queen White "e4" "f5"
+      (possible_attack Queen "e4" "f5")
+      true;
+    check_piece_move_test "rook valid attack" Rook White "e5" "f5"
+      (possible_attack Rook "e5" "f5")
+      true;
+    check_piece_move_test "rook invalid attack" Rook White "e5" "a7"
+      (possible_attack Rook "e5" "a7")
+      false;
+    possible_moves_test "knight moves" White (possible_moves Knight)
       [
         (Knight, "e4", "c5");
         (Knight, "e4", "c3");
@@ -420,11 +428,11 @@ let check_tests =
         (Knight, "e4", "g3");
         (Knight, "e4", "g5");
       ];
-    possible_moves_test "unmoved pawn moves" White possible_moves_pawn_unmoved
+    possible_moves_test "unmoved pawn moves" White (possible_moves Pawn)
       [ (Pawn, "e4", "e5"); (Pawn, "e4", "e6") ];
     possible_moves_test "moved pawn moves" White possible_moves_pawn_moved
       [ (Pawn, "e6", "e7") ];
-    possible_moves_test "king moves" White possible_moves_king
+    possible_moves_test "king moves" White (possible_moves King)
       [
         (King, "e4", "d3");
         (King, "e4", "e3");
@@ -443,7 +451,7 @@ let check_tests =
         (King, "f3", "e4");
         (King, "f3", "g4");
       ];
-    possible_moves_test "bishop moves" White possible_moves_bishop
+    possible_moves_test "bishop moves" White (possible_moves Bishop)
       [
         (Bishop, "e4", "d3");
         (Bishop, "e4", "c2");
@@ -459,7 +467,7 @@ let check_tests =
         (Bishop, "e4", "b7");
         (Bishop, "e4", "a8");
       ];
-    possible_moves_test "rook moves" White possible_moves_rook
+    possible_moves_test "rook moves" White (possible_moves Rook)
       [
         (Rook, "e4", "e3");
         (Rook, "e4", "e2");
@@ -476,7 +484,7 @@ let check_tests =
         (Rook, "e4", "g4");
         (Rook, "e4", "h4");
       ];
-    possible_moves_test "queen moves" White possible_moves_queen
+    possible_moves_test "queen moves" White (possible_moves Queen)
       [
         (Queen, "e4", "a8");
         (Queen, "e4", "b7");
