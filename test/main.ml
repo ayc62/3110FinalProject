@@ -579,8 +579,23 @@ let command_tests =
   [
     parse_move_test "Empty list input" [] Resign true false;
     parse_move_test "Two element list input" [ "pawn"; "e1" ] Resign true false;
-    parse_move_test "Correct list input" [ "pawn"; "e1"; "e2" ]
+    parse_move_test "Correct list input pawn" [ "pawn"; "e1"; "e2" ]
       (Move (Pawn, [ "e1"; "e2" ]))
+      false false;
+    parse_move_test "Correct list input knight" [ "knight"; "e1"; "f3" ]
+      (Move (Knight, [ "e1"; "f3" ]))
+      false false;
+    parse_move_test "Correct list input rook" [ "rook"; "a1"; "a5" ]
+      (Move (Rook, [ "a1"; "a5" ]))
+      false false;
+    parse_move_test "Correct list input bishop" [ "bishop"; "a1"; "d4" ]
+      (Move (Bishop, [ "a1"; "d4" ]))
+      false false;
+    parse_move_test "Correct list input queen" [ "queen"; "a1"; "d4" ]
+      (Move (Queen, [ "a1"; "d4" ]))
+      false false;
+    parse_move_test "Correct list input King" [ "king"; "a1"; "b1" ]
+      (Move (King, [ "a1"; "b1" ]))
       false false;
     parse_move_test "Incorrect square input" [ "pawn"; "x1"; "e2" ]
       (Move (Pawn, [ "e1"; "e2" ]))
