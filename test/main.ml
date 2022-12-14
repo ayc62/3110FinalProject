@@ -5,7 +5,30 @@ open Check
 open Command
 open Controller
 
-(* *)
+(* Testing plan: OUnit tests were mainly geared towards testing the logic behind
+   chess, and making sure that all the rules of chess are being followed.
+
+   Our testing scheme is as such: testing check.ml and command.ml using OUnit
+   tests, and test controller.ml and board.ml manually. This is because the 4
+   modules that we had were quite clearly divided into 2 different areas: chess
+   logic, and game functionality. check.ml was the main portion of where the
+   chess logic lie, so we tested that using OUnit; command.ml was a hybrid of
+   both chess logic and game functionality, so we also used OUnit testing for
+   that. We wrote test cases to test the "major" functions exposed in the .mli
+   files, but internally, those "major" functions call all helper functions in
+   the .ml file, so verifying that the major functions are correct proves also
+   that all helper functions are correct, and thus the entire program is corect.
+   Test cases were developed via glass-box testing, and we made sure to get at
+   least 90% code coverage on both check.ml and command.ml.
+
+   We manually tested controller.ml, because testing that would require
+   knowledge of the entire board and the history of the boards, which is hard
+   and very lengthy to test using OUnit. Furthermore, it calls functions in
+   check.ml, meaning that if check.ml is correct (via OUnit glass-box testing),
+   then controller.ml must also be correct. We manually verified this through
+   playing many rounds/games of chess. We also manually tested board.ml; since
+   Fischer Random generates a randomized board, it's very difficult to write any
+   meaningful tests for it, so we manually tested that.*)
 
 let cmp_set_like_lists lst1 lst2 =
   let uniq1 = List.sort_uniq compare lst1 in
@@ -252,7 +275,7 @@ let en_passant_state6 =
     num_repetition = 1;
   }
 
-let kingside_castle =
+let kingside_castle_white =
   {
     board = [ piece_helper "e1" King White; piece_helper "h1" Rook White ];
     old_boards = [];
@@ -261,18 +284,27 @@ let kingside_castle =
     num_repetition = 1;
   }
 
-let after_kingside_castle =
+let kingside_castle_black =
   {
-    board = [ piece_helper "g1" King White; piece_helper "f1" Rook White ];
+    board = [ piece_helper "e8" King Black; piece_helper "h8" Rook Black ];
     old_boards = [];
     captured_pieces = [];
     fifty_move_rule = 0;
     num_repetition = 1;
   }
 
-let queenside_castle =
+let queenside_castle_white =
   {
     board = [ piece_helper "e1" King White; piece_helper "a1" Rook White ];
+    old_boards = [];
+    captured_pieces = [];
+    fifty_move_rule = 0;
+    num_repetition = 1;
+  }
+
+let queenside_castle_black =
+  {
+    board = [ piece_helper "e8" King Black; piece_helper "a8" Rook Black ];
     old_boards = [];
     captured_pieces = [];
     fifty_move_rule = 0;
@@ -453,8 +485,10 @@ let check_tests =
       false;
     check_en_passant_test "invalid en passant 2" White "f2" "e3"
       en_passant_state6 false;
-    check_castling_test "kingside castle" White "e1" "g1" kingside_castle true;
-    check_castling_test "queenside castle" White "e1" "c1" queenside_castle true;
+    check_castling_test "kingside castle" White "e1" "g1" kingside_castle_white
+      true;
+    check_castling_test "queenside castle" White "e1" "c1"
+      queenside_castle_white true;
     check_castling_test "castling with piece in between" White "e1" "g1"
       invalid_castle1 false;
     check_castling_test "castling when check" White "e1" "g1" invalid_castle2
@@ -623,17 +657,31 @@ let command_tests =
     parse_move_test "Incorrect square input" [ "pawn"; "x1"; "e2" ]
       (Move (Pawn, [ "e1"; "e2" ]))
       false true;
-    parse_test "Castle kingside" "castle kingside" White kingside_castle
+    parse_move_test "bad move" [ "foo" ]
+      (Move (Pawn, [ "e1"; "e2" ]))
+      true false;
+    parse_move_test "invalid command"
+      [ "screw"; "this"; "3110"; "project" ]
+      (Move (Pawn, [ "e1"; "e2" ]))
+      true false;
+    parse_test "Castle kingside" "castle kingside" White kingside_castle_white
       (Move (King, [ "e1"; "g1" ]))
       false;
-    parse_test "Castle queenside" "castle queenside" White queenside_castle
+    parse_test "Castle queenside" "castle queenside" White
+      queenside_castle_white
       (Move (King, [ "e1"; "c1" ]))
+      false;
+    parse_test "Castle kingside" "castle kingside" Black kingside_castle_black
+      (Move (King, [ "e8"; "g8" ]))
+      false;
+    parse_test "Castle kingside" "castle queenside" Black queenside_castle_black
+      (Move (King, [ "e8"; "c8" ]))
       false;
     parse_test "Castle queenside spaces" "  castle    queenside  " White
-      queenside_castle
+      queenside_castle_white
       (Move (King, [ "e1"; "c1" ]))
       false;
-    parse_test "Empty command" "" White queenside_castle
+    parse_test "Empty command" "" White queenside_castle_white
       (Move (King, [ "e1"; "c1" ]))
       true;
     parse_test "Move command" "move pawn e1 e2" White init_state
@@ -650,6 +698,7 @@ let command_tests =
     parse_variant_test "Fischer lowercase" "fischer random" FischerRandom true;
     parse_variant_test "Standard" " Standard " Standard false;
     parse_variant_test "KOTH" " KOTH " KingOfTheHill false;
+    parse_variant_test "Ficsher Random" " Fischer Random " FischerRandom false;
     parse_rounds_test "Single" "single" (BestOf 1) false;
     parse_rounds_test "Single case" "SiNgLe" (BestOf 1) false;
     parse_rounds_test "Best of non-int" "bet of d" (BestOf 1) true;
@@ -660,6 +709,7 @@ let command_tests =
     parse_response_test "no response" "n" No false;
     parse_response_test "no response case" "N" No false;
     parse_response_test "invalid response case" "screw u" No true;
+    parse_response_test "invalid response case" "damnit" No true;
     string_of_variant_test "standard string" Standard "Standard" false;
     string_of_variant_test "3-check string" ThreeCheck "3-check" false;
     string_of_variant_test "KOTH string" KingOfTheHill "King of the Hill" false;
@@ -669,14 +719,7 @@ let command_tests =
     string_of_rounds_test "multi-round string" (BestOf 3) "Best of 3" false;
   ]
 
-let controller_tests =
-  [
-    move_piece_test "Castling move piece" King White "e1" "g1" kingside_castle
-      (Legal after_kingside_castle);
-  ]
-
 let suite =
-  "chess project test suite"
-  >::: List.flatten [ check_tests; command_tests; controller_tests ]
+  "chess project test suite" >::: List.flatten [ check_tests; command_tests ]
 
 let _ = run_test_tt_main suite
