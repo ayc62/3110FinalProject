@@ -28,10 +28,6 @@ let castle color orig_pos new_pos state board =
           :: piece_helper ~moved:true new_rook_pos Rook color
           :: (board |> List.remove_assoc pos |> List.remove_assoc new_rook_pos))
 
-(** [update_board_state piece color orig_pos new_pos state board] removes piece
-    [piece] with color [color] that moves from position [orig_pos] to position
-    [new_pos] in the state [state]. [board] is the board that will be changed
-    and returned*)
 let update_board_state piece color orig_pos new_pos (state : state) board =
   let updated_state =
     match board |> List.assoc_opt new_pos with
@@ -84,7 +80,7 @@ let update_board_state piece color orig_pos new_pos (state : state) board =
       :: (updated_state |> get_board |> List.remove_assoc orig_pos);
   }
 
-(*[equal_board_state board1 board2] checks to see if board1 is equal to board2*)
+(**[equal_board_state board1 board2] checks to see if board1 is equal to board2*)
 let rec equal_board_state board1 board2 =
   match board2 with
   | [] -> true

@@ -9,17 +9,17 @@ open Controller
    chess, and making sure that all the rules of chess are being followed.
 
    Our testing scheme is as such: testing check.ml and command.ml using OUnit
-   tests, and test controller.ml and board.ml manually. This is because the 4
-   modules that we had were quite clearly divided into 2 different areas: chess
-   logic, and game functionality. check.ml was the main portion of where the
-   chess logic lie, so we tested that using OUnit; command.ml was a hybrid of
-   both chess logic and game functionality, so we also used OUnit testing for
-   that. We wrote test cases to test the "major" functions exposed in the .mli
-   files, but internally, those "major" functions call all helper functions in
-   the .ml file, so verifying that the major functions are correct proves also
-   that all helper functions are correct, and thus the entire program is corect.
-   Test cases were developed via glass-box testing, and we made sure to get at
-   least 90% code coverage on both check.ml and command.ml.
+   tests, and test controller.ml, board.ml, and printboard.ml manually. This 
+   is because the 5 modules that we had were quite clearly divided into 2 
+   different areas: chess logic, and game functionality/appearance. check.ml was the 
+   main portion of where the chess logic lie, so we tested that using OUnit; 
+   command.ml was a hybrid of both chess logic and game functionality, so we 
+   also used OUnit testing for that. We wrote test cases to test the "major" 
+   functions exposed in the .mli files, but internally, those "major" functions 
+   call all helper functions in the .ml file, so verifying that the major functions 
+   are correct proves also that all helper functions are correct, and thus the 
+   entire program is corect. Test cases were developed via glass-box testing, 
+   and we made sure to get at least 90% code coverage on both check.ml and command.ml.
 
    We manually tested controller.ml, because testing that would require
    knowledge of the entire board and the history of the boards, which is hard
