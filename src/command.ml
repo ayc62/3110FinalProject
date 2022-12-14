@@ -133,7 +133,6 @@ let parse_response str =
     str |> String.split_on_char ' '
     |> List.filter (fun x -> String.length x > 0)
     |> List.map String.lowercase_ascii
-
   with
   | [ h ] -> response_match h
   | _ -> raise InvalidResponse
